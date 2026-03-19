@@ -2,6 +2,11 @@ package com.banking.customer.domain.entity;
 
 import com.banking.customer.domain.embeddable.Address;
 import com.banking.customer.domain.embeddable.AuditFields;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.banking.customer.domain.embeddable.PhoneNumber;
 import com.banking.customer.domain.enums.CustomerStatus;
 import com.banking.customer.domain.enums.CustomerType;
@@ -11,6 +16,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "customers")
+@EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "customer_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Customer {
@@ -123,5 +129,20 @@ public abstract class Customer {
 
     public AuditFields getAuditFields() {
         return auditFields;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (auditFields == null) {
+            auditFields = new AuditFields("SYSTEM");
+        }
+        auditFields.setUpdatedBy("SYSTEM");
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        if (auditFields != null) {
+            auditFields.setUpdatedBy("SYSTEM");
+        }
     }
 }

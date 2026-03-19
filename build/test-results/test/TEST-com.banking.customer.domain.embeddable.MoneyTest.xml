@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.banking.customer.domain.embeddable.MoneyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-03-19T07:42:46" hostname="Mac" time="0.014">
+<testsuite name="com.banking.customer.domain.embeddable.MoneyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-03-19T07:48:25" hostname="Mac" time="0.015">
   <properties/>
   <testcase name="shouldPreserveCurrencyOnMultiply()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.006"/>
-  <testcase name="shouldMultiplyMoney()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.001"/>
+  <testcase name="shouldMultiplyMoney()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
   <testcase name="shouldApplyBankersRoundingUpForOddHalf()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
   <testcase name="shouldApplyBankersRoundingForHalfEven()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
-  <testcase name="shouldDivideMoney()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
+  <testcase name="shouldDivideMoney()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.001"/>
   <testcase name="shouldSubtractMoneyWithSameCurrency()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
-  <testcase name="shouldApplyBankersRoundingDownForExactHalf()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.001"/>
-  <testcase name="shouldHandleZeroAmount()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
+  <testcase name="shouldApplyBankersRoundingDownForExactHalf()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
+  <testcase name="shouldHandleZeroAmount()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.001"/>
   <testcase name="shouldAddMoneyWithSameCurrency()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.0"/>
-  <testcase name="shouldThrowExceptionForCurrencyMismatch()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.002"/>
+  <testcase name="shouldThrowExceptionForCurrencyMismatch()" classname="com.banking.customer.domain.embeddable.MoneyTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
