@@ -21,7 +21,12 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <Sider width={200} className="sidebar">
+    <Sider
+      width={200}
+      collapsible
+      breakpoint="lg"
+      className="sidebar"
+    >
       <Menu
         mode="inline"
         selectedKeys={[location.pathname]}

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout';
 import { ConfigProvider } from 'antd';
+import DashboardPage from '@/pages/DashboardPage';
 import {
   CustomerListPage,
   CustomerDetailPage,
@@ -17,7 +18,7 @@ function App() {
       <AppLayout>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<div>Dashboard</div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/customers" element={<CustomerListPage />} />
           <Route path="/customers/new" element={<IndividualCustomerForm />} />
           <Route path="/customers/new/corporate" element={<CorporateCustomerForm />} />

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { CustomerVariant } from '@/types';
 import { customerService } from '@/services/customerService';
+import { demoCustomers } from '@/data/demoCustomers';
 
 interface CustomerState {
   customers: CustomerVariant[];
@@ -10,7 +11,7 @@ interface CustomerState {
 }
 
 const initialState: CustomerState = {
-  customers: [],
+  customers: demoCustomers,  // Use demo data as initial state
   selectedCustomer: null,
   loading: false,
   error: null,
@@ -19,14 +20,24 @@ const initialState: CustomerState = {
 export const fetchCustomers = createAsyncThunk<CustomerVariant[], void>(
   'customer/fetchAll',
   async () => {
-    return customerService.getAll();
+    try {
+      return await customerService.getAll();
+    } catch {
+      // Return demo data if API fails
+      return demoCustomers;
+    }
   }
 );
 
 export const fetchCustomerById = createAsyncThunk<CustomerVariant, number>(
   'customer/fetchById',
   async (id) => {
-    return customerService.getById(id);
+    try {
+      return await customerService.getById(id);
+    } catch {
+      // Return demo data if API fails
+      return demoCustomers.find(c => c.id === id) || demoCustomers[0];
+    }
   }
 );
 
