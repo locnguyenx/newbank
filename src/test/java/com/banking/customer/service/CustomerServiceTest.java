@@ -271,6 +271,189 @@ class CustomerServiceTest {
         }
     }
 
+    @Test
+    void shouldSearchCustomersByStatus() {
+        CustomerSearchCriteria criteria = new CustomerSearchCriteria();
+        criteria.setStatus(CustomerStatus.ACTIVE);
+        Pageable pageable = PageRequest.of(0, 10);
+        CorporateCustomer customer = createCorporateCustomer();
+        customer.setStatus(CustomerStatus.ACTIVE);
+        List<Customer> customers = new ArrayList<>();
+        customers.add(customer);
+        Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+
+        when(customerRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(customerPage);
+        when(customerMapper.toResponse(any())).thenReturn(expectedResponse);
+
+        Page<CustomerResponse> response = customerService.searchCustomers(criteria, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.getTotalElements());
+    }
+
+    @Test
+    void shouldSearchCustomersByType() {
+        CustomerSearchCriteria criteria = new CustomerSearchCriteria();
+        criteria.setType(CustomerType.CORPORATE);
+        Pageable pageable = PageRequest.of(0, 10);
+        CorporateCustomer customer = createCorporateCustomer();
+        List<Customer> customers = new ArrayList<>();
+        customers.add(customer);
+        Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+
+        when(customerRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(customerPage);
+        when(customerMapper.toResponse(any())).thenReturn(expectedResponse);
+
+        Page<CustomerResponse> response = customerService.searchCustomers(criteria, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.getTotalElements());
+    }
+
+    @Test
+    void shouldSearchCustomersWithMultipleFilters() {
+        CustomerSearchCriteria criteria = new CustomerSearchCriteria();
+        criteria.setName("Test");
+        criteria.setStatus(CustomerStatus.PENDING);
+        criteria.setType(CustomerType.CORPORATE);
+        Pageable pageable = PageRequest.of(0, 10);
+        CorporateCustomer customer = createCorporateCustomer();
+        List<Customer> customers = new ArrayList<>();
+        customers.add(customer);
+        Page<Customer> customerPage = new PageImpl<>(customers, pageable, customers.size());
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+
+        when(customerRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(customerPage);
+        when(customerMapper.toResponse(any())).thenReturn(expectedResponse);
+
+        Page<CustomerResponse> response = customerService.searchCustomers(criteria, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.getTotalElements());
+    }
+
+    @Test
+    void shouldUpdateCustomerWithTaxIdChange() {
+        Long customerId = 1L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("Updated Name");
+        request.setTaxId("NEW-TAX-ID");
+        
+        CorporateCustomer existingCustomer = createCorporateCustomer();
+        existingCustomer.setTaxId("OLD-TAX-ID");
+        
+        CorporateCustomer updatedCustomer = createCorporateCustomer();
+        updatedCustomer.setName("Updated Name");
+        updatedCustomer.setTaxId("NEW-TAX-ID");
+        
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+        expectedResponse.setName("Updated Name");
+        expectedResponse.setTaxId("NEW-TAX-ID");
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.findByTaxId("NEW-TAX-ID")).thenReturn(Optional.empty());
+        when(customerRepository.save(any())).thenReturn(updatedCustomer);
+        when(customerMapper.toResponse(any())).thenReturn(expectedResponse);
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        assertNotNull(response);
+        assertEquals("Updated Name", response.getName());
+        assertEquals("NEW-TAX-ID", response.getTaxId());
+        verify(customerRepository).save(any(Customer.class));
+    }
+
+    @Test
+    void shouldThrowDuplicateCustomerExceptionWhenUpdatingTaxIdToExisting() {
+        Long customerId = 1L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("Updated Name");
+        request.setTaxId("EXISTING-TAX-ID");
+        
+        CorporateCustomer existingCustomer = createCorporateCustomer();
+        existingCustomer.setTaxId("OLD-TAX-ID");
+        
+        CorporateCustomer otherCustomer = new CorporateCustomer("CUST-20240101-999999", "Other Corp", CustomerStatus.PENDING);
+        otherCustomer.setId(2L);
+        otherCustomer.setTaxId("EXISTING-TAX-ID");
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.findByTaxId("EXISTING-TAX-ID")).thenReturn(Optional.of(otherCustomer));
+
+        assertThrows(DuplicateCustomerException.class, () -> customerService.updateCustomer(customerId, request));
+        verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldNotValidateTaxIdWhenNotChanged() {
+        Long customerId = 1L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("Updated Name");
+        request.setTaxId("12345678");
+        
+        CorporateCustomer existingCustomer = createCorporateCustomer();
+        existingCustomer.setTaxId("12345678");
+        
+        CorporateCustomer updatedCustomer = createCorporateCustomer();
+        updatedCustomer.setName("Updated Name");
+        
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+        expectedResponse.setName("Updated Name");
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.save(any())).thenReturn(updatedCustomer);
+        when(customerMapper.toResponse(any())).thenReturn(expectedResponse);
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        assertNotNull(response);
+        verify(customerRepository, never()).findByTaxId(any());
+    }
+
+    @Test
+    void shouldSearchCustomersReturnsEmptyPage() {
+        CustomerSearchCriteria criteria = new CustomerSearchCriteria();
+        criteria.setName("NonExistent");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Customer> emptyPage = new PageImpl<>(new ArrayList<>(), pageable, 0);
+
+        when(customerRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(emptyPage);
+
+        Page<CustomerResponse> response = customerService.searchCustomers(criteria, pageable);
+
+        assertNotNull(response);
+        assertEquals(0, response.getTotalElements());
+    }
+
+    @Test
+    void shouldValidateCustomerNumberUniqueness() {
+        CreateCorporateCustomerRequest request = createCorporateRequest();
+        Customer existingCustomer = createCorporateCustomer();
+
+        when(customerRepository.findByTaxId(request.getTaxId())).thenReturn(Optional.of(existingCustomer));
+
+        assertThrows(DuplicateCustomerException.class, () -> customerService.createCorporate(request));
+    }
+
+    @Test
+    void shouldHandleNullTaxIdInValidation() {
+        CreateCorporateCustomerRequest request = createCorporateRequest();
+        request.setTaxId(null);
+        CorporateCustomer savedCustomer = createCorporateCustomer();
+        CustomerResponse expectedResponse = createCustomerResponse(CustomerType.CORPORATE);
+
+        when(customerMapper.toCorporateEntity(any(), any())).thenReturn(savedCustomer);
+        when(customerRepository.save(any())).thenReturn(savedCustomer);
+        when(customerMapper.toResponse(savedCustomer)).thenReturn(expectedResponse);
+
+        CustomerResponse response = customerService.createCorporate(request);
+
+        assertNotNull(response);
+        verify(customerRepository, never()).findByTaxId(any());
+    }
+
     private CreateCorporateCustomerRequest createCorporateRequest() {
         CreateCorporateCustomerRequest request = new CreateCorporateCustomerRequest();
         request.setName("Test Corp");

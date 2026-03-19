@@ -72,6 +72,12 @@ public class CustomerService {
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(id)
             .orElseThrow(() -> new CustomerNotFoundException(id));
+        
+        if (request.getTaxId() != null && !request.getTaxId().equals(customer.getTaxId())) {
+            validateUniqueness(request.getTaxId(), null);
+            customer.setTaxId(request.getTaxId());
+        }
+        
         customer.setName(request.getName());
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toResponse(savedCustomer);
