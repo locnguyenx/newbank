@@ -1,0 +1,20 @@
+[versions]
+spring-boot = "3.2.5"
+spring-dependency-management = "1.1.4"
+flyway = "10.10.0"
+lombok = "1.18.32"
+junit = "5.10.2"
+
+[libraries]
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring-boot" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "spring-boot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+postgresql = { module = "org.postgresql:postgresql", version = "42.7.3" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+h2 = { module = "com.h2database:h2", version = "2.2.224" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

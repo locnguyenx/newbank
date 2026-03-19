@@ -1,0 +1,14 @@
+module:
+  name: customer
+  package: com.banking.customer
+  description: Customer Management module for Corporate & SME Banking
+  version: 1.0.0
+
+database:
+  primary:
+    dialect: postgresql
+    schema: customer_db
+
+api:
+  version: v1
+  base-path: /api/v1/customers
