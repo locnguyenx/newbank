@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -158,11 +159,12 @@ class AuthorizationServiceTest {
     void shouldGetExpiringAuthorizations() {
         Customer customer = createCustomer(1L, "Test Corp");
         IndividualCustomer authorizedPerson = createIndividualCustomer(2L, "John Doe");
-        
+
         CustomerAuthorization expiringAuth = createAuthorization(1L, customer, authorizedPerson, RelationshipType.AUTHORIZED_SIGNATORY);
         expiringAuth.setExpirationDate(LocalDate.now().plusDays(5));
 
-        when(authorizationRepository.findAll()).thenReturn(Arrays.asList(expiringAuth));
+        when(authorizationRepository.findByStatusAndExpirationDateBefore(eq(AuthorizationStatus.ACTIVE), any(LocalDate.class)))
+            .thenReturn(Arrays.asList(expiringAuth));
 
         List<AuthorizationResponse> responses = authorizationService.getExpiringAuthorizations(30);
 

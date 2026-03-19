@@ -22,16 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
 
     private static final String CUSTOMER_NUMBER_PREFIX = "CUST";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final Random RANDOM = new Random();
-    private static final AtomicInteger counter = new AtomicInteger(100000);
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
@@ -119,12 +115,6 @@ public class CustomerService {
     }
 
     private String generateCustomerNumber() {
-        String datePart = LocalDate.now().format(DATE_FORMATTER);
-        int sequence = counter.getAndIncrement();
-        if (sequence > 999999) {
-            counter.set(100000);
-            sequence = counter.getAndIncrement();
-        }
-        return String.format("%s-%s-%06d", CUSTOMER_NUMBER_PREFIX, datePart, sequence);
+        return CUSTOMER_NUMBER_PREFIX + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

@@ -64,7 +64,7 @@ public class KYCController {
     @PostMapping("/{id}/approve")
     public ResponseEntity<KYCResponse> approveKYC(
             @PathVariable Long id,
-            @RequestBody ApproveKYCRequest request) {
+            @Valid @RequestBody ApproveKYCRequest request) {
         
         KYCCheck kycCheck = kycService.approveKYC(id, request.getOfficerId());
         KYCResponse response = toKYCResponse(kycCheck);

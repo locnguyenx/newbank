@@ -36,7 +36,7 @@ public class AuthorizationService {
         Customer customer = customerRepository.findById(customerId)
             .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
-        IndividualCustomer authorizedPerson = (IndividualCustomer) customerRepository.findById(request.getAuthorizedPersonId())
+        Customer authorizedPerson = customerRepository.findById(request.getAuthorizedPersonId())
             .orElseThrow(() -> new CustomerNotFoundException(request.getAuthorizedPersonId()));
 
         if (!(authorizedPerson instanceof IndividualCustomer)) {
@@ -112,23 +112,11 @@ public class AuthorizationService {
     @Transactional(readOnly = true)
     public List<AuthorizationResponse> getExpiringAuthorizations(int daysAhead) {
         LocalDate expirationThreshold = LocalDate.now().plusDays(daysAhead);
-        
-        List<CustomerAuthorization> allActive = authorizationRepository
-            .findByCustomerIdAndStatus(null, AuthorizationStatus.ACTIVE);
-        
-        if (allActive.isEmpty()) {
-            return authorizationRepository.findAll().stream()
-                .filter(a -> a.getStatus() == AuthorizationStatus.ACTIVE)
-                .filter(a -> a.getExpirationDate() != null)
-                .filter(a -> a.getExpirationDate().isBefore(expirationThreshold))
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-        }
-        
-        return authorizationRepository.findAll().stream()
-            .filter(a -> a.getStatus() == AuthorizationStatus.ACTIVE)
-            .filter(a -> a.getExpirationDate() != null)
-            .filter(a -> !a.getExpirationDate().isAfter(expirationThreshold))
+
+        List<CustomerAuthorization> expiring = authorizationRepository
+            .findByStatusAndExpirationDateBefore(AuthorizationStatus.ACTIVE, expirationThreshold);
+
+        return expiring.stream()
             .map(this::toResponse)
             .collect(Collectors.toList());
     }

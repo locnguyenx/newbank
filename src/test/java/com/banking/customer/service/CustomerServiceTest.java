@@ -238,7 +238,6 @@ class CustomerServiceTest {
         verify(customerMapper).toCorporateEntity(any(), customerNumberCaptor.capture());
         String generatedNumber = customerNumberCaptor.getValue();
         assertTrue(generatedNumber.startsWith("CUST-"));
-        assertEquals(20, generatedNumber.length());
     }
 
     @Test

@@ -34,17 +34,23 @@ public class EmploymentController {
     public ResponseEntity<EmploymentResponse> createEmployment(@Valid @RequestBody CreateEmploymentRequest request) {
         Customer employee = customerRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new CustomerNotFoundException(request.getEmployeeId()));
-        
+
+        if (!(employee instanceof IndividualCustomer)) {
+            throw new IllegalArgumentException("Employee must be an individual customer, got: " + employee.getClass().getSimpleName());
+        }
+
         Customer employer = customerRepository.findById(request.getEmployerId())
                 .orElseThrow(() -> new CustomerNotFoundException(request.getEmployerId()));
 
+        IndividualCustomer individualEmployee = (IndividualCustomer) employee;
+
         EmploymentRelationship details = new EmploymentRelationship(
-                (IndividualCustomer) employee, employer, request.getEmployeeNumber(),
+                individualEmployee, employer, request.getEmployeeNumber(),
                 request.getDepartment(), request.getPosition(), request.getStartDate(),
                 com.banking.customer.domain.enums.EmploymentStatus.ACTIVE);
 
         EmploymentRelationship created = employmentRelationshipService.createEmployment(
-                (IndividualCustomer) employee, employer, details);
+                individualEmployee, employer, details);
 
         EmploymentResponse response = toResponse(created);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
