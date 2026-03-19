@@ -52,6 +52,10 @@ public class KYCDocument {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public KYCCheck getKycCheck() {
         return kycCheck;
     }
