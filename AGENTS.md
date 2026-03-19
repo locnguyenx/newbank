@@ -6,156 +6,101 @@ This document provides instructions and guidelines for AI coding agents working 
 
 Modern digital banking system for corporate and SME banking, focusing on business accounts, cash management, and trade finance.
 
-## Essential Commands
+## Architecture
 
-### Project Setup
-```bash
-npm install
-cp .env.example .env
-```
+**Modular Monolith** - Single deployable unit with clear module boundaries. ACID transactions, simpler deployment than microservices.
 
-### Development & Testing
-```bash
-npm run dev                    # Start development server
-npm run build                  # Build for production
-npm test                       # Run all tests
-npm test -- path/to/file.test.ts  # Run single test file
-npm test -- -t "test name"     # Run single test by name
-```
+## Technology Stack
 
-### Linting & Formatting
-```bash
-npm run lint         # Check for errors
-npm run lint:fix     # Auto-fix errors
-npm run format       # Format with Prettier
-npm run typecheck    # TypeScript checking
-```
+| Layer | Technology |
+|-------|------------|
+| Backend | Java 17, Spring Boot 3.2 |
+| Build | Gradle (Kotlin DSL) |
+| Database | PostgreSQL |
+| Migrations | Flyway |
+| Frontend | React 18, TypeScript, Vite |
+| UI Library | Ant Design |
+| State | Redux Toolkit |
+
+## Commands
+
+- Build & test: `./gradlew build`
+- Dev server: `./gradlew bootRun` or `npm run dev`
+- Lint: `npm run lint`
 
 ## Code Style Guidelines
 
-### Imports
-```typescript
-import path from 'path';                          // 1. Node built-ins
-import express from 'express';                    // 2. External packages
-import { UserService } from '@/services/user';    // 3. Internal modules
-import type { User } from '@/types/user.types';   // 4. Types
-import { validate } from './validators';          // 5. Relative imports
+### Java Backend
+
+**Package structure:** `com.banking.<module>.<layer>`
+
+```
+src/main/java/com/banking/customer/
+├── domain/
+│   ├── entity/           # JPA entities
+│   ├── enums/            # Enumerations
+│   └── embeddable/       # Embeddable types
+├── repository/           # Data access
+├── service/              # Business logic
+├── controller/           # REST endpoints
+└── dto/                  # Data transfer objects
 ```
 
-### Naming Conventions
-- **Files**: `kebab-case.ts`
-- **Classes**: `UserService`
-- **Functions/Variables**: `camelCase`
-- **Constants**: `MAX_AMOUNT`
-- **Interfaces**: PascalCase, no `I` prefix
+**Naming:**
+- Classes: `PascalCase` (e.g., `CustomerService`)
+- Methods/variables: `camelCase`
+- Constants: `UPPER_SNAKE_CASE`
+- Interfaces: No `I` prefix (e.g., `CustomerRepository`, not `ICustomerRepository`)
 
-### TypeScript Guidelines
-```typescript
-// Explicit return types
-function calculateInterest(principal: number, rate: number): number {
-  return principal * rate;
-}
-
-// Interfaces for object shapes
-interface Account {
-  id: string;
-  balance: number;
-  currency: string;
-}
-
-// Type aliases for unions
-type AccountStatus = 'active' | 'frozen' | 'closed';
-```
-
-### Error Handling
-```typescript
-class BankingError extends Error {
-  constructor(message: string, public code: string, public statusCode = 500) {
-    super(message);
-  }
-}
-
-class InsufficientFundsError extends BankingError {
-  constructor(available: number, requested: number) {
-    super(`Insufficient funds: ${available} available, ${requested} requested`,
-      'INSUFFICIENT_FUNDS', 400);
-  }
+**Error handling:** Custom exceptions with error codes:
+```java
+public class CustomerNotFoundException extends RuntimeException {
+    public CustomerNotFoundException(String customerNumber) {
+        super("Customer not found: " + customerNumber);
+    }
 }
 ```
 
-### Testing Conventions
-```typescript
-describe('UserService', () => {
-  describe('createUser', () => {
-    it('should create a user with valid data', async () => {
-      const userData = { email: 'test@example.com', name: 'Test User' };
-      const user = await userService.createUser(userData);
-      expect(user.email).toBe(userData.email);
-    });
-  });
-});
-```
+**ID strategy:** Auto-increment BIGINT for all entities.
 
-## Commit Message Format
+### React Frontend
 
-Use conventional commits:
-```
-type(scope): description
-```
+**Imports order:**
+1. React / Node built-ins
+2. External packages
+3. Internal modules (`@/` aliases)
+4. Types (`import type`)
+5. Relative imports
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+**Files:** `kebab-case.tsx`
 
-Examples:
-- `feat(accounts): add multi-currency support`
-- `fix(transactions): correct rounding error`
-
-## Directory Structure
-
-```
-src/
-├── config/           # Configuration
-├── controllers/      # Request handlers
-├── middleware/        # Express middleware
-├── models/          # Database models
-├── repositories/    # Data access
-├── routes/          # API routes
-├── services/        # Business logic
-├── types/           # Type definitions
-└── utils/           # Utilities
-
-tests/
-├── unit/            # Unit tests
-├── integration/     # Integration tests
-└── e2e/             # End-to-end tests
-```
-
-## Superpowers Skills
-
-Before coding tasks, invoke relevant skills:
-- **brainstorming** - Design decisions
-- **writing-plans** - Implementation plans
-- **test-driven-development** - Write tests first
-- **systematic-debugging** - Bug investigation
-
-Use `skill` tool to load skills when needed.
+**Components:** Functional components with hooks, explicit return types.
 
 ## Banking-Specific Guidelines
 
 ### Money Handling
-- Use integer cents (minor units) internally
-- Never use floating point for amounts
-- Store currency code with every value
-- Use banker's rounding for conversions
+- Store amounts as `BigInteger` (minor units) or `java.math.BigDecimal`
+- Always store currency code with monetary values
+- Use banker's rounding for calculations
 
-### Transactions
-- All financial operations must be atomic
-- Implement idempotency keys
-- Log all transactions with audit trail
-- Support transaction rollback
+### Audit Trail
+- All entities include `AuditFields` embeddable
+- Track: createdAt, createdBy, updatedAt, updatedBy
 
-### Security & Compliance
-- Encrypt sensitive data at rest
-- Use parameterized queries
-- Implement rate limiting
-- Maintain immutable audit logs
-- Support regulatory data export
+### Error Codes
+- Use module prefix (e.g., `CUST-001` for customer errors)
+- Document in `docs/error-codes.md`
+
+## Git Workflow
+
+- Use **git worktrees** for isolated feature work
+- Worktrees are stored in `.worktrees/` directory
+- Never commit to main directly
+
+## Superpowers Skills
+
+Invoke relevant skills before coding tasks:
+- **brainstorming** - Design decisions, feature requirements
+- **writing-plans** - Implementation plans
+- **test-driven-development** - Write tests first
+- **systematic-debugging** - Bug investigation
