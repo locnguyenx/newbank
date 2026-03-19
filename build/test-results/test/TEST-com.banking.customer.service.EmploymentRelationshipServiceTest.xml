@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.banking.customer.service.EmploymentRelationshipServiceTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-03-19T08:27:06" hostname="Mac" time="0.186">
+<testsuite name="com.banking.customer.service.EmploymentRelationshipServiceTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-03-19T08:35:59" hostname="Mac" time="0.048">
   <properties/>
-  <testcase name="shouldThrowExceptionWhenEmployerIsNotCorporateOrSME()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.163"/>
-  <testcase name="shouldCreateEmploymentRelationshipWithSMEEmployer()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.005"/>
-  <testcase name="shouldHandleCSVWithWhitespace()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.004"/>
-  <testcase name="shouldCreateEmploymentRelationshipWithCorporateEmployer()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.002"/>
+  <testcase name="shouldThrowExceptionWhenEmployerIsNotCorporateOrSME()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.037"/>
+  <testcase name="shouldCreateEmploymentRelationshipWithSMEEmployer()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
+  <testcase name="shouldHandleCSVWithWhitespace()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
+  <testcase name="shouldCreateEmploymentRelationshipWithCorporateEmployer()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
   <testcase name="shouldSetEmploymentDetailsOnCreate()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
-  <testcase name="shouldNotTerminateAlreadyTerminatedEmployment()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.002"/>
-  <testcase name="shouldBulkUploadEmployeesSuccessfully()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.002"/>
+  <testcase name="shouldNotTerminateAlreadyTerminatedEmployment()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
+  <testcase name="shouldBulkUploadEmployeesSuccessfully()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
   <testcase name="shouldThrowExceptionWhenTerminatingNonExistentEmployment()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
-  <testcase name="shouldHandleEmptyCSVContent()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
-  <testcase name="shouldHandleBulkUploadWithPartialFailures()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.002"/>
+  <testcase name="shouldHandleEmptyCSVContent()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.0"/>
+  <testcase name="shouldHandleBulkUploadWithPartialFailures()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
   <testcase name="shouldTerminateEmploymentRelationship()" classname="com.banking.customer.service.EmploymentRelationshipServiceTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

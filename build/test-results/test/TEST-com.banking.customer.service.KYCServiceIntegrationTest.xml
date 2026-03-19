@@ -1,0 +1,1330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.banking.customer.service.KYCServiceIntegrationTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-03-19T08:35:58" hostname="Mac" time="0.446">
+  <properties/>
+  <testcase name="shouldScheduleReview()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.395"/>
+  <testcase name="shouldEnforceEnhancedKYCLevelDueDate()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.007"/>
+  <testcase name="shouldApproveKYC()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.007"/>
+  <testcase name="shouldEnforceStandardKYCLevelDueDate()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.004"/>
+  <testcase name="shouldThrowExceptionForNonExistentKYC()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.005"/>
+  <testcase name="shouldThrowExceptionForDuplicateKYCApproval()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.006"/>
+  <testcase name="shouldSubmitDocuments()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.005"/>
+  <testcase name="shouldSubmitForReview()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.005"/>
+  <testcase name="shouldInitiateKYC()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.005"/>
+  <testcase name="shouldRejectKYC()" classname="com.banking.customer.service.KYCServiceIntegrationTest" time="0.005"/>
+  <system-out><![CDATA[15:35:57.009 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.banking.customer.service.KYCServiceIntegrationTest]: KYCServiceIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:35:57.059 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.banking.customer.CustomerModuleApplication for test class com.banking.customer.service.KYCServiceIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-03-19T15:35:57.232+07:00  INFO 71233 --- [customer-module-test] [    Test worker] c.b.c.service.KYCServiceIntegrationTest  : Starting KYCServiceIntegrationTest using Java 21.0.6 with PID 71233 (started by me in /Users/me/myprojects/opencode-superpowers/.worktrees/foundation)
+2026-03-19T15:35:57.232+07:00 DEBUG 71233 --- [customer-module-test] [    Test worker] c.b.c.service.KYCServiceIntegrationTest  : Running with Spring Boot v3.2.5, Spring v6.1.6
+2026-03-19T15:35:57.233+07:00  INFO 71233 --- [customer-module-test] [    Test worker] c.b.c.service.KYCServiceIntegrationTest  : The following 1 profile is active: "test"
+2026-03-19T15:35:57.541+07:00  INFO 71233 --- [customer-module-test] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19T15:35:57.568+07:00  INFO 71233 --- [customer-module-test] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 24 ms. Found 6 JPA repository interfaces.
+2026-03-19T15:35:57.743+07:00  INFO 71233 --- [customer-module-test] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19T15:35:57.780+07:00  INFO 71233 --- [customer-module-test] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19T15:35:57.794+07:00  INFO 71233 --- [customer-module-test] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-19T15:35:57.894+07:00  INFO 71233 --- [customer-module-test] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19T15:35:57.909+07:00  INFO 71233 --- [customer-module-test] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-19T15:35:57.998+07:00  INFO 71233 --- [customer-module-test] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-03-19T15:35:57.999+07:00  INFO 71233 --- [customer-module-test] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-19T15:35:58.011+07:00  WARN 71233 --- [customer-module-test] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19T15:35:58.078+07:00  WARN 71233 --- [customer-module-test] [    Test worker] o.h.boot.model.internal.EntityBinder     : HHH000457: Joined inheritance hierarchy [com.banking.customer.domain.entity.Customer] defined explicit @DiscriminatorColumn.  Legacy Hibernate behavior was to ignore the @DiscriminatorColumn.  However, as part of issue HHH-6911 we now apply the explicit @DiscriminatorColumn.  If you would prefer the legacy behavior, enable the `hibernate.discriminator.ignore_explicit_for_joined` setting (hibernate.discriminator.ignore_explicit_for_joined=true)
+2026-03-19T15:35:58.520+07:00  INFO 71233 --- [customer-module-test] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    drop table if exists authorization_documents cascade 
+Hibernate: 
+    drop table if exists bulk_upload_records cascade 
+Hibernate: 
+    drop table if exists corporate_customer cascade 
+Hibernate: 
+    drop table if exists customer_addresses cascade 
+Hibernate: 
+    drop table if exists customer_authorizations cascade 
+Hibernate: 
+    drop table if exists customer_emails cascade 
+Hibernate: 
+    drop table if exists customer_phones cascade 
+Hibernate: 
+    drop table if exists customers cascade 
+Hibernate: 
+    drop table if exists employment_relationships cascade 
+Hibernate: 
+    drop table if exists individual_customer cascade 
+Hibernate: 
+    drop table if exists kyc_checks cascade 
+Hibernate: 
+    drop table if exists kyc_documents cascade 
+Hibernate: 
+    drop table if exists sanctions_screening_results cascade 
+Hibernate: 
+    drop table if exists smecustomer cascade 
+Hibernate: 
+    create table authorization_documents (
+        authorization_id bigint not null,
+        id bigint generated by default as identity,
+        uploaded_at timestamp(6) with time zone not null,
+        document_reference varchar(255) not null,
+        document_type varchar(255) not null check (document_type in ('PASSPORT','ID_CARD','BOARD_RESOLUTION','POWER_OF_ATTORNEY','SPECIMEN_SIGNATURE')),
+        primary key (id)
+    )
+Hibernate: 
+    create table bulk_upload_records (
+        processed_records integer not null,
+        total_records integer not null,
+        created_at timestamp(6) with time zone,
+        employer_id bigint not null,
+        id bigint generated by default as identity,
+        updated_at timestamp(6) with time zone,
+        created_by varchar(255),
+        status varchar(255) not null check (status in ('PENDING','PROCESSING','COMPLETED','FAILED')),
+        updated_by varchar(255),
+        uploaded_by varchar(255) not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table corporate_customer (
+        annual_revenue_amount numeric(38,2),
+        employee_count integer,
+        id bigint not null,
+        annual_revenue_currency varchar(255),
+        industry varchar(255),
+        registration_number varchar(255),
+        website varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table customer_addresses (
+        customer_id bigint not null,
+        city varchar(255),
+        country varchar(255),
+        postal_code varchar(255),
+        state varchar(255),
+        street varchar(255)
+    )
+Hibernate: 
+    create table customer_authorizations (
+        effective_date date not null,
+        expiration_date date,
+        is_primary boolean not null,
+        authorized_person_id bigint not null,
+        customer_id bigint not null,
+        id bigint generated by default as identity,
+        relationship_type varchar(255) not null check (relationship_type in ('OWNER','DIRECTOR','AUTHORIZED_SIGNATORY','BENEFICIAL_OWNER')),
+        status varchar(255) not null check (status in ('ACTIVE','EXPIRED','REVOKED')),
+        primary key (id)
+    )
+Hibernate: 
+    create table customer_emails (
+        customer_id bigint not null,
+        email varchar(255)
+    )
+Hibernate: 
+    create table customer_phones (
+        customer_id bigint not null,
+        country_code varchar(255),
+        phone_number varchar(255),
+        phone_type varchar(255) check (phone_type in ('MOBILE','LANDLINE','WORK','FAX'))
+    )
+Hibernate: 
+    create table customers (
+        created_at timestamp(6) with time zone,
+        id bigint generated by default as identity,
+        updated_at timestamp(6) with time zone,
+        customer_type varchar(31) not null,
+        created_by varchar(255),
+        customer_number varchar(255) not null unique,
+        name varchar(255) not null,
+        status varchar(255) not null check (status in ('PENDING','ACTIVE','SUSPENDED','CLOSED')),
+        tax_id varchar(255),
+        updated_by varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table employment_relationships (
+        end_date date,
+        start_date date not null,
+        created_at timestamp(6) with time zone,
+        employee_id bigint not null,
+        employer_id bigint not null,
+        id bigint generated by default as identity,
+        updated_at timestamp(6) with time zone,
+        created_by varchar(255),
+        department varchar(255),
+        employee_number varchar(255),
+        position varchar(255),
+        status varchar(255) not null check (status in ('ACTIVE','INACTIVE','TERMINATED','ON_LEAVE')),
+        updated_by varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table individual_customer (
+        date_of_birth date,
+        employer_id bigint,
+        id bigint not null,
+        employment_status varchar(255) check (employment_status in ('ACTIVE','INACTIVE','TERMINATED','ON_LEAVE')),
+        nationality varchar(255),
+        place_of_birth varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table kyc_checks (
+        risk_score integer,
+        completed_at timestamp(6) with time zone,
+        created_at timestamp(6) with time zone,
+        customer_id bigint not null,
+        due_date timestamp(6) with time zone,
+        id bigint generated by default as identity,
+        next_review_date timestamp(6) with time zone,
+        updated_at timestamp(6) with time zone,
+        assigned_officer varchar(255),
+        created_by varchar(255),
+        kyc_level varchar(255) not null check (kyc_level in ('STANDARD','ENHANCED','EXEMPT')),
+        status varchar(255) not null check (status in ('NOT_STARTED','IN_PROGRESS','PENDING_REVIEW','APPROVED','REJECTED','EXPIRED')),
+        updated_by varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table kyc_documents (
+        expiry_date timestamp(6) with time zone,
+        id bigint generated by default as identity,
+        kyc_check_id bigint not null,
+        verified_at timestamp(6) with time zone,
+        document_reference varchar(255) not null,
+        document_type varchar(255) not null check (document_type in ('CERTIFICATE_OF_INCORPORATION','ARTICLES_OF_ASSOCIATION','PROOF_OF_ADDRESS','TAX_CERTIFICATE','PASSPORT','UTILITY_BILL','BANK_STATEMENT')),
+        verification_status varchar(255) not null check (verification_status in ('PENDING','VERIFIED','REJECTED')),
+        verified_by varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table sanctions_screening_results (
+        is_cleared boolean not null,
+        cleared_at timestamp(6) with time zone,
+        id bigint generated by default as identity,
+        kyc_check_id bigint not null,
+        screened_at timestamp(6) with time zone not null,
+        cleared_by varchar(255),
+        matched_names TEXT,
+        result varchar(255) not null check (result in ('CLEAR','MATCH','REVIEW')),
+        primary key (id)
+    )
+Hibernate: 
+    create table smecustomer (
+        annual_turnover_amount numeric(38,2),
+        years_in_operation integer,
+        id bigint not null,
+        annual_turnover_currency varchar(255),
+        business_type varchar(255),
+        industry varchar(255),
+        registration_number varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    alter table if exists authorization_documents 
+       add constraint FK2ywld70fmmlxpm8sxpdpuvnfa 
+       foreign key (authorization_id) 
+       references customer_authorizations
+Hibernate: 
+    alter table if exists bulk_upload_records 
+       add constraint FKmomt8iah2qthabvrcrccknhof 
+       foreign key (employer_id) 
+       references customers
+Hibernate: 
+    alter table if exists corporate_customer 
+       add constraint FKjn5nx5rumv38xd4ww3ditjvys 
+       foreign key (id) 
+       references customers
+Hibernate: 
+    alter table if exists customer_addresses 
+       add constraint FKrvr6wl9gll7u98cda18smugp4 
+       foreign key (customer_id) 
+       references customers
+Hibernate: 
+    alter table if exists customer_authorizations 
+       add constraint FK22w3qlxlqg400jy5mmt281lma 
+       foreign key (authorized_person_id) 
+       references individual_customer
+Hibernate: 
+    alter table if exists customer_authorizations 
+       add constraint FKjp4u563jkwe550x5kaq96m0w7 
+       foreign key (customer_id) 
+       references customers
+Hibernate: 
+    alter table if exists customer_emails 
+       add constraint FK62vlm7xjnmn1h76qlu340bv0x 
+       foreign key (customer_id) 
+       references customers
+Hibernate: 
+    alter table if exists customer_phones 
+       add constraint FKaxg5m8nchn15fuicfcousfdxp 
+       foreign key (customer_id) 
+       references customers
+Hibernate: 
+    alter table if exists employment_relationships 
+       add constraint FK5gklbkmqdpj8c8dup3na7hli1 
+       foreign key (employee_id) 
+       references individual_customer
+Hibernate: 
+    alter table if exists employment_relationships 
+       add constraint FKlvsy3bpkjb5f6wxi4kn5nwe7u 
+       foreign key (employer_id) 
+       references customers
+Hibernate: 
+    alter table if exists individual_customer 
+       add constraint FK1s7pa7wqchhxrl02avakpf21h 
+       foreign key (id) 
+       references customers
+Hibernate: 
+    alter table if exists kyc_checks 
+       add constraint FKrdhyt2svaaxv12sfkqtuj8bcv 
+       foreign key (customer_id) 
+       references customers
+Hibernate: 
+    alter table if exists kyc_documents 
+       add constraint FKnis1q7r6rwjcc0ya5vwq8j6 
+       foreign key (kyc_check_id) 
+       references kyc_checks
+Hibernate: 
+    alter table if exists sanctions_screening_results 
+       add constraint FKhl9kk0ss7dus8y2141wlfe48s 
+       foreign key (kyc_check_id) 
+       references kyc_checks
+Hibernate: 
+    alter table if exists smecustomer 
+       add constraint FKa1y57bwdyg7kwpon085e8lr2p 
+       foreign key (id) 
+       references customers
+2026-03-19T15:35:58.557+07:00  INFO 71233 --- [customer-module-test] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19T15:35:58.771+07:00  WARN 71233 --- [customer-module-test] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19T15:35:58.917+07:00  INFO 71233 --- [customer-module-test] [    Test worker] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2026-03-19T15:35:58.941+07:00  INFO 71233 --- [customer-module-test] [    Test worker] c.b.c.service.KYCServiceIntegrationTest  : Started KYCServiceIntegrationTest in 1.817 seconds (process running for 2.38)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        kyc_documents
+        (document_reference, document_type, expiry_date, kyc_check_id, verification_status, verified_at, verified_by, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.id=?
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        kyc_documents
+        (document_reference, document_type, expiry_date, kyc_check_id, verification_status, verified_at, verified_by, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        kyc_documents
+        (document_reference, document_type, expiry_date, kyc_check_id, verification_status, verified_at, verified_by, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        kyc_documents
+        (document_reference, document_type, expiry_date, kyc_check_id, verification_status, verified_at, verified_by, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.customer_type,
+        c1_0.created_at,
+        c1_0.created_by,
+        c1_0.updated_at,
+        c1_0.updated_by,
+        c1_0.customer_number,
+        c1_0.name,
+        c1_0.status,
+        c1_0.tax_id,
+        c1_0.customer_type,
+        c1_1.annual_revenue_amount,
+        c1_1.annual_revenue_currency,
+        c1_1.employee_count,
+        c1_1.industry,
+        c1_1.registration_number,
+        c1_1.website,
+        c1_2.date_of_birth,
+        c1_2.employer_id,
+        c1_2.employment_status,
+        c1_2.nationality,
+        c1_2.place_of_birth,
+        c1_3.annual_turnover_amount,
+        c1_3.annual_turnover_currency,
+        c1_3.business_type,
+        c1_3.industry,
+        c1_3.registration_number,
+        c1_3.years_in_operation 
+    from
+        customers c1_0 
+    left join
+        corporate_customer c1_1 
+            on c1_0.id=c1_1.id 
+    left join
+        individual_customer c1_2 
+            on c1_0.id=c1_2.id 
+    left join
+        smecustomer c1_3 
+            on c1_0.id=c1_3.id
+Hibernate: 
+    insert 
+    into
+        customers
+        (created_at, created_by, updated_at, updated_by, customer_number, name, status, tax_id, customer_type, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, 'CORPORATE', default)
+Hibernate: 
+    insert 
+    into
+        corporate_customer
+        (annual_revenue_amount, annual_revenue_currency, employee_count, industry, registration_number, website, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        k1_0.id,
+        k1_0.assigned_officer,
+        k1_0.created_at,
+        k1_0.created_by,
+        k1_0.updated_at,
+        k1_0.updated_by,
+        k1_0.completed_at,
+        k1_0.customer_id,
+        k1_0.due_date,
+        k1_0.kyc_level,
+        k1_0.next_review_date,
+        k1_0.risk_score,
+        k1_0.status 
+    from
+        kyc_checks k1_0 
+    where
+        k1_0.customer_id=? 
+        and k1_0.status=?
+Hibernate: 
+    insert 
+    into
+        kyc_checks
+        (assigned_officer, created_at, created_by, updated_at, updated_by, completed_at, customer_id, due_date, kyc_level, next_review_date, risk_score, status, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        kyc_documents
+        (document_reference, document_type, expiry_date, kyc_check_id, verification_status, verified_at, verified_by, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, default)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/me/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.13/979ce25f7d3096a2e82214ba7dc972a05ce7a171/byte-buddy-agent-1.14.13.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
