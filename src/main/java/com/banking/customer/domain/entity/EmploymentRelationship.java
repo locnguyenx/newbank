@@ -45,7 +45,11 @@ public class EmploymentRelationship {
     @Embedded
     private AuditFields auditFields;
 
-    protected EmploymentRelationship() {
+    EmploymentRelationship() {
+    }
+
+    public EmploymentRelationship(Long id) {
+        this.id = id;
     }
 
     public EmploymentRelationship(IndividualCustomer employee, Customer employer, String employeeNumber,
@@ -61,6 +65,10 @@ public class EmploymentRelationship {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public IndividualCustomer getEmployee() {
