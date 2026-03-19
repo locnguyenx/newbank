@@ -9,6 +9,7 @@ import {
   IndividualCustomerForm,
 } from '@/pages/customers';
 import { EmploymentListPage, BulkUploadPage } from '@/pages/employment';
+import { AuthorizationListPage, AuthorizationFormPage } from '@/pages/authorizations';
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
           <Route path="/transactions" element={<div>Transactions</div>} />
           <Route path="/customers/:customerId/employees" element={<EmploymentListPage />} />
           <Route path="/customers/:customerId/employees/bulk-upload" element={<BulkUploadPage />} />
+          <Route path="/customers/:customerId/authorizations" element={<AuthorizationListPage />} />
+          <Route path="/customers/:customerId/authorizations/new" element={<AuthorizationFormPage />} />
+          <Route path="/customers/:customerId/authorizations/:authorizationId/edit" element={<AuthorizationFormPage />} />
         </Routes>
       </AppLayout>
     </ConfigProvider>
