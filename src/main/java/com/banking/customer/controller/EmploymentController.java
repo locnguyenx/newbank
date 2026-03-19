@@ -9,6 +9,7 @@ import com.banking.customer.exception.CustomerNotFoundException;
 import com.banking.customer.repository.CustomerRepository;
 import com.banking.customer.repository.EmploymentRelationshipRepository;
 import com.banking.customer.service.EmploymentRelationshipService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class EmploymentController {
     }
 
     @PostMapping
-    public ResponseEntity<EmploymentResponse> createEmployment(@RequestBody CreateEmploymentRequest request) {
+    public ResponseEntity<EmploymentResponse> createEmployment(@Valid @RequestBody CreateEmploymentRequest request) {
         Customer employee = customerRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new CustomerNotFoundException(request.getEmployeeId()));
         

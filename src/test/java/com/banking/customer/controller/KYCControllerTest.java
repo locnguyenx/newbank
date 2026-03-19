@@ -170,6 +170,26 @@ class KYCControllerTest {
     }
 
     @Test
+    void shouldUpdateKYC() throws Exception {
+        KYCController.UpdateKYCRequest request = new KYCController.UpdateKYCRequest();
+        request.setAssignedOfficer("OFFICER002");
+        request.setDueDate(Instant.now().plus(45, ChronoUnit.DAYS));
+
+        KYCCheck updatedCheck = new KYCCheck(customer, KYCLevel.STANDARD, KYCStatus.IN_PROGRESS);
+        updatedCheck.setId(1L);
+        updatedCheck.setAssignedOfficer("OFFICER002");
+        updatedCheck.setDueDate(Instant.now().plus(45, ChronoUnit.DAYS));
+
+        when(kycService.updateKYC(1L, "OFFICER002", request.getDueDate())).thenReturn(updatedCheck);
+
+        mockMvc.perform(put("/api/kyc/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assignedOfficer").value("OFFICER002"));
+    }
+
+    @Test
     void shouldReturn400WhenInvalidKYCState() throws Exception {
         when(kycService.submitForReview(1L)).thenThrow(new InvalidKYCStateException("Can only submit for review from IN_PROGRESS status"));
 

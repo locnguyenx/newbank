@@ -163,6 +163,25 @@ public class KYCService {
         return savedCheck;
     }
 
+    @Transactional
+    public KYCCheck updateKYC(Long kycCheckId, String assignedOfficer, Instant dueDate) {
+        KYCCheck kycCheck = kycCheckRepository.findById(kycCheckId)
+            .orElseThrow(() -> new KYCNotFoundException(kycCheckId));
+
+        if (kycCheck.getStatus() == KYCStatus.APPROVED || kycCheck.getStatus() == KYCStatus.REJECTED) {
+            throw new InvalidKYCStateException("Cannot update an already completed KYC check");
+        }
+
+        if (assignedOfficer != null) {
+            kycCheck.setAssignedOfficer(assignedOfficer);
+        }
+        if (dueDate != null) {
+            kycCheck.setDueDate(dueDate);
+        }
+
+        return kycCheckRepository.save(kycCheck);
+    }
+
     @Transactional(readOnly = true)
     public KYCCheck getKYCCheckById(Long kycCheckId) {
         return kycCheckRepository.findById(kycCheckId)

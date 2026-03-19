@@ -81,6 +81,16 @@ public class KYCController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<KYCResponse> updateKYC(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateKYCRequest request) {
+
+        KYCCheck kycCheck = kycService.updateKYC(id, request.getAssignedOfficer(), request.getDueDate());
+        KYCResponse response = toKYCResponse(kycCheck);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<KYCResponse> getKYCCheckById(@PathVariable Long id) {
         KYCCheck kycCheck = kycService.getKYCCheckById(id);
@@ -185,6 +195,27 @@ public class KYCController {
 
         public void setReason(String reason) {
             this.reason = reason;
+        }
+    }
+
+    public static class UpdateKYCRequest {
+        private String assignedOfficer;
+        private java.time.Instant dueDate;
+
+        public String getAssignedOfficer() {
+            return assignedOfficer;
+        }
+
+        public void setAssignedOfficer(String assignedOfficer) {
+            this.assignedOfficer = assignedOfficer;
+        }
+
+        public java.time.Instant getDueDate() {
+            return dueDate;
+        }
+
+        public void setDueDate(java.time.Instant dueDate) {
+            this.dueDate = dueDate;
         }
     }
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.banking.customer.controller.AuthorizationControllerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-03-19T09:11:18" hostname="Mac" time="0.137">
+  <properties/>
+  <testcase name="shouldCreateAuthorization()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.111"/>
+  <testcase name="shouldReturn400WhenCreatingAuthorizationWithMissingAuthorizedPersonId()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.008"/>
+  <testcase name="shouldGetAuthorizationsByCustomer()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.004"/>
+  <testcase name="shouldReturn404WhenAuthorizationNotFound()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.007"/>
+  <testcase name="shouldRevokeAuthorization()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.002"/>
+  <testcase name="shouldUpdateAuthorization()" classname="com.banking.customer.controller.AuthorizationControllerTest" time="0.002"/>
+  <system-out><![CDATA[16:11:17.303 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.banking.customer.controller.AuthorizationControllerTest]: AuthorizationControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:11:17.381 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.banking.customer.CustomerModuleApplication for test class com.banking.customer.controller.AuthorizationControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-03-19T16:11:17.592+07:00  INFO 83023 --- [customer-module] [    Test worker] c.b.c.c.AuthorizationControllerTest      : Starting AuthorizationControllerTest using Java 21.0.6 with PID 83023 (started by me in /Users/me/myprojects/opencode-superpowers/.worktrees/foundation)
+2026-03-19T16:11:17.593+07:00  INFO 83023 --- [customer-module] [    Test worker] c.b.c.c.AuthorizationControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-03-19T16:11:18.647+07:00  INFO 83023 --- [customer-module] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-03-19T16:11:18.647+07:00  INFO 83023 --- [customer-module] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-03-19T16:11:18.648+07:00  INFO 83023 --- [customer-module] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-03-19T16:11:18.663+07:00  INFO 83023 --- [customer-module] [    Test worker] c.b.c.c.AuthorizationControllerTest      : Started AuthorizationControllerTest in 1.229 seconds (process running for 1.926)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/me/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.13/979ce25f7d3096a2e82214ba7dc972a05ce7a171/byte-buddy-agent-1.14.13.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
