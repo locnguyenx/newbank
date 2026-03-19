@@ -71,6 +71,10 @@ public class CustomerAuthorization {
         return relationshipType;
     }
 
+    public void setRelationshipType(RelationshipType relationshipType) {
+        this.relationshipType = relationshipType;
+    }
+
     public List<AuthorizationDocument> getDocuments() {
         return documents;
     }
@@ -89,6 +93,10 @@ public class CustomerAuthorization {
 
     public LocalDate getEffectiveDate() {
         return effectiveDate;
+    }
+
+    public void setEffectiveDate(LocalDate effectiveDate) {
+        this.effectiveDate = effectiveDate;
     }
 
     public LocalDate getExpirationDate() {
