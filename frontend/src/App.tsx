@@ -16,6 +16,12 @@ import {
   AccountDetailPage,
   AccountOpeningForm,
 } from '@/pages/accounts';
+import {
+  ProductListPage,
+  ProductDetailPage,
+  ProductFormPage,
+  ProductVersionComparePage,
+} from '@/pages/products';
 
 function App() {
   return (
@@ -33,6 +39,11 @@ function App() {
           <Route path="/accounts" element={<AccountListPage />} />
           <Route path="/accounts/new" element={<AccountOpeningForm />} />
           <Route path="/accounts/:accountNumber" element={<AccountDetailPage />} />
+          <Route path="/products" element={<ProductListPage />} />
+          <Route path="/products/new" element={<ProductFormPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
+          <Route path="/products/:id/edit" element={<ProductFormPage />} />
+          <Route path="/products/:id/compare" element={<ProductVersionComparePage />} />
           <Route path="/transactions" element={<div>Transactions</div>} />
           <Route path="/customers/:customerId/employees" element={<EmploymentListPage />} />
           <Route path="/customers/:customerId/employees/bulk-upload" element={<BulkUploadPage />} />

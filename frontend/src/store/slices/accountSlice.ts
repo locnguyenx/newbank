@@ -40,8 +40,7 @@ export const fetchAccounts = createAsyncThunk<{ content: AccountResponse[]; tota
   'account/fetchAll',
   async (params = {}) => {
     try {
-      const response = await accountService.getAll(params);
-      return response.data;
+      return await accountService.getAll(params);
     } catch {
       const filteredDemo = params.customerId
         ? demoAccounts.filter(a => a.customerId === params.customerId)

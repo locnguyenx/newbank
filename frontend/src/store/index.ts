@@ -4,6 +4,7 @@ import employmentReducer from './slices/employmentSlice';
 import kycReducer from './slices/kycSlice';
 import authorizationReducer from './slices/authorizationSlice';
 import accountReducer from './slices/accountSlice';
+import productReducer from './slices/productSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     kyc: kycReducer,
     authorizations: authorizationReducer,
     account: accountReducer,
+    products: productReducer,
   },
 });
 
