@@ -76,6 +76,18 @@ public class CustomerNotFoundException extends RuntimeException {
 
 **Components:** Functional components with hooks, explicit return types.
 
+## Testing Guidelines
+
+**Enforcement**
+1. Ensure backend test reports are generated with configuration or add Gradle task
+2. Ensure frontend tests with Vitest must generate coverage reports using --coverage flag
+3. Add coverage thresholds to Vitest/Gradle config to fail builds below minimum
+4. Development workflow or CI/CD must follow these rules
+
+**Usage:** 
+- Frontend tests: `npm run test:coverage` generates HTML report in `coverage/` directory
+- Backend tests: XML reports automatically generated in `build/test-results/test/`
+
 ## Banking-Specific Guidelines
 
 ### Money Handling

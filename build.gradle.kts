@@ -31,6 +31,10 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test)
 }
 
+bootJar {
+    mainClass.set = 'com.banking.account.AccountModuleApplication'
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

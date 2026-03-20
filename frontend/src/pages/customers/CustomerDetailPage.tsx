@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Tabs, Card, Descriptions, Button, Space, Spin, message } from 'antd';
+import { Tabs, Card, Descriptions, Button, Space, Spin, message, Table, Tag } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { EditOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchCustomerById } from '@/store/slices/customerSlice';
+import { fetchAccounts } from '@/store/slices/accountSlice';
 import type { CustomerVariant, IndividualCustomer, SMECustomer, CorporateCustomer } from '@/types';
+import type { AccountResponse, AccountType, AccountStatus } from '@/types/account.types';
+import { Eye } from 'lucide-react';
 
 function IndividualCustomerDetails({ customer }: { customer: IndividualCustomer }) {
   return (
@@ -65,12 +69,74 @@ export function CustomerDetailPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { selectedCustomer: customer, loading, error } = useAppSelector((state) => state.customer);
+  const { accounts } = useAppSelector((state) => state.account);
+  const [accountsLoading, setAccountsLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchCustomerById(parseInt(id, 10)));
+      setAccountsLoading(true);
+      dispatch(fetchAccounts({ customerId: parseInt(id, 10) })).finally(() => setAccountsLoading(false));
     }
   }, [dispatch, id]);
+
+  const customerAccounts = accounts;
+
+  const getStatusColor = (status: string) => {
+    const colorMap: Record<string, string> = {
+      PENDING: 'orange',
+      ACTIVE: 'green',
+      SUSPENDED: 'red',
+      CLOSED: 'gray',
+      FROZEN: 'orange',
+      DORMANT: 'default',
+    };
+    return colorMap[status] || 'default';
+  };
+
+  const accountColumns: ColumnsType<AccountResponse> = [
+    {
+      title: 'Account Number',
+      dataIndex: 'accountNumber',
+      key: 'accountNumber',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      render: (type: AccountType) => <Tag>{type}</Tag>,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: AccountStatus) => (
+        <Tag color={getStatusColor(status)}>{status}</Tag>
+      ),
+    },
+    {
+      title: 'Balance',
+      dataIndex: 'balance',
+      key: 'balance',
+      render: (balance: number, record) => (
+        `${balance.toLocaleString()} ${record.currency}`
+      ),
+    },
+    {
+      title: '',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type="link"
+          size="small"
+          icon={<Eye size={14} />}
+          onClick={() => navigate(`/accounts/${record.accountNumber}`)}
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
@@ -89,16 +155,6 @@ export function CustomerDetailPage() {
     return null;
   }
 
-  const getStatusColor = (status: string) => {
-    const colorMap: Record<string, string> = {
-      PENDING: 'orange',
-      ACTIVE: 'green',
-      SUSPENDED: 'red',
-      CLOSED: 'gray',
-    };
-    return colorMap[status] || 'default';
-  };
-
   const items = [
     {
       key: 'details',
@@ -108,13 +164,30 @@ export function CustomerDetailPage() {
     {
       key: 'accounts',
       label: 'Accounts',
-      children: <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>No accounts found</div>,
+      children: (
+        accountsLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>
+            <Spin />
+          </div>
+         ) : accounts.length > 0 ? (
+          <Table
+            columns={accountColumns}
+             dataSource={accounts}
+            rowKey="id"
+            pagination={false}
+            style={{ marginTop: 8 }}
+          />
+        ) : (
+          <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>No accounts found</div>
+        )
+      ),
     },
-    {
-      key: 'transactions',
-      label: 'Transactions',
-      children: <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>No transactions found</div>,
-    },
+    // Transactions tab reserved for Phase 3 (Payments module)
+    // {
+    //   key: 'transactions',
+    //   label: 'Transactions',
+    //   children: <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>No transactions found</div>,
+    // },
     {
       key: 'documents',
       label: 'Documents',

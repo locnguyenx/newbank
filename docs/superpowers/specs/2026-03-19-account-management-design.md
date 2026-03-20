@@ -1,0 +1,274 @@
+# Account Management Module Design
+
+**Created:** 2026-03-19  
+**Status:** Draft  
+**Module:** Account Management  
+
+## Overview
+
+The Account Management module handles the creation, maintenance, and lifecycle of bank accounts for corporate and SME customers. It supports various account types including current accounts, savings accounts, fixed deposits, and loan accounts. The module provides comprehensive account holder management, including joint accounts and authorized signatories.
+
+## Architecture
+
+### Module Boundaries
+- **Domain:** Core account entities and business logic
+- **Application Services:** Account operations, holder management, inquiry services
+- **Infrastructure:** Data persistence (JPA repositories), external integrations
+- **Interface:** RESTful API for account operations
+
+### Key Components
+
+1. **Account Entity Hierarchy**
+   - Abstract `Account` base class with common fields
+   - Concrete implementations: `CurrentAccount`, `SavingsAccount`, `FixedDepositAccount`, `LoanAccount`
+   - Uses JOINED inheritance strategy for flexible querying
+
+2. **Account Holder Management**
+   - `AccountHolder` entity linking customers to accounts with roles
+   - Support for multiple holders per account with different permissions
+   - Role-based access: PRIMARY, JOINT, AUTHORIZED_SIGNATORY, NOMINEE
+
+3. **Account Balance & Financials**
+   - `AccountBalance` embeddable tracking available, ledger, and hold amounts
+   - Currency support with proper money handling (BigInteger for minor units)
+   - Interest calculation hooks for savings and fixed deposit accounts
+
+4. **Account Lifecycle**
+   - Account opening with initial deposit validation
+   - Status transitions: PENDING → ACTIVE → DORMANT/FROZEN → CLOSED
+   - Freeze/unfreeze functionality for regulatory compliance
+   - Closure with balance settlement procedures
+
+5. **Account Inquiry & Statements**
+   - Balance inquiries (available vs ledger)
+   - Transaction history with filtering and pagination
+   - Statement generation in multiple formats (PDF, CSV, Excel)
+   - Date-range filtering for statement periods
+
+## Data Model
+
+### Core Entities
+
+```
+Account (abstract)
+├── id (PK, BIGINT auto-increment)
+├── accountNumber (UNIQUE, VARCHAR)
+├── type (AccountType enum)
+├── status (AccountStatus enum)
+├── currency (Currency enum)
+├── balance (BigDecimal - current balance)
+├── customer (FK to Customer)
+├── productId (FK to Product)
+├── openedAt (Timestamp)
+├── closedAt (Timestamp, nullable)
+└── auditFields (createdAt, createdBy, updatedAt, updatedBy)
+
+AccountBalance (embeddable)
+├── availableBalance (BigDecimal)
+├── ledgerBalance (BigDecimal)
+├── holdAmount (BigDecimal)
+├── currency (Currency enum)
+
+AccountHolder
+├── id (PK, BIGINT auto-increment)
+├── account (FK to Account)
+├── customer (FK to Customer)
+├── role (AccountHolderRole enum)
+├── effectiveFrom (Date)
+├── effectiveTo (Date, nullable)
+├── status (AccountHolderStatus enum)
+└── auditFields
+
+AccountType: CURRENT, SAVINGS, FIXED_DEPOSIT, LOAN, ESCROW
+AccountStatus: PENDING, ACTIVE, DORMANT, FROZEN, CLOSED
+AccountHolderRole: PRIMARY, JOINT, AUTHORIZED_SIGNATORY, NOMINEE
+AccountHolderStatus: ACTIVE, INACTIVE, REMOVED
+Currency: USD, EUR, GBP, SGD, JPY, CAD, AUD, CHF
+```
+
+### Relationships
+- Customer 1:N Account (via AccountHolder)
+- Account 1:N AccountHolder
+- Product 1:N Account (reference only in Phase 2)
+- Account 1:1 AccountBalance (embedded)
+
+## Key Features
+
+### Account Operations
+- Open new account with initial deposit validation
+- Close account with balance settlement
+- Freeze/unfreeze account for regulatory holds
+- Reactivate dormant accounts
+- Update account information (contact details, preferences)
+
+### Account Holder Management
+- Add/remove account holders with role assignment
+- Update holder information and effective dates
+- Transfer primary holder status
+- Holder status tracking (active/inactive/removed)
+
+### Inquiry & Reporting
+- Real-time balance inquiries (available vs ledger)
+- Account details retrieval (type, status, customer info)
+- Transaction history with filtering (date, type, amount)
+- Statement generation (PDF, CSV, Excel formats)
+- Interest calculation and accrual tracking
+
+### Validation & Business Rules
+- Initial deposit meets product minimum requirements
+- Customer eligibility for account type (via Product module)
+- Unique account number generation (ACC-YYYYMMDD-XXXXXX)
+- Holder role validation (only one PRIMARY per account)
+- Status transition validation (e.g., cannot freeze closed account)
+
+## API Design
+
+### Account Endpoints
+```
+POST   /api/accounts                          # Open new account
+GET    /api/accounts/{accountNumber}          # Get account details
+GET    /api/accounts/{accountNumber}/balance  # Get account balance
+GET    /api/accounts/{accountNumber}/statement # Get account statement
+PUT    /api/accounts/{accountNumber}/close    # Close account
+PUT    /api/accounts/{accountNumber}/freeze   # Freeze account
+PUT    /api/accounts/{accountNumber}/unfreeze # Unfreeze account
+```
+
+### Account Holder Endpoints
+```
+POST   /api/accounts/{accountNumber}/holders          # Add account holder
+GET    /api/accounts/{accountNumber}/holders          # Get all holders
+PUT    /api/accounts/{accountNumber}/holders/{holderId} # Update holder
+DELETE /api/accounts/{accountNumber}/holders/{holderId} # Remove holder
+```
+
+### Response Formats
+All responses follow standard structure:
+```json
+{
+  "success": true,
+  "data": { /* resource data */ },
+  "errorCode": null,
+  "message": null,
+  "timestamp": "ISO 8601 datetime"
+}
+```
+
+Error responses include appropriate HTTP status codes and error codes (ACCT-XXX prefix).
+
+## Integration Points
+
+### Customer Module
+- Reads customer information for account opening
+- Validates customer eligibility for account types
+- Links accounts to customer profiles
+- Provides customer-account summary views
+
+### Product Module (Future)
+- References product configurations for account features
+- Validates product eligibility during account opening
+- Applies product-specific rules (interest rates, fees, limits)
+
+### Transaction Module (Future)
+- Records all account transactions
+- Updates account balances in real-time
+- Provides transaction data for statements
+- Implements transaction processing workflows
+
+### Notification/Event System
+- Publishes domain events (AccountOpened, AccountClosed, etc.)
+- Sends notifications for status changes
+- Integrates with audit logging for compliance
+
+## Security & Authorization
+
+### Access Controls
+- Account holders can only access their own accounts
+- Joint holders have equal access (subject to bank policies)
+- Authorized signatories have limited transaction rights
+- Nominees have view-only access (typically for inheritance)
+
+### Validation & Sanitization
+- Input validation for all API requests
+- SQL injection prevention via JPA/Criteria API
+- XSS prevention in response rendering
+- Rate limiting on sensitive operations (freeze/unfreeze)
+
+### Audit Trail
+- All account operations logged with user context
+- Holder additions/removals tracked
+- Status change history maintained
+- Regulatory reporting data preserved
+
+## Technology Implementation
+
+### Backend (Java/Spring Boot)
+- Java 17, Spring Boot 3.2
+- Spring Data JPA for data access
+- Hibernate as JPA provider
+- Jakarta Validation for request validation
+- Spring Transaction management
+- Spring Events for domain events
+- SLF4J with Logback for logging
+
+### Database (PostgreSQL)
+- Proper indexing for query performance
+- Foreign key constraints for referential integrity
+- Check constraints for enum validation
+- Partitioning strategy for large tables (considered for future)
+
+### Testing Strategy
+- Unit tests for service layer (80%+ coverage)
+- Integration tests for repositories
+- Contract tests for REST APIs
+- Test data builders for consistent test setup
+- Performance tests for critical operations
+
+## Non-Functional Requirements
+
+### Performance
+- Account lookup: < 100ms
+- Balance inquiry: < 50ms
+- Statement generation: < 2s for 1-year history
+- Concurrent users: 1000+ simultaneous sessions
+
+### Scalability
+- Horizontal scaling via stateless services
+- Database read replicas for inquiry-heavy workloads
+- Caching layer for frequently accessed reference data
+- Asynchronous processing for non-critical operations
+
+### Reliability
+- Automated failover for database connections
+- Circuit breaker pattern for external dependencies
+- Graceful degradation for non-core features
+- Comprehensive health checks and monitoring
+
+### Compliance
+- GDPR/CCPA data privacy controls
+- SOX financial reporting controls
+- Basel III/IV capital adequacy tracking
+- AML/KYC integration points
+- Audit trail retention (7+ years)
+
+## Implementation Notes
+
+### Assumptions
+- Product module provides basic product configurations
+- Customer module handles customer KYC and onboarding
+- Transaction module will be implemented in subsequent phases
+- Initial implementation focuses on core account functionality
+
+### Future Enhancements
+- Advanced interest calculation algorithms
+- Fee scheduling and automation
+- Account closure workflows with checks
+- Dormant account escheatment procedures
+- Multi-currency account support
+- Sweep account functionality
+- Overdraft protection and lines of credit
+
+### Dependencies
+- Customer module (for customer data and validation)
+- Product module (for account product references)
+- Shared kernel (for common enums, exceptions, utilities)

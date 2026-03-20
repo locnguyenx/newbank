@@ -1,0 +1,329 @@
+package com.banking.account.controller;
+
+import com.banking.account.dto.AccountBalanceResponse;
+import com.banking.account.dto.AccountOpeningRequest;
+import com.banking.account.dto.AccountHolderRequest;
+import com.banking.account.dto.AccountResponse;
+import com.banking.account.dto.AccountStatementResponse;
+import com.banking.account.dto.StatementEntry;
+import com.banking.account.exception.AccountNotFoundException;
+import com.banking.account.exception.DuplicateAccountException;
+import com.banking.account.exception.InvalidAccountStateException;
+import com.banking.account.service.AccountInquiryService;
+import com.banking.account.service.AccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(AccountController.class)
+class AccountControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private AccountService accountService;
+
+    @MockBean
+    private AccountInquiryService accountInquiryService;
+
+    @Test
+    void shouldOpenAccount() throws Exception {
+        AccountOpeningRequest request = createAccountOpeningRequest();
+        AccountResponse response = createAccountResponse();
+
+        when(accountService.openAccount(any())).thenReturn(response);
+
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.type").value("CURRENT"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.balance").value(1000.00))
+                .andExpect(jsonPath("$.productId").value(1L));
+    }
+
+    @Test
+    void shouldReturn409WhenDuplicateAccount() throws Exception {
+        AccountOpeningRequest request = createAccountOpeningRequest();
+
+        when(accountService.openAccount(any()))
+                .thenThrow(new DuplicateAccountException("accountNumber", "ACC-20240115-000001"));
+
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("ACC-002"));
+    }
+
+    @Test
+    void shouldReturn400WhenOpeningAccountWithMissingCustomerId() throws Exception {
+        AccountOpeningRequest request = createAccountOpeningRequest();
+        request.setCustomerId(null);
+
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("customerId"));
+    }
+
+    @Test
+    void shouldReturn400WhenOpeningAccountWithMissingCurrency() throws Exception {
+        AccountOpeningRequest request = createAccountOpeningRequest();
+        request.setCurrency(null);
+
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("currency"));
+    }
+
+    @Test
+    void shouldGetAccountDetails() throws Exception {
+        AccountResponse response = createAccountResponse();
+
+        when(accountInquiryService.getAccountDetails("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(get("/api/accounts/ACC-20240115-000001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.type").value("CURRENT"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    void shouldReturn404WhenAccountNotFound() throws Exception {
+        when(accountInquiryService.getAccountDetails("ACC-99999999-999999"))
+                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+
+        mockMvc.perform(get("/api/accounts/ACC-99999999-999999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+    }
+
+    @Test
+    void shouldGetAccountBalance() throws Exception {
+        AccountBalanceResponse response = createBalanceResponse();
+
+        when(accountInquiryService.getAccountBalance("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(get("/api/accounts/ACC-20240115-000001/balance"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.availableBalance").value(1000.00))
+                .andExpect(jsonPath("$.ledgerBalance").value(1000.00))
+                .andExpect(jsonPath("$.currency").value("USD"));
+    }
+
+    @Test
+    void shouldReturn404WhenGettingBalanceForNonExistentAccount() throws Exception {
+        when(accountInquiryService.getAccountBalance("ACC-99999999-999999"))
+                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+
+        mockMvc.perform(get("/api/accounts/ACC-99999999-999999/balance"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+    }
+
+    @Test
+    void shouldGetAccountStatement() throws Exception {
+        AccountStatementResponse response = createStatementResponse();
+
+        when(accountInquiryService.getAccountStatement("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(get("/api/accounts/ACC-20240115-000001/statement"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.openingBalance").value(1000.00))
+                .andExpect(jsonPath("$.closingBalance").value(1500.00))
+                .andExpect(jsonPath("$.entries.length()").value(1))
+                .andExpect(jsonPath("$.entries[0].description").value("Deposit"));
+    }
+
+    @Test
+    void shouldCloseAccount() throws Exception {
+        AccountResponse response = createAccountResponse();
+        response.setStatus("CLOSED");
+
+        when(accountService.closeAccount("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/close"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.status").value("CLOSED"));
+    }
+
+    @Test
+    void shouldReturn404WhenClosingNonExistentAccount() throws Exception {
+        when(accountService.closeAccount("ACC-99999999-999999"))
+                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+
+        mockMvc.perform(put("/api/accounts/ACC-99999999-999999/close"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+    }
+
+    @Test
+    void shouldReturn400WhenClosingAlreadyClosedAccount() throws Exception {
+        when(accountService.closeAccount("ACC-20240115-000001"))
+                .thenThrow(new InvalidAccountStateException("Account is already closed"));
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/close"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value("ACC-003"));
+    }
+
+    @Test
+    void shouldFreezeAccount() throws Exception {
+        AccountResponse response = createAccountResponse();
+        response.setStatus("FROZEN");
+
+        when(accountService.freezeAccount("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/freeze"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.status").value("FROZEN"));
+    }
+
+    @Test
+    void shouldReturn404WhenFreezingNonExistentAccount() throws Exception {
+        when(accountService.freezeAccount("ACC-99999999-999999"))
+                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+
+        mockMvc.perform(put("/api/accounts/ACC-99999999-999999/freeze"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+    }
+
+    @Test
+    void shouldReturn400WhenFreezingClosedAccount() throws Exception {
+        when(accountService.freezeAccount("ACC-20240115-000001"))
+                .thenThrow(new InvalidAccountStateException("Cannot freeze a closed account"));
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/freeze"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value("ACC-003"));
+    }
+
+    @Test
+    void shouldUnfreezeAccount() throws Exception {
+        AccountResponse response = createAccountResponse();
+        response.setStatus("ACTIVE");
+
+        when(accountService.unfreezeAccount("ACC-20240115-000001")).thenReturn(response);
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/unfreeze"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC-20240115-000001"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    void shouldReturn404WhenUnfreezingNonExistentAccount() throws Exception {
+        when(accountService.unfreezeAccount("ACC-99999999-999999"))
+                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+
+        mockMvc.perform(put("/api/accounts/ACC-99999999-999999/unfreeze"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+    }
+
+    @Test
+    void shouldReturn400WhenUnfreezingActiveAccount() throws Exception {
+        when(accountService.unfreezeAccount("ACC-20240115-000001"))
+                .thenThrow(new InvalidAccountStateException("Account is not frozen"));
+
+        mockMvc.perform(put("/api/accounts/ACC-20240115-000001/unfreeze"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value("ACC-003"));
+    }
+
+    private AccountOpeningRequest createAccountOpeningRequest() {
+        AccountOpeningRequest request = new AccountOpeningRequest();
+        request.setCustomerId(1L);
+        request.setProductCode("CUR-001");
+        request.setProductId(1L);
+        request.setType("CURRENT");
+        request.setCurrency("USD");
+        request.setInitialDeposit(new BigDecimal("1000.00"));
+
+        AccountHolderRequest holder = new AccountHolderRequest();
+        holder.setCustomerId(1L);
+        holder.setRole("PRIMARY");
+        request.setHolders(List.of(holder));
+
+        return request;
+    }
+
+    private AccountResponse createAccountResponse() {
+        AccountResponse response = new AccountResponse();
+        response.setId(1L);
+        response.setAccountNumber("ACC-20240115-000001");
+        response.setType("CURRENT");
+        response.setStatus("ACTIVE");
+        response.setCurrency("USD");
+        response.setBalance(new BigDecimal("1000.00"));
+        response.setProductId(1L);
+        response.setOpenedAt(Instant.parse("2024-01-15T10:00:00Z"));
+        response.setClosedAt(null);
+        return response;
+    }
+
+    private AccountBalanceResponse createBalanceResponse() {
+        AccountBalanceResponse response = new AccountBalanceResponse();
+        response.setAccountNumber("ACC-20240115-000001");
+        response.setAvailableBalance(new BigDecimal("1000.00"));
+        response.setLedgerBalance(new BigDecimal("1000.00"));
+        response.setCurrency("USD");
+        response.setAsOfDate(Instant.parse("2024-01-15T10:00:00Z"));
+        return response;
+    }
+
+    private AccountStatementResponse createStatementResponse() {
+        AccountStatementResponse response = new AccountStatementResponse();
+        response.setAccountNumber("ACC-20240115-000001");
+        response.setCurrency("USD");
+        response.setFromDate(Instant.parse("2024-01-01T00:00:00Z"));
+        response.setToDate(Instant.parse("2024-01-31T23:59:59Z"));
+        response.setOpeningBalance(new BigDecimal("1000.00"));
+        response.setClosingBalance(new BigDecimal("1500.00"));
+
+        StatementEntry entry = new StatementEntry();
+        entry.setDate(Instant.parse("2024-01-15T10:00:00Z"));
+        entry.setDescription("Deposit");
+        entry.setDebit(null);
+        entry.setCredit(new BigDecimal("500.00"));
+        entry.setBalance(new BigDecimal("1500.00"));
+        response.setEntries(List.of(entry));
+
+        return response;
+    }
+}
