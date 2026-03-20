@@ -7,6 +7,8 @@ import java.util.List;
 
 public class UpdateProductRequest {
 
+    private String code;
+
     @Size(max = 200, message = "Product name must not exceed 200 characters")
     private String name;
 
@@ -16,6 +18,14 @@ public class UpdateProductRequest {
     private List<CustomerType> customerTypes;
 
     public UpdateProductRequest() {
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {

@@ -13,4 +13,5 @@ public interface ProductCustomerSegmentRepository extends JpaRepository<ProductC
     List<ProductCustomerSegment> findByProductVersionId(Long productVersionId);
     Optional<ProductCustomerSegment> findByProductVersionIdAndCustomerType(Long productVersionId, CustomerType customerType);
     void deleteByProductVersionId(Long productVersionId);
+    List<ProductCustomerSegment> findByCustomerType(CustomerType customerType);
 }

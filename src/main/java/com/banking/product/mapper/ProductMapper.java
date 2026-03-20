@@ -6,6 +6,7 @@ import com.banking.product.domain.entity.ProductFeeEntry;
 import com.banking.product.domain.entity.ProductFeeTier;
 import com.banking.product.domain.entity.ProductVersion;
 import com.banking.product.domain.entity.ProductAuditLog;
+import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.dto.request.CreateProductRequest;
 import com.banking.product.dto.response.ProductResponse;
 import com.banking.product.dto.response.ProductVersionResponse;
@@ -31,7 +32,12 @@ public class ProductMapper {
     }
 
     public ProductResponse toResponse(Product product) {
-        return ProductResponse.fromEntity(product);
+        ProductResponse response = ProductResponse.fromEntity(product);
+        response.setStatus(ProductStatus.DRAFT.name());
+        if (response.getVersionNumber() == null) {
+            response.setVersionNumber(1L);
+        }
+        return response;
     }
 
     public ProductVersionResponse toVersionResponse(ProductVersion version) {
