@@ -16,7 +16,7 @@ CREATE TABLE products (
 
 CREATE TABLE product_versions (
     id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL REFERENCES products(id),
+    product_id BIGINT NOT NULL CONSTRAINT fk_product_versions_product FOREIGN KEY (product_id) REFERENCES products(id),
     version_number INTEGER NOT NULL,
     status VARCHAR(30) NOT NULL DEFAULT 'DRAFT',
     submitted_by VARCHAR(255),
@@ -35,7 +35,7 @@ CREATE INDEX idx_product_versions_status ON product_versions(status);
 
 CREATE TABLE product_features (
     id BIGSERIAL PRIMARY KEY,
-    product_version_id BIGINT NOT NULL REFERENCES product_versions(id),
+    product_version_id BIGINT NOT NULL CONSTRAINT fk_product_features_version FOREIGN KEY (product_version_id) REFERENCES product_versions(id),
     feature_key VARCHAR(100) NOT NULL,
     feature_value VARCHAR(500) NOT NULL,
     created_at TIMESTAMP,
@@ -45,9 +45,11 @@ CREATE TABLE product_features (
     UNIQUE (product_version_id, feature_key)
 );
 
+CREATE INDEX idx_product_features_product_version_id ON product_features(product_version_id);
+
 CREATE TABLE product_fee_entries (
     id BIGSERIAL PRIMARY KEY,
-    product_version_id BIGINT NOT NULL REFERENCES product_versions(id),
+    product_version_id BIGINT NOT NULL CONSTRAINT fk_product_fee_entries_version FOREIGN KEY (product_version_id) REFERENCES product_versions(id),
     fee_type VARCHAR(100) NOT NULL,
     calculation_method VARCHAR(30) NOT NULL,
     amount NUMERIC(19,4),
@@ -61,7 +63,7 @@ CREATE TABLE product_fee_entries (
 
 CREATE TABLE product_fee_tiers (
     id BIGSERIAL PRIMARY KEY,
-    fee_entry_id BIGINT NOT NULL REFERENCES product_fee_entries(id) ON DELETE CASCADE,
+    fee_entry_id BIGINT NOT NULL CONSTRAINT fk_product_fee_tiers_entry FOREIGN KEY (fee_entry_id) REFERENCES product_fee_entries(id) ON DELETE CASCADE,
     tier_from BIGINT NOT NULL,
     tier_to BIGINT,
     rate NUMERIC(19,6) NOT NULL
@@ -71,14 +73,16 @@ CREATE INDEX idx_product_fee_tiers_fee_entry_id ON product_fee_tiers(fee_entry_i
 
 CREATE TABLE product_customer_segments (
     id BIGSERIAL PRIMARY KEY,
-    product_version_id BIGINT NOT NULL REFERENCES product_versions(id),
+    product_version_id BIGINT NOT NULL CONSTRAINT fk_product_customer_segments_version FOREIGN KEY (product_version_id) REFERENCES product_versions(id),
     customer_type VARCHAR(30) NOT NULL,
     UNIQUE (product_version_id, customer_type)
 );
 
+CREATE INDEX idx_product_customer_segments_product_version_id ON product_customer_segments(product_version_id);
+
 CREATE TABLE product_audit_logs (
     id BIGSERIAL PRIMARY KEY,
-    product_version_id BIGINT NOT NULL REFERENCES product_versions(id),
+    product_version_id BIGINT NOT NULL CONSTRAINT fk_product_audit_logs_version FOREIGN KEY (product_version_id) REFERENCES product_versions(id),
     action VARCHAR(30) NOT NULL,
     actor VARCHAR(100) NOT NULL,
     from_status VARCHAR(30),
