@@ -139,12 +139,31 @@ class ProductFeatureServiceTest {
 
     @Test
     void removeFeature_deletesFeature() {
-        when(productFeatureRepository.existsById(1L)).thenReturn(true);
+        ProductFeature existingFeature = new ProductFeature(testVersion, "account.maxTransactions", "100");
+        existingFeature.setAudit(new com.banking.product.domain.embeddable.AuditFields());
+
+        when(productFeatureRepository.findById(1L)).thenReturn(Optional.of(existingFeature));
         doNothing().when(productFeatureRepository).deleteById(1L);
 
         productFeatureService.removeFeature(1L);
 
         verify(productFeatureRepository).deleteById(1L);
+    }
+
+    @Test
+    void removeFeature_nonDraftVersion_throwsNotEditableException() {
+        testVersion.setStatus(ProductStatus.ACTIVE);
+        ProductFeature existingFeature = new ProductFeature(testVersion, "account.maxTransactions", "100");
+        existingFeature.setAudit(new com.banking.product.domain.embeddable.AuditFields());
+
+        when(productFeatureRepository.findById(1L)).thenReturn(Optional.of(existingFeature));
+
+        assertThrows(
+            ProductVersionNotEditableException.class,
+            () -> productFeatureService.removeFeature(1L)
+        );
+
+        verify(productFeatureRepository, never()).deleteById(any());
     }
 
     @Test

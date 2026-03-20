@@ -190,12 +190,33 @@ class ProductPricingServiceTest {
 
     @Test
     void removeFeeEntry_deletesFeeEntry() {
-        when(productFeeEntryRepository.existsById(1L)).thenReturn(true);
+        ProductFeeEntry existingEntry = new ProductFeeEntry(testVersion, "MONTHLY_FEE", 
+            FeeCalculationMethod.FLAT, new BigDecimal("25.00"), null, "USD");
+        existingEntry.setAudit(new com.banking.product.domain.embeddable.AuditFields());
+
+        when(productFeeEntryRepository.findById(1L)).thenReturn(Optional.of(existingEntry));
         doNothing().when(productFeeEntryRepository).deleteById(1L);
 
         productPricingService.removeFeeEntry(1L);
 
         verify(productFeeEntryRepository).deleteById(1L);
+    }
+
+    @Test
+    void removeFeeEntry_nonDraftVersion_throwsNotEditableException() {
+        testVersion.setStatus(ProductStatus.ACTIVE);
+        ProductFeeEntry existingEntry = new ProductFeeEntry(testVersion, "MONTHLY_FEE", 
+            FeeCalculationMethod.FLAT, new BigDecimal("25.00"), null, "USD");
+        existingEntry.setAudit(new com.banking.product.domain.embeddable.AuditFields());
+
+        when(productFeeEntryRepository.findById(1L)).thenReturn(Optional.of(existingEntry));
+
+        assertThrows(
+            ProductVersionNotEditableException.class,
+            () -> productPricingService.removeFeeEntry(1L)
+        );
+
+        verify(productFeeEntryRepository, never()).deleteById(any());
     }
 
     @Test

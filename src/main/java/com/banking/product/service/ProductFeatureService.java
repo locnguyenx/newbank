@@ -61,9 +61,10 @@ public class ProductFeatureService {
 
     @Transactional
     public void removeFeature(Long featureId) {
-        if (!productFeatureRepository.existsById(featureId)) {
-            throw new IllegalArgumentException("Feature not found: " + featureId);
-        }
+        ProductFeature feature = productFeatureRepository.findById(featureId)
+                .orElseThrow(() -> new IllegalArgumentException("Feature not found: " + featureId));
+
+        validateVersionIsDraft(feature.getProductVersion());
         productFeatureRepository.deleteById(featureId);
     }
 

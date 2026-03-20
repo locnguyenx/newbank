@@ -95,9 +95,10 @@ public class ProductPricingService {
 
     @Transactional
     public void removeFeeEntry(Long feeEntryId) {
-        if (!productFeeEntryRepository.existsById(feeEntryId)) {
-            throw new IllegalArgumentException("Fee entry not found: " + feeEntryId);
-        }
+        ProductFeeEntry feeEntry = productFeeEntryRepository.findById(feeEntryId)
+                .orElseThrow(() -> new IllegalArgumentException("Fee entry not found: " + feeEntryId));
+
+        validateVersionIsDraft(feeEntry.getProductVersion());
         productFeeEntryRepository.deleteById(feeEntryId);
     }
 
