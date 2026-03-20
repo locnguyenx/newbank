@@ -119,6 +119,19 @@ class ProductVersionServiceTest {
     }
 
     @Test
+    void reject_sameUser_throwsException() {
+        ProductVersion version = createVersion(1L, product, 1, ProductStatus.PENDING_APPROVAL);
+        version.setSubmittedBy("alice");
+
+        when(productVersionRepository.findById(1L)).thenReturn(Optional.of(version));
+
+        MakerCheckerViolationException exception = assertThrows(MakerCheckerViolationException.class, () ->
+                productVersionService.reject(1L, "alice", "test comment"));
+
+        assertEquals(MakerCheckerViolationException.ERROR_CODE, exception.getErrorCode());
+    }
+
+    @Test
     void rejection_requiresComment() {
         assertThrows(IllegalArgumentException.class, () ->
                 productVersionService.reject(1L, "bob", null));
