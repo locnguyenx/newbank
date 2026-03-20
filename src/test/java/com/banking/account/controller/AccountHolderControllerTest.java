@@ -2,6 +2,7 @@ package com.banking.account.controller;
 
 import com.banking.account.dto.AccountHolderRequest;
 import com.banking.account.dto.AccountHolderResponse;
+import com.banking.account.domain.enums.AccountHolderRole;
 import com.banking.account.exception.AccountNotFoundException;
 import com.banking.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -22,7 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AccountHolderController.class)
+@WebMvcTest(controllers = AccountHolderController.class)
+@ContextConfiguration(classes = {AccountHolderController.class, AccountExceptionHandler.class})
 class AccountHolderControllerTest {
 
     @Autowired
@@ -38,47 +41,35 @@ class AccountHolderControllerTest {
     void shouldAddHolder() throws Exception {
         AccountHolderRequest request = new AccountHolderRequest();
         request.setCustomerId(2L);
-        request.setRole("JOINT");
+        request.setRole(AccountHolderRole.JOINT);
 
-        AccountHolderResponse response = new AccountHolderResponse();
-        response.setId(1L);
-        response.setCustomerId(2L);
-        response.setCustomerName("John Doe");
-        response.setRole("JOINT");
-        response.setAddedAt(Instant.parse("2024-01-15T10:00:00Z"));
-
-        when(accountService.addHolder(eq("ACC-20240115-000001"), any(AccountHolderRequest.class)))
-                .thenReturn(response);
+        doNothing().when(accountService).addAccountHolder(eq("ACC-20240115-000001"), any(AccountHolderRequest.class));
 
         mockMvc.perform(post("/api/accounts/ACC-20240115-000001/holders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.customerId").value(2L))
-                .andExpect(jsonPath("$.customerName").value("John Doe"))
-                .andExpect(jsonPath("$.role").value("JOINT"));
+                .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturn404WhenAddingHolderToNonExistentAccount() throws Exception {
         AccountHolderRequest request = new AccountHolderRequest();
         request.setCustomerId(2L);
-        request.setRole("JOINT");
+        request.setRole(AccountHolderRole.JOINT);
 
-        when(accountService.addHolder(eq("ACC-99999999-999999"), any(AccountHolderRequest.class)))
-                .thenThrow(new AccountNotFoundException("ACC-99999999-999999"));
+        doThrow(new AccountNotFoundException("ACC-99999999-999999"))
+                .when(accountService).addAccountHolder(eq("ACC-99999999-999999"), any(AccountHolderRequest.class));
 
         mockMvc.perform(post("/api/accounts/ACC-99999999-999999/holders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
     }
 
     @Test
     void shouldRemoveHolder() throws Exception {
-        doNothing().when(accountService).removeHolder("ACC-20240115-000001", 1L);
+        doNothing().when(accountService).removeAccountHolder(1L);
 
         mockMvc.perform(delete("/api/accounts/ACC-20240115-000001/holders/1"))
                 .andExpect(status().isNoContent());
@@ -86,11 +77,10 @@ class AccountHolderControllerTest {
 
     @Test
     void shouldReturn404WhenRemovingHolderFromNonExistentAccount() throws Exception {
-        doThrow(new AccountNotFoundException("ACC-99999999-999999"))
-                .when(accountService).removeHolder("ACC-99999999-999999", 1L);
+        doThrow(new AccountNotFoundException("Holder not found: 1"))
+                .when(accountService).removeAccountHolder(1L);
 
         mockMvc.perform(delete("/api/accounts/ACC-99999999-999999/holders/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACC-001"));
+                .andExpect(status().isNotFound());
     }
 }

@@ -1,7 +1,7 @@
 plugins {
     java
-    alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spring.dependency.management)
+    id("org.springframework.boot") version "3.2.5"
+    id("io.spring.dependency-management") version "1.1.4"
 }
 
 group = "com.banking"
@@ -31,8 +31,8 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test)
 }
 
-bootJar {
-    mainClass.set = 'com.banking.account.AccountModuleApplication'
+springBoot {
+    mainClass.set("com.banking.account.AccountModuleApplication")
 }
 
 tasks.withType<Test> {

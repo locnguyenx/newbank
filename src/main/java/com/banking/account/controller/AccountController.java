@@ -10,6 +10,7 @@ import com.banking.account.dto.AccountStatementFilter;
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -44,7 +45,7 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<AccountResponse> openAccount(@Valid @RequestBody AccountOpeningRequest request) {
         AccountResponse response = accountService.openAccount(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{accountNumber}")
