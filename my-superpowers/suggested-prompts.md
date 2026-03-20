@@ -33,3 +33,20 @@ Invoke writing-plans: Break into TDD tasks (Red: write failing test; Green: mini
 **PHASE 4: Implement**
 Use subagent-driven-development with test-driven-development skill.
 ```
+# Improve the skills
+## brainstorming
+
+1. The user wants traceability between BRD requirements (both functional requirements and user stories) and BDD scenarios
+
+   AGENT: Let me think about the best approach. I should:
+   1. First update the BRD with requirement IDs
+   2. Then update the BDD to tag each scenario with the requirement ID(s) it covers
+   3. Maybe add a traceability matrix at the end
+
+2. BDD scenarios must be atomic - one scenario should map to one requirement ID, not multiple
+
+   AGENT: 
+   I'm realizing that user stories and functional requirements might serve different purposes in the traceability matrix. User stories capture the business need, while FRs define the system specification. 
+   A single BDD scenario could reasonably trace back to one user story and one or more FRs if those FRs are all part of the same requirement cluster. But the user wants atomicity—one behavior per scenario—so I should restructure both the BRD with US IDs and then rebuild the BDD with truly single-responsibility scenarios. I should organize BDD scenarios by user stories to keep things clean and maintainable. Each scenario gets tagged with its corresponding user story, and I'll add a traceability matrix that maps stories to their functional requirements and related scenarios.
+
+3. Classify BDD scenarios to: Happy path (optimal user flow) , Edge case (boundary, invalid, or extreme scenarios)
