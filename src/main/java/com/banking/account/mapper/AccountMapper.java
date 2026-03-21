@@ -21,6 +21,8 @@ public class AccountMapper {
             account.getCurrency(),
             account.getBalance(),
             account.getProductId(),
+            account.getProductVersionId(),
+            account.getProductName(),
             account.getCustomer().getId(),
             account.getOpenedAt(),
             account.getClosedAt()

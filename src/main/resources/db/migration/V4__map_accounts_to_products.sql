@@ -1,0 +1,6 @@
+-- V4__map_accounts_to_products.sql
+-- Product version binding for accounts
+-- Note: In dev/test, accounts are created via Hibernate (no Flyway seed).
+-- New accounts get product_version_id set at account-open time via AccountService.
+-- This migration ensures the columns exist and handles any pre-existing accounts
+-- in production environments that predate the product module.

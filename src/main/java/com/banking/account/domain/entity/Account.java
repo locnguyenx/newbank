@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "accounts", indexes = {
     @Index(name = "idx_accounts_account_number", columnList = "accountNumber", unique = true),
     @Index(name = "idx_accounts_customer_id", columnList = "customerId"),
-    @Index(name = "idx_accounts_status", columnList = "status")
+    @Index(name = "idx_accounts_status", columnList = "status"),
+    @Index(name = "idx_accounts_product_version_id", columnList = "product_version_id")
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "account_type", discriminatorType = DiscriminatorType.STRING)
@@ -27,7 +28,7 @@ public abstract class Account {
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "account_type", nullable = false, length = 30, insertable = false, updatable = false)
     private AccountType type;
 
     @Enumerated(EnumType.STRING)
@@ -47,6 +48,12 @@ public abstract class Account {
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
+
+    @Column(name = "product_version_id")
+    private Long productVersionId;
+
+    @Column(name = "product_name")
+    private String productName;
 
     @Column(name = "opened_at", nullable = false)
     private LocalDateTime openedAt;
@@ -135,6 +142,22 @@ public abstract class Account {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public Long getProductVersionId() {
+        return productVersionId;
+    }
+
+    public void setProductVersionId(Long productVersionId) {
+        this.productVersionId = productVersionId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public LocalDateTime getOpenedAt() {

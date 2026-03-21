@@ -5,6 +5,7 @@ import com.banking.product.domain.entity.ProductVersion;
 import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.dto.request.CreateProductRequest;
 import com.banking.product.dto.request.UpdateProductRequest;
+import com.banking.product.dto.response.ProductDetailResponse;
 import com.banking.product.dto.response.ProductResponse;
 import com.banking.product.exception.DuplicateProductCodeException;
 import com.banking.product.exception.InvalidProductStatusException;
@@ -101,6 +102,14 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id.toString()));
         return productMapper.toResponse(product);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailResponse getProductDetail(Long productId) {
+        ProductVersion currentVersion = productVersionRepository
+                .findTopByProductIdOrderByVersionNumberDesc(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+        return ProductDetailResponse.fromEntity(currentVersion);
     }
 
     @Transactional(readOnly = true)

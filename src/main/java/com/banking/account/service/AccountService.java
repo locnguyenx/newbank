@@ -21,6 +21,8 @@ import com.banking.account.dto.AccountHolderRequest;
 import com.banking.account.dto.AccountResponse;
 import com.banking.customer.domain.entity.Customer;
 import com.banking.customer.repository.CustomerRepository;
+import com.banking.product.dto.response.ProductVersionResponse;
+import com.banking.product.service.ProductQueryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,17 +41,20 @@ public class AccountService {
     private final CustomerRepository customerRepository;
     private final AccountNumberGenerator accountNumberGenerator;
     private final AccountMapper accountMapper;
+    private final ProductQueryService productQueryService;
 
     public AccountService(AccountRepository accountRepository,
                           AccountHolderRepository accountHolderRepository,
                           CustomerRepository customerRepository,
                           AccountNumberGenerator accountNumberGenerator,
-                          AccountMapper accountMapper) {
+                          AccountMapper accountMapper,
+                          ProductQueryService productQueryService) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
         this.customerRepository = customerRepository;
         this.accountNumberGenerator = accountNumberGenerator;
         this.accountMapper = accountMapper;
+        this.productQueryService = productQueryService;
     }
 
     public Page<AccountResponse> getAccounts(String search, AccountType type, AccountStatus status, Long customerId, Pageable pageable) {
@@ -58,71 +64,79 @@ public class AccountService {
 
     @Transactional
     public AccountResponse openAccount(AccountOpeningRequest request) {
-        // Validate customer exists
         Customer customer = customerRepository.findById(request.getCustomerId())
             .orElseThrow(() -> new AccountNotFoundException("Customer not found: " + request.getCustomerId()));
 
-        // Generate unique account number
+        Optional<ProductVersionResponse> productVersion = productQueryService.getActiveProductByCode(request.getProductCode());
+
+        Long productId = null;
+        Long productVersionId = null;
+        String productName = null;
+
+        if (productVersion.isPresent()) {
+            productId = productVersion.get().getProductId();
+            productVersionId = productVersion.get().getId();
+            productName = productVersion.get().getProductName();
+        }
+
         String accountNumber;
         do {
             accountNumber = accountNumberGenerator.generate();
         } while (accountRepository.findByAccountNumber(accountNumber).isPresent());
-        // Note: The loop is safe because generator produces unique daily numbers, but we double-check
 
-        // Create account based on type
         Account account;
         switch (request.getType()) {
             case CURRENT:
                 account = new CurrentAccount(
                     accountNumber,
                     customer,
-                    request.getProductId(),
+                    productId,
                     request.getCurrency(),
-                    BigDecimal.ZERO, // balance starts at 0
-                    BigDecimal.ZERO  // overdraftLimit, will set deposit later
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO
                 );
                 break;
             case SAVINGS:
                 account = new SavingsAccount(
                     accountNumber,
                     customer,
-                    request.getProductId(),
+                    productId,
                     request.getCurrency(),
-                    BigDecimal.ZERO, // minimumBalance, placeholder
-                    BigDecimal.ZERO  // interestRate, placeholder
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO
                 );
                 break;
             case FIXED_DEPOSIT:
                 account = new FixedDepositAccount(
                     accountNumber,
                     customer,
-                    request.getProductId(),
+                    productId,
                     request.getCurrency(),
-                    12, // depositTerm, placeholder (1 year)
-                    request.getInitialDeposit() // maturityAmount, approximate
+                    12,
+                    request.getInitialDeposit()
                 );
                 break;
             case LOAN:
                 account = new LoanAccount(
                     accountNumber,
                     customer,
-                    request.getProductId(),
+                    productId,
                     request.getCurrency(),
-                    request.getInitialDeposit(), // loanAmount
-                    BigDecimal.ZERO, // interestRate, placeholder
-                    12 // term, placeholder (1 year)
+                    request.getInitialDeposit(),
+                    BigDecimal.ZERO,
+                    12
                 );
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported account type: " + request.getType());
         }
 
-        // Set initial balance from initial deposit
+        account.setProductVersionId(productVersionId);
+        account.setProductName(productName);
         account.setBalance(request.getInitialDeposit());
         account.setStatus(AccountStatus.ACTIVE);
         account = accountRepository.save(account);
 
-        // Create account holders
         for (AccountHolderRequest holderReq : request.getHolders()) {
             Customer holderCustomer = customerRepository.findById(holderReq.getCustomerId())
                 .orElseThrow(() -> new AccountNotFoundException("Holder customer not found: " + holderReq.getCustomerId()));

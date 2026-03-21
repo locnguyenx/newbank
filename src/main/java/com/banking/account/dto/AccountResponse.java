@@ -28,6 +28,10 @@ public class AccountResponse {
 
     private Long productId;
 
+    private Long productVersionId;
+
+    private String productName;
+
     private Long customerId;
 
     private LocalDateTime openedAt;
@@ -40,6 +44,7 @@ public class AccountResponse {
 
     public AccountResponse(Long id, String accountNumber, AccountType type, AccountStatus status,
                           Currency currency, BigDecimal balance, Long productId,
+                          Long productVersionId, String productName,
                           Long customerId, LocalDateTime openedAt, LocalDateTime closedAt) {
         this.id = id;
         this.accountNumber = accountNumber;
@@ -48,6 +53,8 @@ public class AccountResponse {
         this.currency = currency;
         this.balance = balance;
         this.productId = productId;
+        this.productVersionId = productVersionId;
+        this.productName = productName;
         this.customerId = customerId;
         this.openedAt = openedAt;
         this.closedAt = closedAt;
@@ -108,6 +115,22 @@ public class AccountResponse {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public Long getProductVersionId() {
+        return productVersionId;
+    }
+
+    public void setProductVersionId(Long productVersionId) {
+        this.productVersionId = productVersionId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public Long getCustomerId() {

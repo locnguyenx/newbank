@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "individual_customers")
 @DiscriminatorValue("INDIVIDUAL")
 public class IndividualCustomer extends Customer {
 

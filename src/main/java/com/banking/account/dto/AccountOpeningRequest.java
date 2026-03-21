@@ -17,8 +17,6 @@ public class AccountOpeningRequest {
     @NotEmpty(message = "Product code is required")
     private String productCode;
 
-    private Long productId;
-
     @NotNull(message = "Account type is required")
     private AccountType type;
 
@@ -50,14 +48,6 @@ public class AccountOpeningRequest {
 
     public void setProductCode(String productCode) {
         this.productCode = productCode;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
     }
 
     public AccountType getType() {

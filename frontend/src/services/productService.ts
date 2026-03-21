@@ -19,7 +19,7 @@ export const productService = {
   },
 
   getProductById(id: number): Promise<ProductDetail> {
-    return apiClient.get(`/products/${id}`).then((res) => res.data);
+    return apiClient.get(`/products/${id}/detail`).then((res) => res.data);
   },
 
   createProduct(data: CreateProductRequest): Promise<Product> {

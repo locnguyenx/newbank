@@ -8,6 +8,7 @@ public class ProductVersionResponse {
 
     private Long id;
     private Long productId;
+    private String productName;
     private Integer versionNumber;
     private String status;
     private String submittedBy;
@@ -23,6 +24,7 @@ public class ProductVersionResponse {
         ProductVersionResponse response = new ProductVersionResponse();
         response.id = version.getId();
         response.productId = version.getProduct() != null ? version.getProduct().getId() : null;
+        response.productName = version.getProduct() != null ? version.getProduct().getName() : null;
         response.versionNumber = version.getVersionNumber();
         response.status = version.getStatus() != null ? version.getStatus().name() : null;
         response.submittedBy = version.getSubmittedBy();
@@ -49,6 +51,14 @@ public class ProductVersionResponse {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public Integer getVersionNumber() {

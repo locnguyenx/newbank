@@ -3,6 +3,7 @@ package com.banking.product.controller;
 import com.banking.product.domain.entity.Product;
 import com.banking.product.dto.request.CreateProductRequest;
 import com.banking.product.dto.request.UpdateProductRequest;
+import com.banking.product.dto.response.ProductDetailResponse;
 import com.banking.product.dto.response.ProductResponse;
 import com.banking.product.mapper.ProductMapper;
 import com.banking.product.service.ProductService;
@@ -43,6 +44,12 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
         ProductResponse response = productService.getProduct(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<ProductDetailResponse> getProductDetail(@PathVariable Long id) {
+        ProductDetailResponse response = productService.getProductDetail(id);
         return ResponseEntity.ok(response);
     }
 

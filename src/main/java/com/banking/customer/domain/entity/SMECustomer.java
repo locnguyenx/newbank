@@ -5,6 +5,7 @@ import com.banking.customer.domain.enums.CustomerStatus;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "sme_customers")
 @DiscriminatorValue("SME")
 public class SMECustomer extends Customer {
 

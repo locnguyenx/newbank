@@ -277,7 +277,6 @@ void shouldFreezeAccount() throws Exception {
         AccountOpeningRequest request = new AccountOpeningRequest();
         request.setCustomerId(1L);
         request.setProductCode("CUR-001");
-        request.setProductId(1L);
         request.setType(AccountType.CURRENT);
         request.setCurrency(Currency.USD);
         request.setInitialDeposit(new BigDecimal("1000.00"));
