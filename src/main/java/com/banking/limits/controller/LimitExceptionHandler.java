@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice(basePackages = "com.banking.limits")
-public class LimitsExceptionHandler {
+public class LimitExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(LimitsExceptionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(LimitExceptionHandler.class);
 
     @ExceptionHandler(LimitNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleLimitNotFoundException(LimitNotFoundException ex) {
@@ -36,6 +36,26 @@ public class LimitsExceptionHandler {
                 HttpStatus.BAD_REQUEST.value()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(LimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleLimitExceededException(LimitExceededException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(LimitAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleLimitAlreadyExistsException(LimitAlreadyExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
