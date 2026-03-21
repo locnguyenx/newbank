@@ -142,13 +142,13 @@ class BranchServiceTest {
         Country country = new Country("US", "United States", "North America");
         Branch branch = new Branch("NYC-001", "New York Main", country, "123 Wall St");
 
-        when(branchRepository.findByIsActiveTrueAndCountryCode("US")).thenReturn(Arrays.asList(branch));
+        when(branchRepository.findByIsActiveTrueAndCountryIsoCode("US")).thenReturn(Arrays.asList(branch));
         when(masterDataMapper.toResponse(branch)).thenReturn(BranchResponse.fromEntity(branch));
 
         List<BranchResponse> responses = branchService.getActiveBranches("US");
 
         assertEquals(1, responses.size());
-        verify(branchRepository).findByIsActiveTrueAndCountryCode("US");
+        verify(branchRepository).findByIsActiveTrueAndCountryIsoCode("US");
         verify(branchRepository, never()).findByIsActiveTrue();
     }
 

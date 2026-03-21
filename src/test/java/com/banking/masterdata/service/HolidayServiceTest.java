@@ -71,7 +71,7 @@ class HolidayServiceTest {
 
     @Test
     void isHoliday_true() {
-        when(holidayRepository.existsByCountryCodeAndHolidayDate("US", LocalDate.of(2026, 7, 4)))
+        when(holidayRepository.existsByCountryIsoCodeAndHolidayDate("US", LocalDate.of(2026, 7, 4)))
                 .thenReturn(true);
 
         boolean result = holidayService.isHoliday("US", LocalDate.of(2026, 7, 4));
@@ -81,7 +81,7 @@ class HolidayServiceTest {
 
     @Test
     void isHoliday_false() {
-        when(holidayRepository.existsByCountryCodeAndHolidayDate("US", LocalDate.of(2026, 3, 15)))
+        when(holidayRepository.existsByCountryIsoCodeAndHolidayDate("US", LocalDate.of(2026, 3, 15)))
                 .thenReturn(false);
 
         boolean result = holidayService.isHoliday("US", LocalDate.of(2026, 3, 15));
@@ -96,7 +96,7 @@ class HolidayServiceTest {
         Holiday holiday2 = new Holiday(country, LocalDate.of(2026, 7, 4), "Independence Day");
         Holiday holiday3 = new Holiday(country, LocalDate.of(2026, 12, 25), "Christmas Day");
 
-        when(holidayRepository.findByCountryCodeAndHolidayDateBetween(eq("US"), eq(LocalDate.of(2026, 1, 1)), eq(LocalDate.of(2026, 12, 31))))
+        when(holidayRepository.findByCountryIsoCodeAndHolidayDateBetween(eq("US"), eq(LocalDate.of(2026, 1, 1)), eq(LocalDate.of(2026, 12, 31))))
                 .thenReturn(Arrays.asList(holiday1, holiday2, holiday3));
         when(masterDataMapper.toResponse(holiday1)).thenReturn(HolidayResponse.fromEntity(holiday1));
         when(masterDataMapper.toResponse(holiday2)).thenReturn(HolidayResponse.fromEntity(holiday2));

@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
 
-    List<Holiday> findByCountryCodeAndHolidayDateBetween(String countryCode, LocalDate from, LocalDate to);
+    List<Holiday> findByCountryIsoCodeAndHolidayDateBetween(String countryCode, LocalDate from, LocalDate to);
 
-    boolean existsByCountryCodeAndHolidayDate(String countryCode, LocalDate date);
+    boolean existsByCountryIsoCodeAndHolidayDate(String countryCode, LocalDate date);
 }

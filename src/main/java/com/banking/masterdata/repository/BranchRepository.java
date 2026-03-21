@@ -11,5 +11,5 @@ public interface BranchRepository extends JpaRepository<Branch, String> {
 
     List<Branch> findByIsActiveTrue();
 
-    List<Branch> findByIsActiveTrueAndCountryCode(String countryCode);
+    List<Branch> findByIsActiveTrueAndCountryIsoCode(String countryCode);
 }

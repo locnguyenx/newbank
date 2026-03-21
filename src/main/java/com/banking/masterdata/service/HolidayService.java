@@ -40,7 +40,7 @@ public class HolidayService {
 
     @Transactional(readOnly = true)
     public boolean isHoliday(String countryCode, LocalDate date) {
-        return holidayRepository.existsByCountryCodeAndHolidayDate(countryCode, date);
+        return holidayRepository.existsByCountryIsoCodeAndHolidayDate(countryCode, date);
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +48,7 @@ public class HolidayService {
         LocalDate yearStart = LocalDate.of(year, 1, 1);
         LocalDate yearEnd = LocalDate.of(year, 12, 31);
 
-        List<Holiday> holidays = holidayRepository.findByCountryCodeAndHolidayDateBetween(countryCode, yearStart, yearEnd);
+        List<Holiday> holidays = holidayRepository.findByCountryIsoCodeAndHolidayDateBetween(countryCode, yearStart, yearEnd);
         return holidays.stream()
                 .map(masterDataMapper::toResponse)
                 .toList();

@@ -54,7 +54,7 @@ public class BranchService {
     public List<BranchResponse> getActiveBranches(String countryCode) {
         List<Branch> branches;
         if (countryCode != null && !countryCode.isBlank()) {
-            branches = branchRepository.findByIsActiveTrueAndCountryCode(countryCode);
+            branches = branchRepository.findByIsActiveTrueAndCountryIsoCode(countryCode);
         } else {
             branches = branchRepository.findByIsActiveTrue();
         }
