@@ -109,6 +109,12 @@ public class CustomerNotFoundException extends RuntimeException {
 - Worktrees are stored in `.worktrees/` directory
 - Never commit to main directly
 
+## Database Guidelines
+
+**`application.yml` uses `ddl-auto: none`** — Flyway manages all schema. Hibernate does NOT create tables. **All entity changes MUST use the [flyway-hibernate-entity-validation] skill before committing.** This is a hard requirement, not optional.
+
+See: `docs/lesson-learned/flyway-hibernate-ddl-mismatch.md`
+
 ## Superpowers Skills
 
 Invoke relevant skills before coding tasks:
@@ -116,3 +122,4 @@ Invoke relevant skills before coding tasks:
 - **writing-plans** - Implementation plans
 - **test-driven-development** - Write tests first
 - **systematic-debugging** - Bug investigation
+- **flyway-hibernate-entity-validation** - JPA entity changes, before committing
