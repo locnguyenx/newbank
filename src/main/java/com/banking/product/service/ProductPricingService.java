@@ -18,6 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated Use {@link com.banking.charges.service.ChargeAssignmentService} for fee management.
+ *             All fee data has been migrated to the Charges module (V14 migration).
+ *             New fee management should use ChargeAssignmentService.assignCharge() and
+ *             ChargeCalculationService.calculate() from the charges module.
+ */
 @Service
 @Deprecated
 public class ProductPricingService {

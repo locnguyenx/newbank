@@ -27,6 +27,12 @@ public class LimitUsageService {
         this.limitDefinitionRepository = limitDefinitionRepository;
     }
 
+    /**
+     * Records a transaction amount against a limit for cumulative usage tracking.
+     * NOTE: This method must be wired from the transaction processing service
+     * (e.g., a TransactionService or AccountPostingService) to track actual usage.
+     * Currently not called from production code — limits will always show zero usage.
+     */
     public void recordUsage(Long limitId, String accountNumber, BigDecimal amount, LocalDate date) {
         LimitDefinition limitDefinition = limitDefinitionRepository.findById(limitId)
                 .orElseThrow(() -> new LimitNotFoundException(limitId));

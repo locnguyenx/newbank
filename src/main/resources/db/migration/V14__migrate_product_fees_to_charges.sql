@@ -9,6 +9,11 @@
 -- the corresponding product_fee_entries and product_fee_tiers.
 --
 -- This migration runs after V12 (charges schema) and V13 (seed charges).
+--
+-- ROLLBACK NOTE: This migration is not reversible via a standard Flyway rollback.
+-- To rollback, manually: DELETE FROM product_charges; DELETE FROM charge_tiers;
+-- DELETE FROM charge_rules; DELETE FROM charge_definitions; (retain seed data).
+-- All ON CONFLICT DO NOTHING clauses make this migration idempotent — safe to re-run.
 
 -- Step 1: Create charge_definitions from unique fee_type + product combinations.
 -- Maps free-text fee_type strings to ChargeType enum values.

@@ -99,8 +99,12 @@ public class ChargeCalculationService {
             response.setRuleApplied(chargeDefinition.getName());
 
             return response;
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ChargeCalculationResponse.noCharge();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error during charge calculation", e);
         }
     }
 

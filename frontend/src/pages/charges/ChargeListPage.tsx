@@ -8,12 +8,16 @@ import {
   createChargeDefinition,
   activateCharge,
   deactivateCharge,
+  fetchChargeRules,
+  fetchProductCharges,
+  fetchCustomerOverrides,
   fetchWaivers,
   createWaiver,
   removeWaiver,
   calculateCharge,
   clearError,
 } from '@/store/slices/chargeSlice';
+import { fetchCurrencies } from '@/store/slices/masterDataSlice';
 import type { ChargeDefinition, FeeWaiver, CreateChargeDefinitionRequest, CreateFeeWaiverRequest, ChargeCalculationRequest } from '@/types/charge.types';
 import { ChargeType, WaiverScope } from '@/types/charge.types';
 
@@ -48,9 +52,11 @@ const waiverColumns: ColumnsType<FeeWaiver> = [
 
 export function ChargeListPage() {
   const dispatch = useAppDispatch();
-  const { charges, waivers, calculationResult, loading, error } = useAppSelector((state) => state.charges);
+  const { charges, chargeRules, productCharges, customerOverrides, waivers, calculationResult, loading, error } = useAppSelector((state) => state.charges);
+  const { currencies } = useAppSelector((state) => state.masterData);
   const [activeTab, setActiveTab] = useState('charges');
   const [activeSubTab, setActiveSubTab] = useState('rules');
+  const [selectedChargeId, setSelectedChargeId] = useState<number | null>(null);
   const [createChargeModalVisible, setCreateChargeModalVisible] = useState(false);
   const [createWaiverModalVisible, setCreateWaiverModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -60,6 +66,7 @@ export function ChargeListPage() {
   useEffect(() => {
     dispatch(fetchChargeDefinitions({}));
     dispatch(fetchWaivers({}));
+    dispatch(fetchCurrencies(true));
   }, [dispatch]);
 
   useEffect(() => {
@@ -171,31 +178,85 @@ export function ChargeListPage() {
         rowKey="id"
         loading={loading}
         scroll={{ x: 'max-content' }}
+        onRow={(record) => ({
+          onClick: () => {
+            setSelectedChargeId(record.id);
+            dispatch(fetchChargeRules(record.id));
+          },
+          style: { cursor: 'pointer' },
+        })}
       />
     </Card>
   );
 
   const rulesTab = (
-    <Tabs activeKey={activeSubTab} onChange={setActiveSubTab}>
+    <Tabs activeKey={activeSubTab} onChange={(key) => {
+      setActiveSubTab(key);
+      if (key === 'product-charges' && charges.length > 0) {
+        dispatch(fetchProductCharges(charges[0].productCode || ''));
+      }
+      if (key === 'customer-overrides' && charges.length > 0) {
+        dispatch(fetchCustomerOverrides(charges[0].id));
+      }
+    }}>
       <TabPane tab="Rules" key="rules">
         <Card>
-          <p>Charge rules will be displayed here.</p>
+          {selectedChargeId ? (
+            <>
+              <div style={{ marginBottom: 8, color: '#666' }}>Showing rules for charge #{selectedChargeId}</div>
+              <Table
+                columns={[
+                  { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
+                  { title: 'Method', dataIndex: 'calculationMethod', key: 'calculationMethod', width: 120 },
+                  { title: 'Flat Amount', dataIndex: 'flatAmount', key: 'flatAmount', width: 120 },
+                  { title: 'Rate (%)', dataIndex: 'percentageRate', key: 'percentageRate', width: 100 },
+                  { title: 'Min', dataIndex: 'minAmount', key: 'minAmount', width: 100 },
+                  { title: 'Max', dataIndex: 'maxAmount', key: 'maxAmount', width: 100 },
+                ]}
+                dataSource={chargeRules[selectedChargeId] || []}
+                rowKey="id"
+                loading={loading}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+              />
+            </>
+          ) : (
+            <p style={{ color: '#999' }}>Select a charge below to view its rules.</p>
+          )}
         </Card>
       </TabPane>
       <TabPane tab="Product Charges" key="product-charges">
         <Card>
-          <Button type="primary" icon={<PlusOutlined />} style={{ marginBottom: 16 }}>
-            Assign Product Charge
-          </Button>
-          <p>Product charges will be displayed here.</p>
+          <Table
+            columns={[
+              { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
+              { title: 'Charge', dataIndex: 'chargeName', key: 'chargeName' },
+              { title: 'Product Code', dataIndex: 'productCode', key: 'productCode', width: 150 },
+              { title: 'Override Amount', dataIndex: 'overrideAmount', key: 'overrideAmount', width: 150 },
+              { title: 'Created', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => v ? new Date(v).toLocaleDateString() : '-' },
+            ]}
+            dataSource={productCharges}
+            rowKey="id"
+            loading={loading}
+            scroll={{ x: 'max-content' }}
+          />
         </Card>
       </TabPane>
       <TabPane tab="Customer Overrides" key="customer-overrides">
         <Card>
-          <Button type="primary" icon={<PlusOutlined />} style={{ marginBottom: 16 }}>
-            Assign Customer Override
-          </Button>
-          <p>Customer overrides will be displayed here.</p>
+          <Table
+            columns={[
+              { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
+              { title: 'Charge', dataIndex: 'chargeName', key: 'chargeName' },
+              { title: 'Customer ID', dataIndex: 'customerId', key: 'customerId', width: 120 },
+              { title: 'Override Amount', dataIndex: 'overrideAmount', key: 'overrideAmount', width: 150 },
+              { title: 'Created', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => v ? new Date(v).toLocaleDateString() : '-' },
+            ]}
+            dataSource={customerOverrides}
+            rowKey="id"
+            loading={loading}
+            scroll={{ x: 'max-content' }}
+          />
         </Card>
       </TabPane>
     </Tabs>
@@ -250,9 +311,9 @@ export function ChargeListPage() {
         </Form.Item>
         <Form.Item name="currency" label="Currency" rules={[{ required: true }]}>
           <Select>
-            <Select.Option value="USD">USD</Select.Option>
-            <Select.Option value="EUR">EUR</Select.Option>
-            <Select.Option value="GBP">GBP</Select.Option>
+            {currencies.map((c) => (
+              <Select.Option key={c.code} value={c.code}>{c.code}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
         <Button type="primary" onClick={handleCalculate} loading={loading}>
@@ -311,9 +372,9 @@ export function ChargeListPage() {
           </Form.Item>
           <Form.Item name="currency" label="Currency" rules={[{ required: true }]}>
             <Select>
-              <Select.Option value="USD">USD</Select.Option>
-              <Select.Option value="EUR">EUR</Select.Option>
-              <Select.Option value="GBP">GBP</Select.Option>
+              {currencies.map((c) => (
+                <Select.Option key={c.code} value={c.code}>{c.code}</Select.Option>
+              ))}
             </Select>
           </Form.Item>
         </Form>

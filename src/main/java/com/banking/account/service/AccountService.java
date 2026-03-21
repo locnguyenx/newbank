@@ -39,9 +39,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AccountService {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     private final AccountRepository accountRepository;
     private final AccountHolderRepository accountHolderRepository;
@@ -186,7 +190,7 @@ public class AccountService {
                     productLimit.getOverrideAmount()
                 );
             } catch (Exception e) {
-                // Limit already assigned or definition not found, skip
+                log.warn("Failed to assign limit {} to account {}: {}", productLimit.getLimitDefinitionId(), accountNumber, e.getMessage());
             }
         }
 
