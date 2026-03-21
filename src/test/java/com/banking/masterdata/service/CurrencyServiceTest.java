@@ -53,11 +53,11 @@ class CurrencyServiceTest {
         Currency currency = new Currency("USD", "US Dollar", "$", 2);
 
         when(currencyRepository.existsByCode("USD")).thenReturn(false);
-        when(masterDataMapper.toEntity(any())).thenReturn(currency);
+        when(masterDataMapper.toEntity(any(CreateCurrencyRequest.class))).thenReturn(currency);
         when(currencyRepository.save(any())).thenReturn(currency);
 
         CurrencyResponse expected = CurrencyResponse.fromEntity(currency);
-        when(masterDataMapper.toResponse(any())).thenReturn(expected);
+        when(masterDataMapper.toResponse(any(Currency.class))).thenReturn(expected);
 
         CurrencyResponse response = currencyService.createCurrency(request);
 
