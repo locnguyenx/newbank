@@ -1,19 +1,29 @@
 package com.banking.masterdata.mapper;
 
+import com.banking.masterdata.domain.entity.Branch;
+import com.banking.masterdata.domain.entity.Channel;
 import com.banking.masterdata.domain.entity.Country;
 import com.banking.masterdata.domain.entity.Currency;
+import com.banking.masterdata.domain.entity.DocumentType;
 import com.banking.masterdata.domain.entity.ExchangeRate;
 import com.banking.masterdata.domain.entity.Holiday;
 import com.banking.masterdata.domain.entity.Industry;
+import com.banking.masterdata.dto.request.CreateBranchRequest;
+import com.banking.masterdata.dto.request.CreateChannelRequest;
 import com.banking.masterdata.dto.request.CreateCountryRequest;
 import com.banking.masterdata.dto.request.CreateCurrencyRequest;
+import com.banking.masterdata.dto.request.CreateDocumentTypeRequest;
 import com.banking.masterdata.dto.request.CreateExchangeRateRequest;
 import com.banking.masterdata.dto.request.CreateHolidayRequest;
 import com.banking.masterdata.dto.request.CreateIndustryRequest;
+import com.banking.masterdata.dto.response.BranchResponse;
+import com.banking.masterdata.dto.response.ChannelResponse;
 import com.banking.masterdata.dto.response.CountryResponse;
 import com.banking.masterdata.dto.response.CurrencyResponse;
+import com.banking.masterdata.dto.response.DocumentTypeResponse;
 import com.banking.masterdata.dto.response.ExchangeRateResponse;
 import com.banking.masterdata.dto.response.HolidayResponse;
+import com.banking.masterdata.exception.CountryNotFoundException;
 import com.banking.masterdata.exception.CurrencyNotFoundException;
 import com.banking.masterdata.repository.CountryRepository;
 import com.banking.masterdata.repository.CurrencyRepository;
@@ -21,6 +31,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MasterDataMapper {
+
+    public Channel toEntity(CreateChannelRequest request) {
+        return new Channel(
+            request.getCode(),
+            request.getName()
+        );
+    }
+
+    public ChannelResponse toResponse(Channel channel) {
+        return ChannelResponse.fromEntity(channel);
+    }
 
     public Currency toEntity(CreateCurrencyRequest request) {
         return new Currency(
@@ -75,5 +96,21 @@ public class MasterDataMapper {
 
     public ExchangeRateResponse toResponse(ExchangeRate exchangeRate) {
         return ExchangeRateResponse.fromEntity(exchangeRate);
+    }
+
+    public DocumentType toEntity(CreateDocumentTypeRequest request) {
+        return new DocumentType(
+            request.getCode(),
+            request.getName(),
+            request.getCategory()
+        );
+    }
+
+    public DocumentTypeResponse toResponse(DocumentType documentType) {
+        return DocumentTypeResponse.fromEntity(documentType);
+    }
+
+    public BranchResponse toResponse(Branch branch) {
+        return BranchResponse.fromEntity(branch);
     }
 }
