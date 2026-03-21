@@ -119,6 +119,65 @@ public class CustomerNotFoundException extends RuntimeException {
 
 See: `docs/lesson-learned/flyway-hibernate-ddl-mismatch.md`
 
+## Architecture Enforcement
+
+To maintain clean module boundaries in our modular monolith, all implementations MUST follow these rules:
+
+### Module Boundary Rules
+
+**Rule 1: No domain entity sharing across modules**
+- ❌ WRONG: Importing `com.banking.customer.domain.entity.Customer` from account module
+- ✅ RIGHT: Importing only `com.banking.customer.api.*` or `com.banking.customer.dto.*` from account module
+- Rationale: Prevents schema coupling and allows independent evolution of modules
+
+**Rule 2: Only `api` and `dto` packages are public**
+- Each module must expose services in `<module>.api` package
+- Data transfer objects go in `<module>.dto` package  
+- Other modules must ONLY import from `<module>.api` or `<module>.dto`
+- Never import `<module>.domain.entity`, `<module>.repository`, or internal implementation packages
+- Rationale: Enforces encapsulation and dependency inversion
+
+**Rule 3: JPA relationships only within same module**
+- `@ManyToOne`, `@OneToMany`, `@ElementCollection` can only reference entities from the SAME module
+- Cross-module references must use `Long id` or `String identifier` + service lookup
+- Rationale: Prevents tight database coupling between modules
+
+**Rule 4: Async for side-effects, sync for validation**
+- Use domain events (`@EventListener`) for:
+  - Notifications, analytics, cache updates, limit assignments, fee applications
+- Use direct service calls for:
+  - Validation that affects immediate response (e.g., `limitCheckService.checkLimit()`)
+  - Required data for business logic computations
+- Rationale: Separates concerns, improves resilience, enables eventual consistency where appropriate
+
+### Module API Contract
+
+Each module MUST expose:
+
+| Package | Purpose | Can be imported by other modules? |
+|---------|---------|-----------------------------------|
+| `<module>.api` | Service interfaces, facade interfaces | ✅ YES (only these) |
+| `<module>.dto` | Data transfer objects (no JPA annotations) | ✅ YES (only these) |
+| `<module>.domain.entity` | JPA entities | ❌ NO (internal only) |
+| `<module>.repository` | Spring Data repositories | ❌ NO (internal only) |
+| `<module>.service` | Internal service implementations | ❌ NO (internal only) |
+
+**Example of correct dependency:**
+```java
+// AccountService.java (in account module)
+@Service
+public class AccountService {
+    // ✅ CORRECT: Only depends on api interfaces and dto
+    private final CustomerQueryService customerQueryService; // from customer.api
+    private final LimitCheckService limitCheckService;      // from limits.api
+    private final ProductQueryService productQueryService; // from product.api
+    private final CurrencyRepository currencyRepository;    // ❌ WRONG! Should be from api
+    
+    // Should be:
+    // private final CurrencyQueryService currencyQueryService; // from masterdata.api
+}
+```
+
 ## Superpowers Skills
 
 Invoke relevant skills before coding tasks:
