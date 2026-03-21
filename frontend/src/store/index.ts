@@ -5,6 +5,7 @@ import kycReducer from './slices/kycSlice';
 import authorizationReducer from './slices/authorizationSlice';
 import accountReducer from './slices/accountSlice';
 import productReducer from './slices/productSlice';
+import masterDataReducer from './slices/masterDataSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     authorizations: authorizationReducer,
     account: accountReducer,
     products: productReducer,
+    masterData: masterDataReducer,
   },
 });
 
