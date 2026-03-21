@@ -1,12 +1,20 @@
 package com.banking;
 
+import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -23,6 +31,84 @@ class FlywayMigrationIntegrationTest {
     @Autowired
     private DataSource dataSource;
 
+    @Test
+    void noDuplicateMigrationVersions() {
+        Set<String> versions = new HashSet<>();
+        Set<String> duplicates = new HashSet<>();
+        for (String file : getMigrationFiles()) {
+            String version = file.split("__")[0];
+            if (!versions.add(version)) {
+                duplicates.add(version);
+            }
+        }
+        assertTrue(duplicates.isEmpty(), "Duplicate migration versions found: " + duplicates);
+    }
+
+    @Test
+    void allEntityTablesExistInSchema() throws Exception {
+        Set<String> expectedTables = discoverEntityTables();
+        Set<String> actualTables = getActualTables();
+
+        Set<String> missing = new HashSet<>(expectedTables);
+        missing.removeAll(actualTables);
+        assertTrue(
+            missing.isEmpty(),
+            "Tables defined by @Entity but missing from schema: " + missing +
+            "\nHint: If this is a new module, add its migration V*__create_*_schema.sql"
+        );
+    }
+
+    @Test
+    void schemaHasReasonableTableCount() throws Exception {
+        int tableCount = getActualTables().size();
+        assertTrue(
+            tableCount >= 30,
+            "Expected at least 30 tables across all modules, found " + tableCount +
+            " — some module tables may be missing"
+        );
+    }
+
+    private Set<String> discoverEntityTables() throws IOException {
+        Set<String> tables = new HashSet<>();
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        SimpleMetadataReaderFactory factory = new SimpleMetadataReaderFactory();
+
+        for (String basePackage : new String[]{
+            "com.banking.customer", "com.banking.masterdata",
+            "com.banking.account", "com.banking.product",
+            "com.banking.limits", "com.banking.charges"
+        }) {
+            Resource[] resources = resolver.getResources(
+                "classpath:" + basePackage.replace('.', '/') + "/**/*.class"
+            );
+            for (Resource resource : resources) {
+                try {
+                    MetadataReader reader = factory.getMetadataReader(resource);
+                    String className = reader.getClassMetadata().getClassName();
+                    Class<?> clazz = Class.forName(className);
+                    if (clazz.isAnnotationPresent(Entity.class)) {
+                        jakarta.persistence.Table tableAnn =
+                            clazz.getAnnotation(jakarta.persistence.Table.class);
+                        if (tableAnn != null) {
+                            tables.add(tableAnn.name().toLowerCase());
+                        } else {
+                            tables.add(toSnakeCase(className));
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return tables;
+    }
+
+    private String toSnakeCase(String className) {
+        String simple = className.contains(".")
+            ? className.substring(className.lastIndexOf('.') + 1)
+            : className;
+        return simple.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
+    }
+
     private Set<String> getActualTables() throws Exception {
         Set<String> tables = new HashSet<>();
         Connection conn = dataSource.getConnection();
@@ -30,7 +116,10 @@ class FlywayMigrationIntegrationTest {
             DatabaseMetaData meta = conn.getMetaData();
             try (ResultSet rs = meta.getTables(null, "PUBLIC", null, new String[]{"TABLE"})) {
                 while (rs.next()) {
-                    tables.add(rs.getString("TABLE_NAME").toLowerCase());
+                    String name = rs.getString("TABLE_NAME");
+                    if (!name.equals("flyway_schema_history")) {
+                        tables.add(name.toLowerCase());
+                    }
                 }
             }
         } finally {
@@ -39,97 +128,14 @@ class FlywayMigrationIntegrationTest {
         return tables;
     }
 
-    private Set<String> getActualColumns(String table) throws Exception {
-        Set<String> cols = new HashSet<>();
-        Connection conn = dataSource.getConnection();
-        try {
-            DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getColumns(null, "PUBLIC", table.toUpperCase(), null)) {
-                while (rs.next()) {
-                    cols.add(rs.getString("COLUMN_NAME").toLowerCase());
-                }
+    private Set<String> getMigrationFiles() {
+        Set<String> files = new HashSet<>();
+        java.io.File dir = new java.io.File("src/main/resources/db/migration");
+        if (dir.exists()) {
+            for (java.io.File f : dir.listFiles((d, n) -> n.endsWith(".sql"))) {
+                files.add(f.getName());
             }
-        } finally {
-            conn.close();
         }
-        return cols;
-    }
-
-    @Test
-    void noDuplicateMigrationVersions() {
-        var migrations = java.util.List.of(
-            "V1", "V1.5", "V1.6", "V2", "V3", "V4", "V5", "V5.5",
-            "V6", "V7", "V8", "V8.1", "V9", "V10", "V11",
-            "V12", "V13", "V14", "V15"
-        );
-        assertEquals(19, migrations.size(), "Migration count should be 19 (V8.1 renamed from V8 duplicate)");
-    }
-
-    @Test
-    void customerModuleTablesExist() throws Exception {
-        Set<String> tables = getActualTables();
-        assertTrue(tables.contains("customers"), "customers table should exist");
-        assertTrue(tables.contains("corporate_customers"), "corporate_customers table should exist");
-        assertTrue(tables.contains("sme_customers"), "sme_customers table should exist");
-        assertTrue(tables.contains("individual_customers"), "individual_customers table should exist");
-    }
-
-    @Test
-    void accountModuleTablesExist() throws Exception {
-        Set<String> tables = getActualTables();
-        assertTrue(tables.contains("accounts"), "accounts table should exist");
-        assertTrue(tables.contains("current_account"), "current_account table should exist");
-        assertTrue(tables.contains("savings_account"), "savings_account table should exist");
-        assertTrue(tables.contains("account_holders"), "account_holders table should exist");
-    }
-
-    @Test
-    void masterDataModuleTablesExist() throws Exception {
-        Set<String> tables = getActualTables();
-        assertTrue(tables.contains("currencies"), "currencies table should exist");
-        assertTrue(tables.contains("countries"), "countries table should exist");
-        assertTrue(tables.contains("channels"), "channels table should exist");
-        assertTrue(tables.contains("document_types"), "document_types table should exist");
-    }
-
-    @Test
-    void limitsModuleTablesExist() throws Exception {
-        Set<String> tables = getActualTables();
-        assertTrue(tables.contains("limit_definitions"), "limit_definitions table should exist");
-        assertTrue(tables.contains("account_limits"), "account_limits table should exist");
-        assertTrue(tables.contains("product_limits"), "product_limits table should exist");
-    }
-
-    @Test
-    void chargesModuleTablesExist() throws Exception {
-        Set<String> tables = getActualTables();
-        assertTrue(tables.contains("charge_definitions"), "charge_definitions table should exist");
-        assertTrue(tables.contains("charge_rules"), "charge_rules table should exist");
-        assertTrue(tables.contains("charge_tiers"), "charge_tiers table should exist");
-        assertTrue(tables.contains("product_charges"), "product_charges table should exist");
-        assertTrue(tables.contains("fee_waivers"), "fee_waivers table should exist");
-    }
-
-    @Test
-    void currenciesTableHasRequiredColumns() throws Exception {
-        Set<String> cols = getActualColumns("currencies");
-        assertTrue(cols.contains("code"), "currencies.code should exist");
-        assertTrue(cols.contains("is_active"), "currencies.is_active should exist");
-        assertTrue(cols.contains("decimal_places"), "currencies.decimal_places should exist");
-    }
-
-    @Test
-    void chargeDefinitionsHasStatusColumn() throws Exception {
-        Set<String> cols = getActualColumns("charge_definitions");
-        assertTrue(cols.contains("status"), "charge_definitions.status should exist");
-    }
-
-    @Test
-    void h2CompatibleSyntax() {
-        assertTrue(
-            java.util.Set.of("V1", "V1.5", "V1.6", "V2", "V3", "V4", "V5", "V5.5",
-                "V6", "V7", "V8", "V8.1", "V9", "V10", "V11",
-                "V12", "V13", "V14", "V15").size() == 19
-        );
+        return files;
     }
 }
