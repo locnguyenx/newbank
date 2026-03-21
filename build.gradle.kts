@@ -32,7 +32,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass.set("com.banking.account.AccountModuleApplication")
+    mainClass.set("com.banking.BankingApplication")
 }
 
 tasks.withType<Test> {

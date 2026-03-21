@@ -1,6 +1,8 @@
 spring:
   application:
     name: customer-module
+  main:
+    allow-bean-definition-overriding: true
 
   # PostgreSQL configuration (for production)
   # datasource:
