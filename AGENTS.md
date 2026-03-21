@@ -90,7 +90,7 @@ public class CustomerNotFoundException extends RuntimeException {
 
 **Flyway Migration Tests**
 - `FlywayMigrationIntegrationTest` auto-discovers all `@Entity` classes under `com/banking/**` on the classpath and verifies their tables exist in the schema
-- **When adding a new module**, update only `BankingApplication.java` — add the new package to `@ComponentScan`, `@EntityScan`, and `@EnableJpaRepositories`. The test auto-discovers entity classes via classpath scanning — no manual registration needed.
+- **When adding a new module**, update only `src/main/java/com/banking/BankingApplication.java` — add the new package to `@ComponentScan`, `@EntityScan`, and `@EnableJpaRepositories`. The test auto-discovers entity classes via classpath scanning — no manual registration needed.
 
 ## Banking-Specific Guidelines
 
