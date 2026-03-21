@@ -73,30 +73,23 @@ class FlywayMigrationIntegrationTest {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         SimpleMetadataReaderFactory factory = new SimpleMetadataReaderFactory();
 
-        for (String basePackage : new String[]{
-            "com.banking.customer", "com.banking.masterdata",
-            "com.banking.account", "com.banking.product",
-            "com.banking.limits", "com.banking.charges"
-        }) {
-            Resource[] resources = resolver.getResources(
-                "classpath:" + basePackage.replace('.', '/') + "/**/*.class"
-            );
-            for (Resource resource : resources) {
-                try {
-                    MetadataReader reader = factory.getMetadataReader(resource);
-                    String className = reader.getClassMetadata().getClassName();
-                    Class<?> clazz = Class.forName(className);
-                    if (clazz.isAnnotationPresent(Entity.class)) {
-                        jakarta.persistence.Table tableAnn =
-                            clazz.getAnnotation(jakarta.persistence.Table.class);
-                        if (tableAnn != null) {
-                            tables.add(tableAnn.name().toLowerCase());
-                        } else {
-                            tables.add(toSnakeCase(className));
-                        }
+        Resource[] resources = resolver.getResources("classpath:com/banking/**/*.class");
+        for (Resource resource : resources) {
+            try {
+                MetadataReader reader = factory.getMetadataReader(resource);
+                String className = reader.getClassMetadata().getClassName();
+                if (!className.contains(".domain.entity.")) continue;
+                Class<?> clazz = Class.forName(className);
+                if (clazz.isAnnotationPresent(Entity.class)) {
+                    jakarta.persistence.Table tableAnn =
+                        clazz.getAnnotation(jakarta.persistence.Table.class);
+                    if (tableAnn != null) {
+                        tables.add(tableAnn.name().toLowerCase());
+                    } else {
+                        tables.add(toSnakeCase(className));
                     }
-                } catch (Exception ignored) {
                 }
+            } catch (Exception ignored) {
             }
         }
         return tables;
