@@ -1,0 +1,1 @@
+export { MasterDataListPage } from './MasterDataListPage';

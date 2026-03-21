@@ -14,6 +14,7 @@ const Sidebar: React.FC = () => {
     { key: '/customers', label: 'Customers' },
     { key: '/accounts', label: 'Accounts' },
     { key: '/products', label: 'Products' },
+    { key: '/master-data', label: 'Master Data' },
     // Transactions menu reserved for Phase 3 (Payments module)
     // { key: '/transactions', label: 'Transactions' },
   ];
