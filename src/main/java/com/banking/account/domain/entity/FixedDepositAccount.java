@@ -2,7 +2,6 @@ package com.banking.account.domain.entity;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,10 +24,10 @@ public class FixedDepositAccount extends Account {
         super();
     }
 
-    public FixedDepositAccount(String accountNumber, Customer customer, Long productId,
+    public FixedDepositAccount(String accountNumber, Long customerId, Long productId,
                                String currency, Integer depositTerm, BigDecimal maturityAmount) {
         super(accountNumber, AccountType.FIXED_DEPOSIT, AccountStatus.ACTIVE, currency,
-              BigDecimal.ZERO, customer, productId);
+              BigDecimal.ZERO, customerId, productId);
         this.depositTerm = depositTerm;
         this.maturityDate = getOpenedAt().toLocalDate().plusMonths(depositTerm);
         this.maturityAmount = maturityAmount;

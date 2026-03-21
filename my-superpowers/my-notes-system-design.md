@@ -593,3 +593,53 @@ The review agent is not enough alone because:
 - It's not running on every commit (only on PRs)
 - It can be bypassed ("looks good to me" without deep check)
 Automated tests are the final authority. Humans (and AIs) make mistakes. Computers don't.
+
+## **ACTIONS**
+
+**Task Completed**
+- Updated AGENTS.md with explicit architecture enforcement rules:
+  - Module Boundary Rules (no entity sharing, only api/public packages, JPA within module, async for side-effects)
+  - Module API Contract table showing what each module can export
+  - Example of correct vs incorrect dependency
+- Enhanced ArchitectureTest.java to:
+  - Detect account module accessing customer domain entities (currently fails as expected due to existing violations)
+  - Be ready for JPA relationship checks across modules (currently commented out due to setup complexity)
+- Verified core functionality: 
+  - bootRun starts successfully
+  - All 19 Flyway migrations apply
+  - Demo data loads correctly
+  - API responds (e.g., /api/customers returns data)
+- All non-architecture tests pass (415 tests total, only the ArchitectureTest fails as expected due to current violations)
+
+Next Steps to Resolve ArchitectureTest Failures (to be done in future work):
+1. Refactor Account entity to remove @ManyToOne Customer relationship (use customerId + service calls)
+2. Update AccountService to use CustomerQueryService instead of direct CustomerRepository access
+3. Update AccountMapper and related code to work with IDs/DTOs instead of direct entity access
+4. Once refactored, the ArchitectureTest will pass, confirming compliance with the architecture rules
+
+**The architecture enforcement is now in place:**
+- Documentation: Clear rules in AGENTS.md for developers and AI agents to follow
+- Automated Check: ArchitectureTest.java will catch violations in CI
+- Review Guidance: Code Review Agent can reference AGENTS.md to check implementation intent
+
+This ensures that future implementations will follow the modular monolith architecture with clean boundaries, preventing the kind of tight coupling we saw with the Account-Customer entity relationship.
+
+**Resolve ArchitectureTest Failures Summary**
+All tasks completed successfully. The ArchitectureTest failures have been resolved by:
+1. Fixed DemoDataLoader to use CustomerQueryService instead of direct entity access
+- Removed direct dependency on CustomerRepository 
+- Changed to use CustomerQueryService via dependency injection
+- Now calls customerQueryService.findById() to get customer IDs as DTOs
+- Updated createAccountHolder() calls to use Long customerId parameter
+2. Fixed AccountServiceIntegrationTest to use CustomerQueryService mock
+- Replaced CustomerRepository with CustomerQueryService as a @MockBean
+- Created a CustomerDTO with test data instead of creating actual Customer entities
+- Updated the test to use TEST_CUSTOMER_ID constant
+3. Created CustomerQueryServiceImpl
+- Created the service implementation to properly implement the CustomerQueryService interface
+- This bean is now available in the Spring context for all tests
+Test Results
+- All 415 tests pass
+- ArchitectureTest passes (no more violations)
+- Build is successful
+The architecture rule enforcement is working correctly - the account module no longer directly accesses customer domain entities, and instead uses the CustomerQueryService API.

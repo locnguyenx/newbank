@@ -2,7 +2,6 @@ package com.banking.account.domain.entity;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,10 +24,10 @@ public class SavingsAccount extends Account {
         super();
     }
 
-    public SavingsAccount(String accountNumber, Customer customer, Long productId,
+    public SavingsAccount(String accountNumber, Long customerId, Long productId,
                           String currency, BigDecimal minimumBalance, BigDecimal interestRate) {
         super(accountNumber, AccountType.SAVINGS, AccountStatus.ACTIVE, currency,
-              BigDecimal.ZERO, customer, productId);
+              BigDecimal.ZERO, customerId, productId);
         this.minimumBalance = minimumBalance;
         this.interestRate = interestRate;
     }

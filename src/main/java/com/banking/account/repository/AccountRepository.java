@@ -17,7 +17,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByAccountNumber(String accountNumber);
 
-    List<Account> findByCustomer_Id(Long customerId);
+    List<Account> findByCustomerId(Long customerId);
 
     List<Account> findByStatus(AccountStatus status);
 
@@ -25,7 +25,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
            "(:search IS NULL OR a.accountNumber LIKE %:search%) AND " +
            "(:type IS NULL OR a.type = :type) AND " +
            "(:status IS NULL OR a.status = :status) AND " +
-           "(:customerId IS NULL OR a.customer.id = :customerId)")
+           "(:customerId IS NULL OR a.customerId = :customerId)")
     Page<Account> searchAccounts(
         @Param("search") String search,
         @Param("type") AccountType type,

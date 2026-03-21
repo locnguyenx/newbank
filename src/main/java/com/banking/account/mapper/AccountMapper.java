@@ -22,7 +22,7 @@ public class AccountMapper {
             account.getProductId(),
             account.getProductVersionId(),
             account.getProductName(),
-            account.getCustomer().getId(),
+            account.getCustomerId(),
             account.getOpenedAt(),
             account.getClosedAt()
         );

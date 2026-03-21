@@ -3,7 +3,7 @@ package com.banking.account.domain.entity;
 import com.banking.account.domain.embeddable.AuditFields;
 import com.banking.account.domain.enums.AccountHolderRole;
 import com.banking.account.domain.enums.AccountHolderStatus;
-import com.banking.customer.domain.entity.Customer;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -24,13 +24,12 @@ public class AccountHolder {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private AccountHolderRole role;
+
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
 
     @Column(name = "effective_from", nullable = false)
     private LocalDate effectiveFrom;
@@ -48,10 +47,10 @@ public class AccountHolder {
     protected AccountHolder() {
     }
 
-    public AccountHolder(Account account, Customer customer, AccountHolderRole role,
-                         LocalDate effectiveFrom, AccountHolderStatus status) {
+    public AccountHolder(Account account, Long customerId, AccountHolderRole role,
+                          LocalDate effectiveFrom, AccountHolderStatus status) {
         this.account = account;
-        this.customer = customer;
+        this.customerId = customerId;
         this.role = role;
         this.effectiveFrom = effectiveFrom;
         this.status = status;
@@ -70,12 +69,12 @@ public class AccountHolder {
         this.account = account;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public AccountHolderRole getRole() {

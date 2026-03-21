@@ -31,10 +31,10 @@ public class LoanAccount extends Account {
         super();
     }
 
-    public LoanAccount(String accountNumber, Customer customer, Long productId,
+    public LoanAccount(String accountNumber, Long customerId, Long productId,
                        String currency, BigDecimal loanAmount, BigDecimal interestRate, Integer term) {
         super(accountNumber, AccountType.LOAN, AccountStatus.ACTIVE, currency,
-              BigDecimal.ZERO, customer, productId);
+              BigDecimal.ZERO, customerId, productId);
         this.loanAmount = loanAmount;
         this.interestRate = interestRate;
         this.term = term;

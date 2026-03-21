@@ -11,8 +11,8 @@ public interface AccountHolderRepository extends JpaRepository<AccountHolder, Lo
 
     List<AccountHolder> findByAccount_Id(Long accountId);
 
-    List<AccountHolder> findByCustomer_Id(Long customerId);
+    List<AccountHolder> findByCustomerId(Long customerId);
 
-    Optional<AccountHolder> findByAccount_IdAndCustomer_IdAndStatus(Long accountId, Long customerId,
-                                                                    com.banking.account.domain.enums.AccountHolderStatus status);
+    Optional<AccountHolder> findByAccountIdAndCustomerIdAndStatus(Long accountId, Long customerId,
+                                                                   com.banking.account.domain.enums.AccountHolderStatus status);
 }

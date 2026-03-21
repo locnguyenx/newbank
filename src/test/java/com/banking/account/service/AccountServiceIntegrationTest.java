@@ -6,10 +6,8 @@ import com.banking.account.dto.AccountOpeningRequest;
 import com.banking.account.dto.AccountResponse;
 import com.banking.account.exception.InvalidAccountStateException;
 import com.banking.account.repository.AccountRepository;
-import com.banking.customer.domain.entity.CorporateCustomer;
-import com.banking.customer.domain.entity.Customer;
-import com.banking.customer.domain.enums.CustomerStatus;
-import com.banking.customer.repository.CustomerRepository;
+import com.banking.customer.api.CustomerQueryService;
+import com.banking.customer.api.dto.CustomerDTO;
 import com.banking.limits.domain.enums.LimitCheckResult;
 import com.banking.limits.domain.enums.LimitType;
 import com.banking.limits.dto.response.LimitCheckResponse;
@@ -46,11 +44,16 @@ import static org.mockito.Mockito.when;
 @Transactional
 class AccountServiceIntegrationTest {
 
+    private static final Long TEST_CUSTOMER_ID = 1L;
+
     @MockBean
     private CurrencyRepository currencyRepository;
 
     @MockBean
     private ProductQueryService productQueryService;
+
+    @MockBean
+    private CustomerQueryService customerQueryService;
 
     @MockBean
     private LimitCheckService limitCheckService;
@@ -73,19 +76,13 @@ class AccountServiceIntegrationTest {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    private Customer testCustomer;
-
     @BeforeEach
     void setUp() {
         accountRepository.deleteAll();
-        customerRepository.deleteAll();
 
-        testCustomer = new CorporateCustomer("CUST-INT-001", "Test Corp", CustomerStatus.ACTIVE);
-        testCustomer.setTaxId("TAX-INT-001");
-        testCustomer = customerRepository.save(testCustomer);
+        CustomerDTO testCustomerDTO = new CustomerDTO(TEST_CUSTOMER_ID, "Test Corp");
+        when(customerQueryService.findById(TEST_CUSTOMER_ID)).thenReturn(testCustomerDTO);
+        when(customerQueryService.findById(any())).thenReturn(testCustomerDTO);
 
         Currency usdCurrency = org.mockito.Mockito.mock(Currency.class);
         when(usdCurrency.isActive()).thenReturn(true);
@@ -155,7 +152,7 @@ class AccountServiceIntegrationTest {
         request.setType(AccountType.CURRENT);
         request.setCurrency("USD");
         request.setInitialDeposit(new BigDecimal(initialDeposit));
-        request.setCustomerId(testCustomer.getId());
+        request.setCustomerId(TEST_CUSTOMER_ID);
         request.setHolders(List.of());
         return request;
     }

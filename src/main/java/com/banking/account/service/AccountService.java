@@ -19,8 +19,8 @@ import com.banking.account.domain.enums.AccountType;
 import com.banking.account.dto.AccountOpeningRequest;
 import com.banking.account.dto.AccountHolderRequest;
 import com.banking.account.dto.AccountResponse;
-import com.banking.customer.domain.entity.Customer;
-import com.banking.customer.repository.CustomerRepository;
+import com.banking.customer.api.CustomerQueryService;
+import com.banking.customer.api.dto.CustomerDTO;
 import com.banking.product.dto.response.ProductVersionResponse;
 import com.banking.product.service.ProductQueryService;
 import com.banking.limits.service.LimitCheckService;
@@ -49,7 +49,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountHolderRepository accountHolderRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerQueryService customerQueryService;
     private final AccountNumberGenerator accountNumberGenerator;
     private final AccountMapper accountMapper;
     private final ProductQueryService productQueryService;
@@ -59,7 +59,7 @@ public class AccountService {
 
     public AccountService(AccountRepository accountRepository,
                           AccountHolderRepository accountHolderRepository,
-                          CustomerRepository customerRepository,
+                          CustomerQueryService customerQueryService,
                           AccountNumberGenerator accountNumberGenerator,
                           AccountMapper accountMapper,
                           ProductQueryService productQueryService,
@@ -68,7 +68,7 @@ public class AccountService {
                           CurrencyRepository currencyRepository) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
-        this.customerRepository = customerRepository;
+        this.customerQueryService = customerQueryService;
         this.accountNumberGenerator = accountNumberGenerator;
         this.accountMapper = accountMapper;
         this.productQueryService = productQueryService;
@@ -84,8 +84,11 @@ public class AccountService {
 
     @Transactional
     public AccountResponse openAccount(AccountOpeningRequest request) {
-        Customer customer = customerRepository.findById(request.getCustomerId())
-            .orElseThrow(() -> new AccountNotFoundException("Customer not found: " + request.getCustomerId()));
+        CustomerDTO customerDTO = customerQueryService.findById(request.getCustomerId());
+        if (customerDTO == null) {
+            throw new AccountNotFoundException("Customer not found: " + request.getCustomerId());
+        }
+        Long customerId = customerDTO.getId();
 
         com.banking.masterdata.domain.entity.Currency masterDataCurrency = 
             currencyRepository.findById(request.getCurrency())
@@ -117,7 +120,7 @@ public class AccountService {
             case CURRENT:
                 account = new CurrentAccount(
                     accountNumber,
-                    customer,
+                    customerId,
                     productId,
                     request.getCurrency(),
                     BigDecimal.ZERO,
@@ -127,7 +130,7 @@ public class AccountService {
             case SAVINGS:
                 account = new SavingsAccount(
                     accountNumber,
-                    customer,
+                    customerId,
                     productId,
                     request.getCurrency(),
                     BigDecimal.ZERO,
@@ -137,7 +140,7 @@ public class AccountService {
             case FIXED_DEPOSIT:
                 account = new FixedDepositAccount(
                     accountNumber,
-                    customer,
+                    customerId,
                     productId,
                     request.getCurrency(),
                     12,
@@ -147,7 +150,7 @@ public class AccountService {
             case LOAN:
                 account = new LoanAccount(
                     accountNumber,
-                    customer,
+                    customerId,
                     productId,
                     request.getCurrency(),
                     request.getInitialDeposit(),
@@ -166,7 +169,7 @@ public class AccountService {
 
         LimitCheckRequest limitRequest = new LimitCheckRequest();
         limitRequest.setAccountNumber(accountNumber);
-        limitRequest.setCustomerId(customer.getId());
+        limitRequest.setCustomerId(customerId);
         limitRequest.setProductCode(request.getProductCode());
         limitRequest.setTransactionAmount(request.getInitialDeposit() != null ? request.getInitialDeposit() : BigDecimal.ZERO);
         limitRequest.setCurrency(request.getCurrency() != null ? request.getCurrency() : "USD");
@@ -195,10 +198,12 @@ public class AccountService {
         }
 
         for (AccountHolderRequest holderReq : request.getHolders()) {
-            Customer holderCustomer = customerRepository.findById(holderReq.getCustomerId())
-                .orElseThrow(() -> new AccountNotFoundException("Holder customer not found: " + holderReq.getCustomerId()));
+            CustomerDTO holderCustomerDTO = customerQueryService.findById(holderReq.getCustomerId());
+            if (holderCustomerDTO == null) {
+                throw new AccountNotFoundException("Holder customer not found: " + holderReq.getCustomerId());
+            }
 
-            AccountHolder holder = new AccountHolder(account, holderCustomer, holderReq.getRole(), LocalDate.now(), AccountHolderStatus.ACTIVE);
+            AccountHolder holder = new AccountHolder(account, holderCustomerDTO.getId(), holderReq.getRole(), LocalDate.now(), AccountHolderStatus.ACTIVE);
             accountHolderRepository.save(holder);
         }
 
@@ -257,17 +262,20 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
             .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
-        Customer customer = customerRepository.findById(request.getCustomerId())
-            .orElseThrow(() -> new AccountNotFoundException("Customer not found: " + request.getCustomerId()));
+            CustomerDTO customerDTO = customerQueryService.findById(request.getCustomerId());
+            if (customerDTO == null) {
+                throw new AccountNotFoundException("Customer not found: " + request.getCustomerId());
+            }
+            Long customerId = customerDTO.getId();
 
         // Check if already a holder
         boolean exists = accountHolderRepository.findByAccount_Id(account.getId()).stream()
-            .anyMatch(h -> h.getCustomer().getId().equals(request.getCustomerId()) && h.getStatus() == com.banking.account.domain.enums.AccountHolderStatus.ACTIVE);
+            .anyMatch(h -> h.getCustomerId().equals(request.getCustomerId()) && h.getStatus() == com.banking.account.domain.enums.AccountHolderStatus.ACTIVE);
         if (exists) {
             throw new InvalidAccountStateException("Customer is already an active account holder");
         }
 
-        AccountHolder holder = new AccountHolder(account, customer, request.getRole(), LocalDate.now(), AccountHolderStatus.ACTIVE);
+            AccountHolder holder = new AccountHolder(account, customerId, request.getRole(), LocalDate.now(), AccountHolderStatus.ACTIVE);
         accountHolderRepository.save(holder);
     }
 

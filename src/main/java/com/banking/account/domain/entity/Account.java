@@ -3,7 +3,7 @@ package com.banking.account.domain.entity;
 import com.banking.account.domain.embeddable.AuditFields;
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.customer.domain.entity.Customer;
+
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,12 +37,11 @@ public abstract class Account {
     @Column(nullable = false, length = 3)
     private String currency;
 
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
+
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
@@ -70,13 +69,13 @@ public abstract class Account {
     }
 
     protected Account(String accountNumber, AccountType type, AccountStatus status, String currency,
-                      BigDecimal balance, Customer customer, Long productId) {
+                      BigDecimal balance, Long customerId, Long productId) {
         this.accountNumber = accountNumber;
         this.type = type;
         this.status = status;
         this.currency = currency;
         this.balance = balance;
-        this.customer = customer;
+        this.customerId = customerId;
         this.productId = productId;
         this.openedAt = LocalDateTime.now();
         this.auditFields = new AuditFields();
@@ -126,12 +125,12 @@ public abstract class Account {
         this.balance = balance;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public Long getProductId() {

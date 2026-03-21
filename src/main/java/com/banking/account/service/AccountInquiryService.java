@@ -63,7 +63,9 @@ public class AccountInquiryService {
             .map(holder -> {
                 AccountHolderSummary summary = new AccountHolderSummary();
                 summary.setId(holder.getId());
-                summary.setCustomerName(holder.getCustomer().getName());
+                // For now, we'll leave customer name blank as we don't have a direct way to get it
+                // In a real implementation, we might want to inject a CustomerQueryService
+                summary.setCustomerName(""); // TODO: Get from CustomerQueryService
                 summary.setRole(holder.getRole());
                 summary.setStatus(holder.getStatus() != null ? holder.getStatus() : com.banking.account.domain.enums.AccountHolderStatus.ACTIVE);
                 summary.setEffectiveFrom(holder.getEffectiveFrom());

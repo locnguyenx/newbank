@@ -21,7 +21,7 @@ public class CustomerAccountService {
     }
 
     public List<AccountResponse> getCustomerAccounts(Long customerId) {
-        return accountRepository.findByCustomer_Id(customerId).stream()
+        return accountRepository.findByCustomerId(customerId).stream()
             .map(accountMapper::toResponse)
             .collect(Collectors.toList());
     }

@@ -9,12 +9,8 @@ import com.banking.account.domain.enums.AccountHolderRole;
 import com.banking.account.domain.enums.AccountHolderStatus;
 import com.banking.account.repository.AccountHolderRepository;
 import com.banking.account.repository.AccountRepository;
-import com.banking.customer.domain.entity.CorporateCustomer;
-import com.banking.customer.domain.entity.Customer;
-import com.banking.customer.domain.entity.IndividualCustomer;
-import com.banking.customer.domain.entity.SMECustomer;
-import com.banking.customer.domain.enums.CustomerStatus;
-import com.banking.customer.repository.CustomerRepository;
+import com.banking.customer.api.CustomerQueryService;
+import com.banking.customer.api.dto.CustomerDTO;
 import com.banking.product.domain.entity.Product;
 import com.banking.product.domain.entity.ProductVersion;
 import com.banking.product.domain.enums.ProductFamily;
@@ -42,20 +38,20 @@ public class DemoDataLoader implements CommandLineRunner {
 
     private final AccountRepository accountRepository;
     private final AccountHolderRepository accountHolderRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerQueryService customerQueryService;
     private final ProductRepository productRepository;
     private final ProductVersionRepository productVersionRepository;
     private final ProductQueryService productQueryService;
 
     public DemoDataLoader(AccountRepository accountRepository,
                           AccountHolderRepository accountHolderRepository,
-                          CustomerRepository customerRepository,
+                          CustomerQueryService customerQueryService,
                           ProductRepository productRepository,
                           ProductVersionRepository productVersionRepository,
                           ProductQueryService productQueryService) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
-        this.customerRepository = customerRepository;
+        this.customerQueryService = customerQueryService;
         this.productRepository = productRepository;
         this.productVersionRepository = productVersionRepository;
         this.productQueryService = productQueryService;
@@ -147,27 +143,15 @@ public class DemoDataLoader implements CommandLineRunner {
 
         log.info("Loading account demo data...");
 
-        if (customerRepository.count() == 0) {
-            log.info("Creating demo customers...");
-            Customer corporate = new CorporateCustomer("CUST-001", "Acme Corporation", CustomerStatus.ACTIVE);
-            corporate = customerRepository.save(corporate);
-            log.info("Created CorporateCustomer CUST-001");
-
-            Customer sme = new SMECustomer("CUST-002", "Joe's Bakery Ltd", CustomerStatus.ACTIVE);
-            sme = customerRepository.save(sme);
-            log.info("Created SMECustomer CUST-002");
-
-            Customer individual = new IndividualCustomer("CUST-003", "Jane Smith", CustomerStatus.ACTIVE);
-            individual = customerRepository.save(individual);
-            log.info("Created IndividualCustomer CUST-003");
-        }
-
-        Customer corporate = customerRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Demo customer CUST-001 not found"));
-        Customer sme = customerRepository.findById(2L)
-                .orElseThrow(() -> new RuntimeException("Demo customer CUST-002 not found"));
-        Customer individual = customerRepository.findById(3L)
-                .orElseThrow(() -> new RuntimeException("Demo customer CUST-003 not found"));
+        CustomerDTO corporate = customerQueryService.findById(1L);
+        if (corporate == null) throw new RuntimeException("Demo customer CUST-001 not found. Ensure CustomerDemoDataLoader runs first.");
+        Long corporateId = corporate.getId();
+        CustomerDTO sme = customerQueryService.findById(2L);
+        if (sme == null) throw new RuntimeException("Demo customer CUST-002 not found. Ensure CustomerDemoDataLoader runs first.");
+        Long smeId = sme.getId();
+        CustomerDTO individual = customerQueryService.findById(3L);
+        if (individual == null) throw new RuntimeException("Demo customer CUST-003 not found. Ensure CustomerDemoDataLoader runs first.");
+        Long individualId = individual.getId();
 
         var pvCurrent = productQueryService.getActiveProductByCode("CURRENT").orElseThrow();
         var pvSavings = productQueryService.getActiveProductByCode("SAVINGS").orElseThrow();
@@ -175,62 +159,62 @@ public class DemoDataLoader implements CommandLineRunner {
         var pvLoan = productQueryService.getActiveProductByCode("LOAN").orElseThrow();
 
         CurrentAccount corporateCurrent = new CurrentAccount(
-                "ACC-001", corporate, pvCurrent.getProductId(), "USD",
+                "ACC-001", corporateId, pvCurrent.getProductId(), "USD",
                 new BigDecimal("10000.00"), new BigDecimal("0.50"));
         corporateCurrent.setProductVersionId(pvCurrent.getId());
         corporateCurrent.setProductName(pvCurrent.getProductName());
         corporateCurrent.setBalance(new BigDecimal("50000.00"));
         corporateCurrent = accountRepository.save(corporateCurrent);
-        createAccountHolder(corporateCurrent, corporate, AccountHolderRole.PRIMARY);
+        createAccountHolder(corporateCurrent, corporateId, AccountHolderRole.PRIMARY);
         log.info("Created CurrentAccount ACC-001 for CUST-001 with balance 50000.00");
 
         CurrentAccount smeCurrent = new CurrentAccount(
-                "ACC-002", sme, pvCurrent.getProductId(), "GBP",
+                "ACC-002", smeId, pvCurrent.getProductId(), "GBP",
                 new BigDecimal("5000.00"), new BigDecimal("0.75"));
         smeCurrent.setProductVersionId(pvCurrent.getId());
         smeCurrent.setProductName(pvCurrent.getProductName());
         smeCurrent.setBalance(new BigDecimal("25000.00"));
         smeCurrent = accountRepository.save(smeCurrent);
-        createAccountHolder(smeCurrent, sme, AccountHolderRole.PRIMARY);
+        createAccountHolder(smeCurrent, smeId, AccountHolderRole.PRIMARY);
         log.info("Created CurrentAccount ACC-002 for CUST-002 with balance 25000.00");
 
         SavingsAccount individualSavings = new SavingsAccount(
-                "ACC-003", individual, pvSavings.getProductId(), "USD",
+                "ACC-003", individualId, pvSavings.getProductId(), "USD",
                 new BigDecimal("500.00"), new BigDecimal("2.50"));
         individualSavings.setProductVersionId(pvSavings.getId());
         individualSavings.setProductName(pvSavings.getProductName());
         individualSavings.setBalance(new BigDecimal("15000.00"));
         individualSavings = accountRepository.save(individualSavings);
-        createAccountHolder(individualSavings, individual, AccountHolderRole.PRIMARY);
+        createAccountHolder(individualSavings, individualId, AccountHolderRole.PRIMARY);
         log.info("Created SavingsAccount ACC-003 for CUST-003 with balance 15000.00");
 
         FixedDepositAccount corporateFd = new FixedDepositAccount(
-                "ACC-004", corporate, pvFd.getProductId(), "EUR",
+                "ACC-004", corporateId, pvFd.getProductId(), "EUR",
                 12, new BigDecimal("120000.00"));
         corporateFd.setProductVersionId(pvFd.getId());
         corporateFd.setProductName(pvFd.getProductName());
         corporateFd.setBalance(new BigDecimal("100000.00"));
         corporateFd = accountRepository.save(corporateFd);
-        createAccountHolder(corporateFd, corporate, AccountHolderRole.PRIMARY);
+        createAccountHolder(corporateFd, corporateId, AccountHolderRole.PRIMARY);
         log.info("Created FixedDepositAccount ACC-004 for CUST-001 with balance 100000.00");
 
         LoanAccount smeLoan = new LoanAccount(
-                "ACC-005", sme, pvLoan.getProductId(), "SGD",
+                "ACC-005", smeId, pvLoan.getProductId(), "SGD",
                 new BigDecimal("200000.00"), new BigDecimal("6.50"), 60);
         smeLoan.setProductVersionId(pvLoan.getId());
         smeLoan.setProductName(pvLoan.getProductName());
         smeLoan.setBalance(new BigDecimal("200000.00"));
         smeLoan = accountRepository.save(smeLoan);
-        createAccountHolder(smeLoan, sme, AccountHolderRole.PRIMARY);
+        createAccountHolder(smeLoan, smeId, AccountHolderRole.PRIMARY);
         log.info("Created LoanAccount ACC-005 for CUST-002 with loan amount 200000.00");
 
         log.info("Account demo data loaded successfully - 5 accounts created.");
     }
 
     private void createAccountHolder(com.banking.account.domain.entity.Account account,
-                                      Customer customer, AccountHolderRole role) {
+                                   Long customerId, AccountHolderRole role) {
         AccountHolder holder = new AccountHolder(
-                account, customer, role, LocalDate.now(), AccountHolderStatus.ACTIVE);
+                account, customerId, role, LocalDate.now(), AccountHolderStatus.ACTIVE);
         accountHolderRepository.save(holder);
     }
 }
