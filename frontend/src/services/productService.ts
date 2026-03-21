@@ -15,7 +15,7 @@ import type {
 
 export const productService = {
   getProducts(params?: ProductSearchParams): Promise<PaginatedResponse<Product>> {
-    return apiClient.get('/products', { params }).then((res) => res.data);
+    return apiClient.get('/products/search', { params }).then((res) => res.data);
   },
 
   getProductById(id: number): Promise<ProductDetail> {

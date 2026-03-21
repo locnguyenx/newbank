@@ -13,7 +13,7 @@ export function ProductListPage() {
   const navigate = useNavigate();
   const { products, loading, pagination } = useAppSelector((state) => state.products);
   const [filters, setFilters] = useState<ProductSearchParams>({});
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export function ProductListPage() {
     if (filters.family && product.family !== filters.family) return false;
     return true;
   });
+
 
   const getFamilyLabel = (family: ProductFamily): string => {
     const labels: Record<ProductFamily, string> = {
@@ -132,13 +133,13 @@ export function ProductListPage() {
             loading={loading}
             scroll={{ x: 'max-content' }}
             pagination={{
-              current: page,
+              current: page + 1,
               pageSize,
               total: pagination.totalElements,
               showSizeChanger: true,
               showTotal: (total) => `Total ${total} products`,
               onChange: (p, ps) => {
-                setPage(p);
+                setPage(p - 1);
                 setPageSize(ps);
               },
             }}
