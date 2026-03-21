@@ -4,7 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
 import { AccountListPage } from '../pages/accounts/AccountListPage';
 import accountReducer from '../store/slices/accountSlice';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 const createTestStore = (accounts: any[] = []) => {
   return configureStore({
@@ -14,6 +14,7 @@ const createTestStore = (accounts: any[] = []) => {
     preloadedState: {
       account: {
         accounts,
+        pagination: { totalElements: accounts.length, totalPages: 1 },
         selectedAccount: null,
         loading: false,
         error: null,

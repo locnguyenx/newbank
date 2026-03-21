@@ -18,6 +18,11 @@ public class ProductDetailResponse {
     private LocalDateTime createdAt;
     private String createdBy;
     private List<ProductFeatureResponse> features;
+    /**
+     * @deprecated Use Charges module instead (ChargeDefinition, ChargeRule, ProductCharge).
+     * Kept for backward compatibility. Data migrated via V14__migrate_product_fees_to_charges.sql.
+     */
+    @Deprecated
     private List<ProductFeeEntryResponse> feeEntries;
     private List<SegmentInfo> segments;
 

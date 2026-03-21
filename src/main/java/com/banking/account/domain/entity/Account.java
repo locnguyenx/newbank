@@ -3,7 +3,6 @@ package com.banking.account.domain.entity;
 import com.banking.account.domain.embeddable.AuditFields;
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -35,9 +34,8 @@ public abstract class Account {
     @Column(nullable = false, length = 30)
     private AccountStatus status;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 3)
-    private Currency currency;
+    private String currency;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
@@ -71,7 +69,7 @@ public abstract class Account {
     protected Account() {
     }
 
-    protected Account(String accountNumber, AccountType type, AccountStatus status, Currency currency,
+    protected Account(String accountNumber, AccountType type, AccountStatus status, String currency,
                       BigDecimal balance, Customer customer, Long productId) {
         this.accountNumber = accountNumber;
         this.type = type;
@@ -112,11 +110,11 @@ public abstract class Account {
         this.status = status;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(String currency) {
         this.currency = currency;
     }
 

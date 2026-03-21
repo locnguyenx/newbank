@@ -21,6 +21,10 @@ export const FeeCalculationMethod = {
   TIERED_VOLUME: 'TIERED_VOLUME',
 } as const;
 export type FeeCalculationMethod = (typeof FeeCalculationMethod)[keyof typeof FeeCalculationMethod];
+/**
+ * @deprecated Use Charges module (ChargeType, ChargeRule, ChargeTier) instead.
+ * Kept for backward compatibility with ProductDetailResponse.feeEntries.
+ */
 
 export interface Product {
   id: number;
@@ -45,6 +49,10 @@ export interface ProductVersion {
 export interface ProductDetail extends ProductVersion {
   product: Product;
   features: ProductFeature[];
+  /**
+   * @deprecated Use Charges module instead. Kept for backward compatibility.
+   * Data migrated via V14__migrate_product_fees_to_charges.sql.
+   */
   feeEntries: ProductFeeEntry[];
   segments: ProductSegment[];
 }
@@ -62,6 +70,10 @@ export interface ProductFeeTier {
   rate: number;
 }
 
+/**
+ * @deprecated Use Charges module (ChargeRule, ChargeTier) instead.
+ * Kept for backward compatibility with ProductDetailResponse.feeEntries.
+ */
 export interface ProductFeeEntry {
   id: number;
   feeType: string;

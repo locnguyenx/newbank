@@ -2,7 +2,6 @@ package com.banking.account.domain.entity;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -23,7 +22,7 @@ public class CurrentAccount extends Account {
     }
 
     public CurrentAccount(String accountNumber, Customer customer, Long productId,
-                          Currency currency, BigDecimal overdraftLimit, BigDecimal interestRate) {
+                          String currency, BigDecimal overdraftLimit, BigDecimal interestRate) {
         super(accountNumber, AccountType.CURRENT, AccountStatus.ACTIVE, currency,
               BigDecimal.ZERO, customer, productId);
         this.overdraftLimit = overdraftLimit;

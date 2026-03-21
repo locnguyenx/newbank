@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Button, Tabs, Card, message, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
+import { useAppDispatch } from '@/hooks/useRedux';
 
 interface Currency {
   id: number;

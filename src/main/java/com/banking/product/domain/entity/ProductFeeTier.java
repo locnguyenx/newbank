@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "product_fee_tiers")
+@Deprecated
 public class ProductFeeTier {
 
     @Id

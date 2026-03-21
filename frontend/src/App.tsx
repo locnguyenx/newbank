@@ -23,6 +23,8 @@ import {
   ProductVersionComparePage,
 } from '@/pages/products';
 import { MasterDataListPage } from '@/pages/master-data';
+import { LimitListPage } from '@/pages/limits';
+import { ChargeListPage } from '@/pages/charges';
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
           <Route path="/products/:id/edit" element={<ProductFormPage />} />
           <Route path="/products/:id/compare" element={<ProductVersionComparePage />} />
           <Route path="/master-data" element={<MasterDataListPage />} />
+          <Route path="/limits" element={<LimitListPage />} />
+          <Route path="/charges" element={<ChargeListPage />} />
           <Route path="/transactions" element={<div>Transactions</div>} />
           <Route path="/customers/:customerId/employees" element={<EmploymentListPage />} />
           <Route path="/customers/:customerId/employees/bulk-upload" element={<BulkUploadPage />} />

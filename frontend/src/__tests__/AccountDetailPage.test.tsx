@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { AccountDetails, AccountHolderSummary } from '../types/account.types';
+import type { AccountDetails } from '../types/account.types';
 
 vi.mock('../services/accountService', () => ({
   accountService: {
@@ -54,6 +54,7 @@ const createTestStore = () => {
     preloadedState: {
       account: {
         accounts: [],
+        pagination: { totalElements: 0, totalPages: 0 },
         selectedAccount: mockAccountDetails,
         loading: false,
         error: null,
@@ -139,6 +140,7 @@ describe('AccountDetailPage', () => {
       preloadedState: {
         account: {
           accounts: [],
+          pagination: { totalElements: 0, totalPages: 0 },
           selectedAccount: null,
           loading: false,
           error: null,

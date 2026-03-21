@@ -80,8 +80,6 @@ export function CustomerDetailPage() {
     }
   }, [dispatch, id]);
 
-  const customerAccounts = accounts;
-
   const getStatusColor = (status: string) => {
     const colorMap: Record<string, string> = {
       PENDING: 'orange',

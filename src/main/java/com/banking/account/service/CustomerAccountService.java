@@ -34,7 +34,7 @@ public class CustomerAccountService {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         
         // Determine common currency - for simplicity assume all same currency
-        String currency = accounts.isEmpty() ? "USD" : accounts.get(0).getCurrency().name();
+        String currency = accounts.isEmpty() ? "USD" : accounts.get(0).getCurrency();
         
         return new CustomerAccountSummary(customerId, totalBalance, accounts.size(), currency);
     }

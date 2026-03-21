@@ -14,6 +14,7 @@ const createTestStore = () => {
     preloadedState: {
       account: {
         accounts: [],
+        pagination: { totalElements: 0, totalPages: 0 },
         selectedAccount: null,
         loading: false,
         error: null,

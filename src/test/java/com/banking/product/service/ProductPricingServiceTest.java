@@ -13,6 +13,8 @@ import com.banking.product.dto.response.ProductFeeEntryResponse;
 import com.banking.product.exception.ProductVersionNotEditableException;
 import com.banking.product.repository.ProductFeeEntryRepository;
 import com.banking.product.repository.ProductVersionRepository;
+import com.banking.masterdata.repository.CurrencyRepository;
+import com.banking.masterdata.domain.entity.Currency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +39,9 @@ class ProductPricingServiceTest {
     @Mock
     private ProductVersionRepository productVersionRepository;
 
+    @Mock
+    private CurrencyRepository currencyRepository;
+
     private ProductPricingService productPricingService;
 
     private Product testProduct;
@@ -44,7 +49,7 @@ class ProductPricingServiceTest {
 
     @BeforeEach
     void setUp() {
-        productPricingService = new ProductPricingService(productFeeEntryRepository, productVersionRepository);
+        productPricingService = new ProductPricingService(productFeeEntryRepository, productVersionRepository, currencyRepository);
         testProduct = new Product("BIZ-CURRENT", "Business Current Account", ProductFamily.ACCOUNT, "Test product");
         testVersion = new ProductVersion(testProduct, 1, ProductStatus.DRAFT);
     }
@@ -58,6 +63,7 @@ class ProductPricingServiceTest {
         request.setCurrency("USD");
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(testVersion));
+        when(currencyRepository.findById("USD")).thenReturn(Optional.of(new Currency("USD", "US Dollar", "$", 2)));
         when(productFeeEntryRepository.save(any(ProductFeeEntry.class))).thenAnswer(inv -> {
             ProductFeeEntry entry = inv.getArgument(0);
             return entry;
@@ -81,6 +87,7 @@ class ProductPricingServiceTest {
         request.setCurrency("USD");
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(testVersion));
+        when(currencyRepository.findById("USD")).thenReturn(Optional.of(new Currency("USD", "US Dollar", "$", 2)));
         when(productFeeEntryRepository.save(any(ProductFeeEntry.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ProductFeeEntryResponse response = productPricingService.addFeeEntry(1L, request, "alice");
@@ -110,6 +117,7 @@ class ProductPricingServiceTest {
         request.setTiers(List.of(tier1, tier2));
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(testVersion));
+        when(currencyRepository.findById("USD")).thenReturn(Optional.of(new Currency("USD", "US Dollar", "$", 2)));
         when(productFeeEntryRepository.save(any(ProductFeeEntry.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ProductFeeEntryResponse response = productPricingService.addFeeEntry(1L, request, "alice");
@@ -136,6 +144,7 @@ class ProductPricingServiceTest {
         request2.setCurrency("USD");
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(testVersion));
+        when(currencyRepository.findById("USD")).thenReturn(Optional.of(new Currency("USD", "US Dollar", "$", 2)));
         when(productFeeEntryRepository.save(any(ProductFeeEntry.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ProductFeeEntryResponse response1 = productPricingService.addFeeEntry(1L, request1, "alice");
@@ -252,6 +261,7 @@ class ProductPricingServiceTest {
         request.setCurrency("USD");
 
         when(productFeeEntryRepository.findById(1L)).thenReturn(Optional.of(existingEntry));
+        when(currencyRepository.findById("USD")).thenReturn(Optional.of(new Currency("USD", "US Dollar", "$", 2)));
         when(productFeeEntryRepository.save(any(ProductFeeEntry.class))).thenReturn(existingEntry);
 
         ProductFeeEntryResponse response = productPricingService.updateFeeEntry(1L, request, "alice");

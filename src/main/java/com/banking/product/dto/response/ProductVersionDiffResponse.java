@@ -112,6 +112,10 @@ public class ProductVersionDiffResponse {
         }
     }
 
+    /**
+     * @deprecated Use Charges module instead. Kept for historical version diffs.
+     */
+    @Deprecated
     public static class FeeDiff {
         private String feeType;
         private String oldValue;

@@ -1,11 +1,12 @@
 package com.banking.account.dto;
 
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -20,8 +21,9 @@ public class AccountOpeningRequest {
     @NotNull(message = "Account type is required")
     private AccountType type;
 
-    @NotNull(message = "Currency is required")
-    private Currency currency;
+    @NotBlank(message = "Currency is required")
+    @Size(min = 3, max = 3, message = "Currency must be a 3-letter code")
+    private String currency;
 
     @NotNull(message = "Initial deposit is required")
     @Positive(message = "Initial deposit must be positive")
@@ -58,11 +60,11 @@ public class AccountOpeningRequest {
         this.type = type;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(String currency) {
         this.currency = currency;
     }
 

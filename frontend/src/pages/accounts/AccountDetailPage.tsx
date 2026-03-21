@@ -358,9 +358,8 @@ export function AccountDetailPage() {
                       title="Total Credits"
                       value={statement.totalCredits}
                       precision={2}
-                      prefix="$"
-                      valueStyle={{ color: '#3f8600' }}
                       prefix={<TrendingUp size={16} />}
+                      valueStyle={{ color: '#3f8600' }}
                     />
                   </Card>
                 </Col>
@@ -370,9 +369,8 @@ export function AccountDetailPage() {
                       title="Total Debits"
                       value={statement.totalDebits}
                       precision={2}
-                      prefix="$"
-                      valueStyle={{ color: '#cf1322' }}
                       prefix={<TrendingDown size={16} />}
+                      valueStyle={{ color: '#cf1322' }}
                     />
                   </Card>
                 </Col>

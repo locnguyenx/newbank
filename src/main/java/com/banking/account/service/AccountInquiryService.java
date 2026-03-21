@@ -53,7 +53,7 @@ public class AccountInquiryService {
         details.setType(account.getType());
         details.setStatus(account.getStatus());
         details.setCurrency(account.getCurrency());
-        details.setAccountBalance(new AccountBalance(account.getBalance(), account.getBalance(), BigDecimal.ZERO, account.getCurrency()));
+        details.setAccountBalance(new AccountBalance(account.getBalance(), account.getBalance(), BigDecimal.ZERO, account.getCurrency())); // String currency already
         details.setProductId(account.getProductId());
         details.setOpenedAt(account.getOpenedAt());
         details.setClosedAt(account.getClosedAt());

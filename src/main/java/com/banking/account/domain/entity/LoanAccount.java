@@ -2,7 +2,6 @@ package com.banking.account.domain.entity;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -33,7 +32,7 @@ public class LoanAccount extends Account {
     }
 
     public LoanAccount(String accountNumber, Customer customer, Long productId,
-                       Currency currency, BigDecimal loanAmount, BigDecimal interestRate, Integer term) {
+                       String currency, BigDecimal loanAmount, BigDecimal interestRate, Integer term) {
         super(accountNumber, AccountType.LOAN, AccountStatus.ACTIVE, currency,
               BigDecimal.ZERO, customer, productId);
         this.loanAmount = loanAmount;

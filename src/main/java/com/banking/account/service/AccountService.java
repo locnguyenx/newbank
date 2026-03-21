@@ -23,6 +23,13 @@ import com.banking.customer.domain.entity.Customer;
 import com.banking.customer.repository.CustomerRepository;
 import com.banking.product.dto.response.ProductVersionResponse;
 import com.banking.product.service.ProductQueryService;
+import com.banking.limits.service.LimitCheckService;
+import com.banking.limits.service.LimitAssignmentService;
+import com.banking.limits.dto.request.LimitCheckRequest;
+import com.banking.limits.dto.response.LimitCheckResponse;
+import com.banking.limits.dto.response.ProductLimitResponse;
+import com.banking.limits.domain.enums.LimitCheckResult;
+import com.banking.masterdata.repository.CurrencyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,19 +49,28 @@ public class AccountService {
     private final AccountNumberGenerator accountNumberGenerator;
     private final AccountMapper accountMapper;
     private final ProductQueryService productQueryService;
+    private final LimitCheckService limitCheckService;
+    private final LimitAssignmentService limitAssignmentService;
+    private final CurrencyRepository currencyRepository;
 
     public AccountService(AccountRepository accountRepository,
                           AccountHolderRepository accountHolderRepository,
                           CustomerRepository customerRepository,
                           AccountNumberGenerator accountNumberGenerator,
                           AccountMapper accountMapper,
-                          ProductQueryService productQueryService) {
+                          ProductQueryService productQueryService,
+                          LimitCheckService limitCheckService,
+                          LimitAssignmentService limitAssignmentService,
+                          CurrencyRepository currencyRepository) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
         this.customerRepository = customerRepository;
         this.accountNumberGenerator = accountNumberGenerator;
         this.accountMapper = accountMapper;
         this.productQueryService = productQueryService;
+        this.limitCheckService = limitCheckService;
+        this.limitAssignmentService = limitAssignmentService;
+        this.currencyRepository = currencyRepository;
     }
 
     public Page<AccountResponse> getAccounts(String search, AccountType type, AccountStatus status, Long customerId, Pageable pageable) {
@@ -66,6 +82,14 @@ public class AccountService {
     public AccountResponse openAccount(AccountOpeningRequest request) {
         Customer customer = customerRepository.findById(request.getCustomerId())
             .orElseThrow(() -> new AccountNotFoundException("Customer not found: " + request.getCustomerId()));
+
+        com.banking.masterdata.domain.entity.Currency masterDataCurrency = 
+            currencyRepository.findById(request.getCurrency())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid currency code: " + request.getCurrency()));
+        
+        if (!masterDataCurrency.isActive()) {
+            throw new IllegalArgumentException("Currency is inactive: " + request.getCurrency());
+        }
 
         Optional<ProductVersionResponse> productVersion = productQueryService.getActiveProductByCode(request.getProductCode());
 
@@ -135,7 +159,36 @@ public class AccountService {
         account.setProductName(productName);
         account.setBalance(request.getInitialDeposit());
         account.setStatus(AccountStatus.ACTIVE);
+
+        LimitCheckRequest limitRequest = new LimitCheckRequest();
+        limitRequest.setAccountNumber(accountNumber);
+        limitRequest.setCustomerId(customer.getId());
+        limitRequest.setProductCode(request.getProductCode());
+        limitRequest.setTransactionAmount(request.getInitialDeposit() != null ? request.getInitialDeposit() : BigDecimal.ZERO);
+        limitRequest.setCurrency(request.getCurrency() != null ? request.getCurrency() : "USD");
+        limitRequest.setTransactionReference("ACCT-OPEN-" + accountNumber);
+        limitRequest.setLimitType("PER_TRANSACTION");
+
+        LimitCheckResponse limitResponse = limitCheckService.checkLimit(limitRequest);
+
+        if (limitResponse.getResult() == LimitCheckResult.REJECTED) {
+            throw new InvalidAccountStateException("Account opening exceeds limits: " + limitResponse.getRejectionReason());
+        }
+
         account = accountRepository.save(account);
+
+        List<ProductLimitResponse> productLimits = limitAssignmentService.getProductLimits(request.getProductCode());
+        for (ProductLimitResponse productLimit : productLimits) {
+            try {
+                limitAssignmentService.assignToAccount(
+                    productLimit.getLimitDefinitionId(),
+                    accountNumber,
+                    productLimit.getOverrideAmount()
+                );
+            } catch (Exception e) {
+                // Limit already assigned or definition not found, skip
+            }
+        }
 
         for (AccountHolderRequest holderReq : request.getHolders()) {
             Customer holderCustomer = customerRepository.findById(holderReq.getCustomerId())

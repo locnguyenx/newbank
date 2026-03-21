@@ -1,10 +1,8 @@
 package com.banking.account.domain.embeddable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 import java.math.BigDecimal;
-import com.banking.account.domain.enums.Currency;
 
 @Embeddable
 public class AccountBalance {
@@ -13,13 +11,13 @@ public class AccountBalance {
     private BigDecimal ledgerBalance;
     private BigDecimal holdAmount;
 
-    @Enumerated(EnumType.STRING)
-    private Currency currency;
+    @Column(length = 3)
+    private String currency;
 
     public AccountBalance() {
     }
 
-    public AccountBalance(BigDecimal availableBalance, BigDecimal ledgerBalance, BigDecimal holdAmount, Currency currency) {
+    public AccountBalance(BigDecimal availableBalance, BigDecimal ledgerBalance, BigDecimal holdAmount, String currency) {
         this.availableBalance = availableBalance;
         this.ledgerBalance = ledgerBalance;
         this.holdAmount = holdAmount;
@@ -50,11 +48,11 @@ public class AccountBalance {
         this.holdAmount = holdAmount;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(String currency) {
         this.currency = currency;
     }
 
@@ -66,7 +64,7 @@ public class AccountBalance {
         return java.util.Objects.equals(availableBalance, that.availableBalance) &&
                java.util.Objects.equals(ledgerBalance, that.ledgerBalance) &&
                java.util.Objects.equals(holdAmount, that.holdAmount) &&
-               currency == that.currency;
+               java.util.Objects.equals(currency, that.currency);
     }
 
     @Override

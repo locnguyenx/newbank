@@ -7,7 +7,6 @@ import com.banking.account.domain.entity.LoanAccount;
 import com.banking.account.domain.entity.SavingsAccount;
 import com.banking.account.domain.enums.AccountHolderRole;
 import com.banking.account.domain.enums.AccountHolderStatus;
-import com.banking.account.domain.enums.Currency;
 import com.banking.account.repository.AccountHolderRepository;
 import com.banking.account.repository.AccountRepository;
 import com.banking.customer.domain.entity.CorporateCustomer;
@@ -176,7 +175,7 @@ public class DemoDataLoader implements CommandLineRunner {
         var pvLoan = productQueryService.getActiveProductByCode("LOAN").orElseThrow();
 
         CurrentAccount corporateCurrent = new CurrentAccount(
-                "ACC-001", corporate, pvCurrent.getProductId(), Currency.USD,
+                "ACC-001", corporate, pvCurrent.getProductId(), "USD",
                 new BigDecimal("10000.00"), new BigDecimal("0.50"));
         corporateCurrent.setProductVersionId(pvCurrent.getId());
         corporateCurrent.setProductName(pvCurrent.getProductName());
@@ -186,7 +185,7 @@ public class DemoDataLoader implements CommandLineRunner {
         log.info("Created CurrentAccount ACC-001 for CUST-001 with balance 50000.00");
 
         CurrentAccount smeCurrent = new CurrentAccount(
-                "ACC-002", sme, pvCurrent.getProductId(), Currency.GBP,
+                "ACC-002", sme, pvCurrent.getProductId(), "GBP",
                 new BigDecimal("5000.00"), new BigDecimal("0.75"));
         smeCurrent.setProductVersionId(pvCurrent.getId());
         smeCurrent.setProductName(pvCurrent.getProductName());
@@ -196,7 +195,7 @@ public class DemoDataLoader implements CommandLineRunner {
         log.info("Created CurrentAccount ACC-002 for CUST-002 with balance 25000.00");
 
         SavingsAccount individualSavings = new SavingsAccount(
-                "ACC-003", individual, pvSavings.getProductId(), Currency.USD,
+                "ACC-003", individual, pvSavings.getProductId(), "USD",
                 new BigDecimal("500.00"), new BigDecimal("2.50"));
         individualSavings.setProductVersionId(pvSavings.getId());
         individualSavings.setProductName(pvSavings.getProductName());
@@ -206,7 +205,7 @@ public class DemoDataLoader implements CommandLineRunner {
         log.info("Created SavingsAccount ACC-003 for CUST-003 with balance 15000.00");
 
         FixedDepositAccount corporateFd = new FixedDepositAccount(
-                "ACC-004", corporate, pvFd.getProductId(), Currency.EUR,
+                "ACC-004", corporate, pvFd.getProductId(), "EUR",
                 12, new BigDecimal("120000.00"));
         corporateFd.setProductVersionId(pvFd.getId());
         corporateFd.setProductName(pvFd.getProductName());
@@ -216,7 +215,7 @@ public class DemoDataLoader implements CommandLineRunner {
         log.info("Created FixedDepositAccount ACC-004 for CUST-001 with balance 100000.00");
 
         LoanAccount smeLoan = new LoanAccount(
-                "ACC-005", sme, pvLoan.getProductId(), Currency.SGD,
+                "ACC-005", sme, pvLoan.getProductId(), "SGD",
                 new BigDecimal("200000.00"), new BigDecimal("6.50"), 60);
         smeLoan.setProductVersionId(pvLoan.getId());
         smeLoan.setProductName(pvLoan.getProductName());

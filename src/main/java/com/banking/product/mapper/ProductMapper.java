@@ -56,10 +56,18 @@ public class ProductMapper {
         return ProductFeatureResponse.fromEntity(feature);
     }
 
+    /**
+     * @deprecated Use Charges module instead.
+     */
+    @Deprecated
     public ProductFeeEntryResponse toFeeEntryResponse(ProductFeeEntry feeEntry) {
         return ProductFeeEntryResponse.fromEntity(feeEntry);
     }
 
+    /**
+     * @deprecated Use Charges module instead.
+     */
+    @Deprecated
     public ProductFeeTierResponse toTierResponse(ProductFeeTier tier) {
         return ProductFeeTierResponse.fromEntity(tier);
     }

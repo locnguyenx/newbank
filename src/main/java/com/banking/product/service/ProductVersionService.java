@@ -189,6 +189,11 @@ public class ProductVersionService {
         }
     }
 
+    /**
+     * @deprecated Use Charges module instead. Fee entries are migrated via V14 migration.
+     * New products should manage fees through ChargeDefinition/ChargeRule/ProductCharge.
+     */
+    @Deprecated
     private void copyFeeEntries(ProductVersion from, ProductVersion to) {
         for (ProductFeeEntry feeEntry : from.getFeeEntries()) {
             ProductFeeEntry newFeeEntry = new ProductFeeEntry(
@@ -298,6 +303,10 @@ public class ProductVersionService {
         }
     }
 
+    /**
+     * @deprecated Use Charges module instead. Kept for historical version diffs.
+     */
+    @Deprecated
     private void compareFees(ProductVersion v1, ProductVersion v2, List<ProductVersionDiffResponse.FeeDiff> diffs) {
         Map<String, String> v1Fees = v1.getFeeEntries().stream()
                 .collect(Collectors.toMap(ProductFeeEntry::getFeeType, f -> formatFeeEntry(f)));
@@ -319,6 +328,10 @@ public class ProductVersionService {
         }
     }
 
+    /**
+     * @deprecated Use Charges module instead.
+     */
+    @Deprecated
     private String formatFeeEntry(ProductFeeEntry fee) {
         return String.format("%s|%s|%s|%s",
                 fee.getCalculationMethod(),

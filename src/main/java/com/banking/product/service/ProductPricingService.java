@@ -10,6 +10,8 @@ import com.banking.product.dto.response.ProductFeeEntryResponse;
 import com.banking.product.exception.ProductVersionNotEditableException;
 import com.banking.product.repository.ProductFeeEntryRepository;
 import com.banking.product.repository.ProductVersionRepository;
+import com.banking.masterdata.repository.CurrencyRepository;
+import com.banking.masterdata.domain.entity.Currency;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +19,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Deprecated
 public class ProductPricingService {
 
     private final ProductFeeEntryRepository productFeeEntryRepository;
     private final ProductVersionRepository productVersionRepository;
+    private final CurrencyRepository currencyRepository;
 
     public ProductPricingService(ProductFeeEntryRepository productFeeEntryRepository,
-                                  ProductVersionRepository productVersionRepository) {
+                                  ProductVersionRepository productVersionRepository,
+                                  CurrencyRepository currencyRepository) {
         this.productFeeEntryRepository = productFeeEntryRepository;
         this.productVersionRepository = productVersionRepository;
+        this.currencyRepository = currencyRepository;
+    }
+
+    private void validateCurrency(String code) {
+        if (code == null || code.isBlank()) {
+            return;
+        }
+        Currency currency = currencyRepository.findById(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid currency code: " + code));
+        if (!currency.isActive()) {
+            throw new IllegalArgumentException("Currency is inactive: " + code);
+        }
     }
 
     @Transactional
@@ -35,6 +52,7 @@ public class ProductPricingService {
 
         validateVersionIsDraft(version);
 
+        validateCurrency(request.getCurrency());
         ProductFeeEntry feeEntry = new ProductFeeEntry(
                 version,
                 request.getFeeType(),
@@ -69,6 +87,7 @@ public class ProductPricingService {
 
         validateVersionIsDraft(feeEntry.getProductVersion());
 
+        validateCurrency(request.getCurrency());
         feeEntry.setFeeType(request.getFeeType());
         feeEntry.setCalculationMethod(request.getCalculationMethod());
         feeEntry.setAmount(request.getAmount());

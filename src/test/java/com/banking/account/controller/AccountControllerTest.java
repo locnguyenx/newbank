@@ -12,7 +12,6 @@ import com.banking.account.dto.AccountStatementFilter;
 import com.banking.account.domain.embeddable.AccountBalance;
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import com.banking.account.domain.enums.AccountHolderRole;
 import com.banking.account.exception.AccountNotFoundException;
 import com.banking.account.exception.DuplicateAccountException;
@@ -278,7 +277,7 @@ void shouldFreezeAccount() throws Exception {
         request.setCustomerId(1L);
         request.setProductCode("CUR-001");
         request.setType(AccountType.CURRENT);
-        request.setCurrency(Currency.USD);
+        request.setCurrency("USD");
         request.setInitialDeposit(new BigDecimal("1000.00"));
 
         AccountHolderRequest holder = new AccountHolderRequest();
@@ -295,7 +294,7 @@ void shouldFreezeAccount() throws Exception {
         response.setAccountNumber("ACC-20240115-000001");
         response.setType(AccountType.CURRENT);
         response.setStatus(AccountStatus.ACTIVE);
-        response.setCurrency(Currency.USD);
+        response.setCurrency("USD");
         response.setBalance(new BigDecimal("1000.00"));
         response.setProductId(1L);
         response.setOpenedAt(LocalDateTime.ofInstant(Instant.parse("2024-01-15T10:00:00Z"), ZoneId.systemDefault()));
@@ -319,7 +318,7 @@ void shouldFreezeAccount() throws Exception {
         response.setAccountNumber("ACC-20240115-000001");
         response.setType(AccountType.CURRENT);
         response.setStatus(AccountStatus.ACTIVE);
-        response.setCurrency(Currency.USD);
+        response.setCurrency("USD");
         response.setBalance(new BigDecimal("1000.00"));
         response.setProductId(1L);
         response.setOpenedAt(LocalDateTime.ofInstant(Instant.parse("2024-01-15T10:00:00Z"), ZoneId.systemDefault()));
@@ -332,7 +331,7 @@ void shouldFreezeAccount() throws Exception {
             new BigDecimal("1000.00"),
             new BigDecimal("1000.00"),
             BigDecimal.ZERO,
-            Currency.USD
+            "USD"
         );
     }
 

@@ -2,7 +2,6 @@ package com.banking.account.dto;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.account.domain.enums.Currency;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +20,7 @@ public class AccountResponse {
     private AccountStatus status;
 
     @NotNull(message = "Currency is required")
-    private Currency currency;
+    private String currency;
 
     @NotNull(message = "Balance is required")
     private BigDecimal balance;
@@ -43,7 +42,7 @@ public class AccountResponse {
     }
 
     public AccountResponse(Long id, String accountNumber, AccountType type, AccountStatus status,
-                          Currency currency, BigDecimal balance, Long productId,
+                          String currency, BigDecimal balance, Long productId,
                           Long productVersionId, String productName,
                           Long customerId, LocalDateTime openedAt, LocalDateTime closedAt) {
         this.id = id;
@@ -93,11 +92,11 @@ public class AccountResponse {
         this.status = status;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(String currency) {
         this.currency = currency;
     }
 

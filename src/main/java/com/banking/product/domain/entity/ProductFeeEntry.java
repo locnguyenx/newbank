@@ -10,6 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "product_fee_entries")
+@Deprecated
 public class ProductFeeEntry {
 
     @Id

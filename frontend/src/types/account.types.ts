@@ -1,6 +1,6 @@
 export type AccountType = 'CURRENT' | 'SAVINGS' | 'FIXED_DEPOSIT' | 'LOAN' | 'ESCROW';
 export type AccountStatus = 'PENDING' | 'ACTIVE' | 'DORMANT' | 'FROZEN' | 'CLOSED';
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'SGD' | 'JPY' | 'CAD' | 'AUD' | 'CHF';
+export type Currency = string;  // Validated against Master Data
 export type AccountHolderRole = 'PRIMARY' | 'JOINT' | 'AUTHORIZED_SIGNATORY' | 'NOMINEE';
 
 export interface AccountResponse {

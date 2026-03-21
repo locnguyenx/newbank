@@ -13,6 +13,7 @@ import type { AccountResponse, AccountDetails } from '../types/account.types';
 describe('accountSlice', () => {
   const initialState = {
     accounts: [],
+    pagination: { totalElements: 0, totalPages: 0 },
     selectedAccount: null,
     loading: false,
     error: null,

@@ -10,10 +10,12 @@ import com.banking.customer.domain.enums.EmploymentStatus;
 import com.banking.customer.dto.BulkUploadResult;
 import com.banking.customer.repository.CustomerRepository;
 import com.banking.customer.repository.EmploymentRelationshipRepository;
+import com.banking.masterdata.repository.CurrencyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @Transactional
 class EmploymentRelationshipServiceIntegrationTest {
+
+    @MockBean
+    private CurrencyRepository currencyRepository;
 
     @Autowired
     private EmploymentRelationshipService employmentRelationshipService;

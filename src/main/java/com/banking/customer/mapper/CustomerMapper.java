@@ -12,6 +12,8 @@ import com.banking.customer.dto.CreateCorporateCustomerRequest;
 import com.banking.customer.dto.CreateIndividualCustomerRequest;
 import com.banking.customer.dto.CreateSMECustomerRequest;
 import com.banking.customer.dto.CustomerResponse;
+import com.banking.masterdata.domain.entity.Currency;
+import com.banking.masterdata.repository.CurrencyRepository;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,12 +22,30 @@ import java.util.stream.Collectors;
 @Component
 public class CustomerMapper {
 
+    private final CurrencyRepository currencyRepository;
+
+    public CustomerMapper(CurrencyRepository currencyRepository) {
+        this.currencyRepository = currencyRepository;
+    }
+
+    private void validateCurrency(String code) {
+        if (code == null || code.isBlank()) {
+            return;
+        }
+        Currency currency = currencyRepository.findById(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid currency code: " + code));
+        if (!currency.isActive()) {
+            throw new IllegalArgumentException("Currency is inactive: " + code);
+        }
+    }
+
     public CorporateCustomer toCorporateEntity(CreateCorporateCustomerRequest request, String customerNumber) {
         CorporateCustomer customer = new CorporateCustomer(customerNumber, request.getName(), CustomerStatus.PENDING);
         customer.setTaxId(request.getTaxId());
         customer.setRegistrationNumber(request.getRegistrationNumber());
         customer.setIndustry(request.getIndustry());
         if (request.getAnnualRevenueAmount() != null && request.getAnnualRevenueCurrency() != null) {
+            validateCurrency(request.getAnnualRevenueCurrency());
             customer.setAnnualRevenue(new Money(
                 new BigDecimal(request.getAnnualRevenueAmount()),
                 request.getAnnualRevenueCurrency()
@@ -44,6 +64,7 @@ public class CustomerMapper {
         customer.setIndustry(request.getIndustry());
         customer.setBusinessType(request.getBusinessType());
         if (request.getAnnualTurnoverAmount() != null && request.getAnnualTurnoverCurrency() != null) {
+            validateCurrency(request.getAnnualTurnoverCurrency());
             customer.setAnnualTurnover(new Money(
                 new BigDecimal(request.getAnnualTurnoverAmount()),
                 request.getAnnualTurnoverCurrency()
