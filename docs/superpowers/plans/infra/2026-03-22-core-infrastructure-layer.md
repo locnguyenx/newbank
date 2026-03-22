@@ -156,14 +156,14 @@ docker-compose.yml
 
 ## Layer 0: Fix Foundation Module API Packages
 
-### Task 0.1: Add `api` package to Account module
+### Task 0.1: Add `api` package to Account module [DONE]
 
 **Files:**
 - Create: `src/main/java/com/banking/account/api/AccountQueryService.java`
 - Create: `src/main/java/com/banking/account/api/dto/AccountDTO.java`
 - Create: `src/main/java/com/banking/account/service/AccountQueryServiceImpl.java`
 
-- [ ] **Step 1: Create AccountQueryService interface**
+- [x] **Step 1: Create AccountQueryService interface**
 
 ```java
 package com.banking.account.api;
@@ -257,7 +257,7 @@ git add src/main/java/com/banking/account/api/ src/main/java/com/banking/account
 git commit -m "feat(account): add api package for cross-module boundary"
 ```
 
-### Task 0.2: Add `api` package to Product module
+### Task 0.2: Add `api` package to Product module [DONE]
 
 Same pattern as Task 0.1:
 - Create: `src/main/java/com/banking/product/api/ProductQueryService.java`
@@ -266,21 +266,21 @@ Same pattern as Task 0.1:
 - Fix imports from `com.banking.customer.domain.enums` (11 files)
 - Verify build, commit
 
-### Task 0.3: Add `api` package to Limits module
+### Task 0.3: Add `api` package to Limits module [DONE]
 
 Same pattern:
 - Create: `src/main/java/com/banking/limits/api/LimitCheckService.java`
 - Create: `src/main/java/com/banking/limits/api/dto/LimitCheckResult.java`
 - Fix imports, verify build, commit
 
-### Task 0.4: Add `api` package to Charges module
+### Task 0.4: Add `api` package to Charges module [DONE]
 
 Same pattern:
 - Create: `src/main/java/com/banking/charges/api/ChargeCalculationService.java`
 - Create: `src/main/java/com/banking/charges/api/dto/ChargeResult.java`
 - Fix imports, verify build, commit
 
-### Task 0.5: Add `api` package to MasterData module
+### Task 0.5: Add `api` package to MasterData module [DONE]
 
 Same pattern:
 - Create: `src/main/java/com/banking/masterdata/api/CurrencyQueryService.java`
@@ -288,7 +288,7 @@ Same pattern:
 - Move `MasterDataQueryService` from `service/` to implement an `api` interface
 - Fix imports, verify build, commit
 
-### Task 0.6: Verify all module boundaries
+### Task 0.6: Verify all module boundaries [DONE]
 
 - [ ] Run: `grep -rn "import com.banking.*.domain.entity" src/main/java/com/banking/` — should return ZERO matches
 - [ ] Run: `grep -rn "import com.banking.*.repository" src/main/java/com/banking/` — should return ZERO cross-module matches
@@ -299,7 +299,7 @@ Same pattern:
 
 ## Layer 1a: Spring Security + JWT
 
-### Task 1a.1: Add dependencies to build.gradle.kts
+### Task 1a.1: Add dependencies to build.gradle.kts [DONE]
 
 **Files:**
 - Modify: `build.gradle.kts`
@@ -332,7 +332,7 @@ git add build.gradle.kts
 git commit -m "build: add Spring Security, JWT, and Kafka dependencies"
 ```
 
-### Task 1a.2: Create User entity and repository
+### Task 1a.2: Create User entity and repository [DONE]
 
 **Files:**
 - Create: `src/main/java/com/banking/common/security/entity/User.java`
@@ -426,7 +426,7 @@ Run: `./gradlew test --tests "com.banking.common.security.entity.UserRepositoryT
 
 - [ ] **Step 7: Commit**
 
-### Task 1a.3: Create JWT token provider
+### Task 1a.3: Create JWT token provider [IN_PROGRESS]
 
 **Files:**
 - Create: `src/main/java/com/banking/common/security/config/JwtConfig.java`
@@ -545,7 +545,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 - [ ] **Step 4: Commit**
 
-### Task 1a.5: Create auth DTOs
+### Task 1a.5: Create auth DTOs [DONE]
 
 **Files:**
 - Create: `src/main/java/com/banking/common/security/auth/dto/LoginRequest.java`
