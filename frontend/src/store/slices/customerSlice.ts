@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { CustomerVariant } from '@/types';
+import type { CustomerVariant } from '@/types/customer.types';
 import { customerService } from '@/services/customerService';
-import { demoCustomers } from '@/data/demoCustomers';
 
 interface CustomerState {
   customers: CustomerVariant[];
@@ -11,7 +10,7 @@ interface CustomerState {
 }
 
 const initialState: CustomerState = {
-  customers: demoCustomers,  // Use demo data as initial state
+  customers: [],
   selectedCustomer: null,
   loading: false,
   error: null,
@@ -20,24 +19,14 @@ const initialState: CustomerState = {
 export const fetchCustomers = createAsyncThunk<CustomerVariant[], void>(
   'customer/fetchAll',
   async () => {
-    try {
-      return await customerService.getAll();
-    } catch {
-      // Return demo data if API fails
-      return demoCustomers;
-    }
+    return await customerService.getAll();
   }
 );
 
 export const fetchCustomerById = createAsyncThunk<CustomerVariant, number>(
   'customer/fetchById',
   async (id) => {
-    try {
-      return await customerService.getById(id);
-    } catch {
-      // Return demo data if API fails
-      return demoCustomers.find(c => c.id === id) || demoCustomers[0];
-    }
+    return await customerService.getById(id);
   }
 );
 
@@ -71,16 +60,21 @@ interface CreateCorporatePayload {
   phoneNumber: string;
   industry: string;
   employeeCountRange: string;
-  annualRevenue: number;
-  revenueCurrency: string;
+  annualRevenueAmount: number;
+  annualRevenueCurrency: string;
 }
 
 export type CreateCustomerPayload = CreateIndividualPayload | CreateSMEPayload | CreateCorporatePayload;
 
 export const createCustomer = createAsyncThunk<CustomerVariant, CreateCustomerPayload>(
   'customer/create',
-  async (data) => {
-    return customerService.create(data as unknown as Record<string, unknown>);
+  async (data, { rejectWithValue }) => {
+    try {
+      return await customerService.create(data as unknown as Record<string, unknown>);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to create customer';
+      return rejectWithValue(message);
+    }
   }
 );
 
@@ -114,8 +108,8 @@ interface UpdateCorporatePayload {
   phoneNumber: string;
   industry: string;
   employeeCountRange: string;
-  annualRevenue: number;
-  revenueCurrency: string;
+  annualRevenueAmount: number;
+  annualRevenueCurrency: string;
 }
 
 export type UpdateCustomerPayload = UpdateIndividualPayload | UpdateSMEPayload | UpdateCorporatePayload;
@@ -151,10 +145,10 @@ const customerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCustomers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.customers = action.payload;
-      })
+       .addCase(fetchCustomers.fulfilled, (state, action) => {
+         state.loading = false;
+         state.customers = action.payload;
+       })
       .addCase(fetchCustomers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch customers';
@@ -177,7 +171,12 @@ const customerSlice = createSlice({
       })
       .addCase(createCustomer.fulfilled, (state, action) => {
         state.loading = false;
-        state.customers.push(action.payload);
+        const existingIndex = state.customers.findIndex(c => c.id === action.payload.id);
+        if (existingIndex !== -1) {
+          state.customers[existingIndex] = action.payload; // Replace existing
+        } else {
+          state.customers.push(action.payload);
+        }
       })
       .addCase(createCustomer.rejected, (state, action) => {
         state.loading = false;

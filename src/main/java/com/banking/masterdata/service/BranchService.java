@@ -3,6 +3,7 @@ package com.banking.masterdata.service;
 import com.banking.masterdata.domain.entity.Branch;
 import com.banking.masterdata.domain.entity.Country;
 import com.banking.masterdata.dto.request.CreateBranchRequest;
+import com.banking.masterdata.dto.request.UpdateBranchRequest;
 import com.banking.masterdata.dto.response.BranchResponse;
 import com.banking.masterdata.exception.BranchAlreadyExistsException;
 import com.banking.masterdata.exception.BranchNotFoundException;
@@ -68,6 +69,21 @@ public class BranchService {
                 .orElseThrow(() -> new BranchNotFoundException(code));
 
         branch.setActive(false);
+        Branch savedBranch = branchRepository.save(branch);
+        return masterDataMapper.toResponse(savedBranch);
+    }
+
+    public BranchResponse updateBranch(String code, UpdateBranchRequest request) {
+        Branch branch = branchRepository.findById(code)
+                .orElseThrow(() -> new BranchNotFoundException(code));
+
+        if (request.getName() != null) {
+            branch.setName(request.getName());
+        }
+        if (request.getAddress() != null) {
+            branch.setAddress(request.getAddress());
+        }
+
         Branch savedBranch = branchRepository.save(branch);
         return masterDataMapper.toResponse(savedBranch);
     }

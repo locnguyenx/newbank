@@ -1,10 +1,16 @@
 package com.banking.customer.controller;
 
+import com.banking.customer.domain.entity.CorporateCustomer;
+import com.banking.customer.domain.entity.IndividualCustomer;
+import com.banking.customer.domain.entity.SMECustomer;
+import com.banking.customer.domain.enums.CustomerStatus;
+import com.banking.customer.domain.enums.CustomerType;
 import com.banking.customer.dto.CreateCorporateCustomerRequest;
 import com.banking.customer.dto.CustomerResponse;
 import com.banking.customer.dto.UpdateCustomerRequest;
 import com.banking.customer.exception.CustomerNotFoundException;
 import com.banking.customer.exception.DuplicateCustomerException;
+import com.banking.customer.mapper.CustomerMapper;
 import com.banking.customer.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -18,8 +24,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -64,7 +72,7 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("name"));
     }
 
@@ -77,7 +85,7 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("taxId"));
     }
 
@@ -99,7 +107,7 @@ class CustomerControllerTest {
 
         mockMvc.perform(get("/api/customers/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("CUST-002"));
+                .andExpect(jsonPath("$.messageCode").value("CUSTOMER_001"));
     }
 
     @Test
@@ -129,7 +137,7 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("CUST-001"));
+                .andExpect(jsonPath("$.messageCode").value("CUSTOMER_002"));
     }
 
     @Test

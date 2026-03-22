@@ -143,6 +143,161 @@ class CustomerServiceTest {
     }
 
     @Test
+    void shouldUpdateCustomerWithAllFields() {
+        Long customerId = 1L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("New Corporate Name");
+        request.setTaxId("NEW-TAX-123");
+        request.setRegistrationNumber("NEW-REG-456");
+        request.setIndustry("Technology");
+        request.setWebsite("https://newwebsite.com");
+        request.setEmployeeCount(500);
+        request.setAnnualRevenueAmount(5000000L);
+        request.setAnnualRevenueCurrency("USD");
+        request.setEmail("corp@newcompany.com");
+        request.setPhoneNumber("+1-555-9999");
+
+        CorporateCustomer existingCustomer = createCorporateCustomer();
+        existingCustomer.setIndustry("Old Industry");
+        existingCustomer.setEmployeeCount(100);
+        existingCustomer.setWebsite("https://oldwebsite.com");
+
+        ArgumentCaptor<CorporateCustomer> customerCaptor = ArgumentCaptor.forClass(CorporateCustomer.class);
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.findByTaxId("NEW-TAX-123")).thenReturn(Optional.empty());
+        when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(customerMapper.toResponse(any(CorporateCustomer.class))).thenAnswer(invocation -> {
+            CorporateCustomer saved = invocation.getArgument(0);
+            CustomerResponse response = createCustomerResponse(CustomerType.CORPORATE);
+            response.setName(saved.getName());
+            response.setTaxId(saved.getTaxId());
+            response.setRegistrationNumber(saved.getRegistrationNumber());
+            response.setIndustry(saved.getIndustry());
+            response.setWebsite(saved.getWebsite());
+            response.setEmployeeCount(saved.getEmployeeCount());
+            return response;
+        });
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        assertNotNull(response);
+        assertEquals("New Corporate Name", response.getName());
+        assertEquals("NEW-TAX-123", response.getTaxId());
+        assertEquals("NEW-REG-456", response.getRegistrationNumber());
+        assertEquals("Technology", response.getIndustry());
+        assertEquals("https://newwebsite.com", response.getWebsite());
+        assertEquals(500, response.getEmployeeCount());
+
+        verify(customerRepository).save(customerCaptor.capture());
+        CorporateCustomer savedCustomer = customerCaptor.getValue();
+        assertEquals("New Corporate Name", savedCustomer.getName());
+        assertEquals("Technology", savedCustomer.getIndustry());
+        assertEquals("https://newwebsite.com", savedCustomer.getWebsite());
+        assertEquals(500, savedCustomer.getEmployeeCount());
+    }
+
+    @Test
+    void shouldUpdateSMECustomerWithAllFields() {
+        Long customerId = 2L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("New SME Name");
+        request.setTaxId("NEW-SME-TAX");
+        request.setRegistrationNumber("NEW-SME-REG");
+        request.setIndustry("Retail");
+        request.setBusinessType("E-commerce");
+        request.setAnnualTurnoverAmount(1000000L);
+        request.setAnnualTurnoverCurrency("EUR");
+        request.setYearsInOperation(10);
+
+        SMECustomer existingCustomer = createSMECustomer();
+        existingCustomer.setIndustry("Manufacturing");
+        existingCustomer.setBusinessType("Factory");
+        existingCustomer.setYearsInOperation(5);
+
+        ArgumentCaptor<SMECustomer> customerCaptor = ArgumentCaptor.forClass(SMECustomer.class);
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.findByTaxId("NEW-SME-TAX")).thenReturn(Optional.empty());
+        when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(customerMapper.toResponse(any(SMECustomer.class))).thenAnswer(invocation -> {
+            SMECustomer saved = invocation.getArgument(0);
+            CustomerResponse response = createCustomerResponse(CustomerType.SME);
+            response.setName(saved.getName());
+            response.setTaxId(saved.getTaxId());
+            response.setRegistrationNumber(saved.getRegistrationNumber());
+            response.setIndustry(saved.getIndustry());
+            response.setBusinessType(saved.getBusinessType());
+            response.setYearsInOperation(saved.getYearsInOperation());
+            return response;
+        });
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        assertNotNull(response);
+        assertEquals("New SME Name", response.getName());
+        assertEquals("NEW-SME-TAX", response.getTaxId());
+        assertEquals("E-commerce", response.getBusinessType());
+        assertEquals(10, response.getYearsInOperation());
+
+        verify(customerRepository).save(customerCaptor.capture());
+        SMECustomer savedCustomer = customerCaptor.getValue();
+        assertEquals("New SME Name", savedCustomer.getName());
+        assertEquals("Retail", savedCustomer.getIndustry());
+        assertEquals("E-commerce", savedCustomer.getBusinessType());
+        assertEquals(10, savedCustomer.getYearsInOperation());
+    }
+
+    @Test
+    void shouldUpdateIndividualCustomerWithAllFields() {
+        Long customerId = 3L;
+        UpdateCustomerRequest request = new UpdateCustomerRequest();
+        request.setName("New Individual Name");
+        request.setTaxId("NEW-IND-TAX");
+        request.setDateOfBirth(LocalDate.of(1985, 6, 15));
+        request.setPlaceOfBirth("New City");
+        request.setNationality("UK");
+        request.setEmploymentStatus("EMPLOYED");
+
+        IndividualCustomer existingCustomer = createIndividualCustomer();
+        existingCustomer.setPlaceOfBirth("Old City");
+        existingCustomer.setNationality("US");
+
+        ArgumentCaptor<IndividualCustomer> customerCaptor = ArgumentCaptor.forClass(IndividualCustomer.class);
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(customerRepository.findByTaxId("NEW-IND-TAX")).thenReturn(Optional.empty());
+        when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(customerMapper.toResponse(any(IndividualCustomer.class))).thenAnswer(invocation -> {
+            IndividualCustomer saved = invocation.getArgument(0);
+            CustomerResponse response = createCustomerResponse(CustomerType.INDIVIDUAL);
+            response.setName(saved.getName());
+            response.setTaxId(saved.getTaxId());
+            response.setDateOfBirth(saved.getDateOfBirth());
+            response.setPlaceOfBirth(saved.getPlaceOfBirth());
+            response.setNationality(saved.getNationality());
+            response.setEmploymentStatus(saved.getEmploymentStatus());
+            return response;
+        });
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        assertNotNull(response);
+        assertEquals("New Individual Name", response.getName());
+        assertEquals("NEW-IND-TAX", response.getTaxId());
+        assertEquals(LocalDate.of(1985, 6, 15), response.getDateOfBirth());
+        assertEquals("New City", response.getPlaceOfBirth());
+        assertEquals("UK", response.getNationality());
+
+        verify(customerRepository).save(customerCaptor.capture());
+        IndividualCustomer savedCustomer = customerCaptor.getValue();
+        assertEquals("New Individual Name", savedCustomer.getName());
+        assertEquals(LocalDate.of(1985, 6, 15), savedCustomer.getDateOfBirth());
+        assertEquals("New City", savedCustomer.getPlaceOfBirth());
+        assertEquals("UK", savedCustomer.getNationality());
+    }
+
+    @Test
     void shouldThrowCustomerNotFoundExceptionWhenUpdatingNonExistentCustomer() {
         Long customerId = 999L;
         UpdateCustomerRequest request = new UpdateCustomerRequest();
@@ -251,7 +406,7 @@ class CustomerServiceTest {
             customerService.createCorporate(request);
             fail("Expected DuplicateCustomerException");
         } catch (DuplicateCustomerException e) {
-            assertEquals("CUST-001", e.getErrorCode());
+            assertEquals("CUSTOMER_002", e.getMessageCode());
             assertTrue(e.getMessage().contains("taxId"));
         }
     }
@@ -266,7 +421,7 @@ class CustomerServiceTest {
             customerService.getCustomerById(customerId);
             fail("Expected CustomerNotFoundException");
         } catch (CustomerNotFoundException e) {
-            assertEquals("CUST-002", e.getErrorCode());
+            assertEquals("CUSTOMER_001", e.getMessageCode());
         }
     }
 

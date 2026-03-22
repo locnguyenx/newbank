@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { AccountResponse, AccountDetails, AccountOpeningRequest } from '@/types/account.types';
 import { accountService } from '@/services/accountService';
-import { demoAccounts, demoAccountDetails } from '@/data/demoAccounts';
 
 interface PaginationMetadata {
   totalElements: number;
@@ -17,10 +16,10 @@ interface AccountState {
 }
 
 const initialState: AccountState = {
-  accounts: demoAccounts,
+  accounts: [],
   pagination: {
-    totalElements: demoAccounts.length,
-    totalPages: 1,
+    totalElements: 0,
+    totalPages: 0,
   },
   selectedAccount: null,
   loading: false,
@@ -39,25 +38,14 @@ interface FetchAccountsParams {
 export const fetchAccounts = createAsyncThunk<{ content: AccountResponse[]; totalElements: number; totalPages: number }, FetchAccountsParams>(
   'account/fetchAll',
   async (params = {}) => {
-    try {
-      return await accountService.getAll(params);
-    } catch {
-      const filteredDemo = params.customerId
-        ? demoAccounts.filter(a => a.customerId === params.customerId)
-        : demoAccounts;
-      return { content: filteredDemo, totalElements: filteredDemo.length, totalPages: 1 };
-    }
+    return await accountService.getAll(params);
   }
 );
 
 export const fetchAccountByNumber = createAsyncThunk<AccountDetails, string>(
   'account/fetchByNumber',
   async (accountNumber) => {
-    try {
-      return await accountService.getByAccountNumber(accountNumber);
-    } catch {
-      return demoAccountDetails[accountNumber] || demoAccountDetails['ACC-001'];
-    }
+    return await accountService.getByAccountNumber(accountNumber);
   }
 );
 
@@ -70,22 +58,37 @@ export const openAccount = createAsyncThunk<AccountResponse, AccountOpeningReque
 
 export const closeAccount = createAsyncThunk<void, string>(
   'account/close',
-  async (accountNumber) => {
-    await accountService.closeAccount(accountNumber);
+  async (accountNumber, { rejectWithValue }) => {
+    try {
+      await accountService.closeAccount(accountNumber);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to close account';
+      return rejectWithValue(message);
+    }
   }
 );
 
 export const freezeAccount = createAsyncThunk<void, string>(
   'account/freeze',
-  async (accountNumber) => {
-    await accountService.freezeAccount(accountNumber);
+  async (accountNumber, { rejectWithValue }) => {
+    try {
+      await accountService.freezeAccount(accountNumber);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to freeze account';
+      return rejectWithValue(message);
+    }
   }
 );
 
 export const unfreezeAccount = createAsyncThunk<void, string>(
   'account/unfreeze',
-  async (accountNumber) => {
-    await accountService.unfreezeAccount(accountNumber);
+  async (accountNumber, { rejectWithValue }) => {
+    try {
+      await accountService.unfreezeAccount(accountNumber);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to unfreeze account';
+      return rejectWithValue(message);
+    }
   }
 );
 
@@ -146,7 +149,12 @@ const accountSlice = createSlice({
       })
       // openAccount
       .addCase(openAccount.fulfilled, (state, action) => {
-        state.accounts.push(action.payload);
+        const existingIndex = state.accounts.findIndex(a => a.id === action.payload.id);
+        if (existingIndex !== -1) {
+          state.accounts[existingIndex] = action.payload; // Replace if exists
+        } else {
+          state.accounts.push(action.payload);
+        }
       })
       // closeAccount, freezeAccount, unfreezeAccount: just update local state optimistically
       .addCase(closeAccount.fulfilled, (state, action) => {
@@ -187,9 +195,10 @@ const accountSlice = createSlice({
         }
       })
       // removeAccountHolder
-      .addCase(removeAccountHolder.fulfilled, (state) => {
-        if (state.selectedAccount) {
-          // In real app, we'd refetch holders
+      .addCase(removeAccountHolder.fulfilled, (state, action) => {
+        const holderId = action.meta.arg.holderId;
+        if (state.selectedAccount?.holders) {
+          state.selectedAccount.holders = state.selectedAccount.holders.filter(h => h.id !== holderId);
         }
       });
   }

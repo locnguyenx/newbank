@@ -75,7 +75,7 @@ class CurrencyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("MDATA-002"));
+                .andExpect(jsonPath("$.messageCode").value("MDATA-002"));
     }
 
     @Test
@@ -130,6 +130,6 @@ class CurrencyControllerTest {
     void getCurrencyByCode_notFound_returns404() throws Exception {
         mockMvc.perform(get("/api/master-data/currencies/ZZZ"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("MDATA-001"));
+                .andExpect(jsonPath("$.messageCode").value("MDATA-001"));
     }
 }

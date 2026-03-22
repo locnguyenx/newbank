@@ -93,7 +93,7 @@ class AccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-001"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_007"));
     }
 
     @Test
@@ -105,7 +105,7 @@ class AccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("customerId"));
     }
 
@@ -118,7 +118,7 @@ class AccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("currency"));
     }
 
@@ -143,7 +143,7 @@ void shouldGetAccountDetails() throws Exception {
 
         mockMvc.perform(get("/api/accounts/ACC-99999999-999999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
     @Test
@@ -166,7 +166,7 @@ void shouldGetAccountBalance() throws Exception {
 
         mockMvc.perform(get("/api/accounts/ACC-99999999-999999/balance"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
 @Test
@@ -203,17 +203,17 @@ void shouldReturn404WhenClosingNonExistentAccount() throws Exception {
 
         mockMvc.perform(put("/api/accounts/ACC-99999999-999999/close"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
     @Test
     void shouldReturn400WhenClosingAlreadyClosedAccount() throws Exception {
-        doThrow(new InvalidAccountStateException("Account is already closed"))
+        doThrow(InvalidAccountStateException.alreadyClosed())
                 .when(accountService).closeAccount("ACC-20240115-000001");
 
         mockMvc.perform(put("/api/accounts/ACC-20240115-000001/close"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-003"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_002"));
     }
 
     @Test
@@ -231,17 +231,17 @@ void shouldFreezeAccount() throws Exception {
 
         mockMvc.perform(put("/api/accounts/ACC-99999999-999999/freeze"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
     @Test
     void shouldReturn400WhenFreezingClosedAccount() throws Exception {
-        doThrow(new InvalidAccountStateException("Cannot freeze a closed account"))
+        doThrow(InvalidAccountStateException.cannotFreezeClosed())
                 .when(accountService).freezeAccount("ACC-20240115-000001");
 
         mockMvc.perform(put("/api/accounts/ACC-20240115-000001/freeze"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-003"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_005"));
     }
 
     @Test
@@ -259,17 +259,17 @@ void shouldFreezeAccount() throws Exception {
 
         mockMvc.perform(put("/api/accounts/ACC-99999999-999999/unfreeze"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
     @Test
     void shouldReturn400WhenUnfreezingActiveAccount() throws Exception {
-        doThrow(new InvalidAccountStateException("Account is not frozen"))
+        doThrow(InvalidAccountStateException.notFrozen())
                 .when(accountService).unfreezeAccount("ACC-20240115-000001");
 
         mockMvc.perform(put("/api/accounts/ACC-20240115-000001/unfreeze"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-003"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_006"));
     }
 
     private AccountOpeningRequest createAccountOpeningRequest() {

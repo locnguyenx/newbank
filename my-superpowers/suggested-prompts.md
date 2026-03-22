@@ -36,6 +36,9 @@ Use subagent-driven-development with test-driven-development skill.
 # Improve the skills
 ## brainstorming
 
+**BRD**
+User Story to Functional Requirement Mapping
+**BDD**
 1. The user wants traceability between BRD requirements (both functional requirements and user stories) and BDD scenarios
 
    AGENT: Let me think about the best approach. I should:

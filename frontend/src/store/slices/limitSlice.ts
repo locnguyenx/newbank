@@ -10,9 +10,9 @@ import type {
   EffectiveLimitResponse,
   CreateLimitDefinitionRequest,
   AssignLimitRequest,
-  PaginatedResponse,
   LimitStatus,
 } from '@/types/limit.types';
+import type { PaginatedResponse } from '@/types/product.types';
 import { limitService } from '@/services/limitService';
 
 interface LimitState {

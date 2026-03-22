@@ -8,6 +8,12 @@ import com.banking.product.dto.response.ProductResponse;
 import com.banking.product.mapper.ProductMapper;
 import com.banking.product.service.ProductService;
 import com.banking.product.service.ProductVersionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,13 +39,14 @@ public class ProductController {
         this.productMapper = productMapper;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(
-            @Valid @RequestBody CreateProductRequest request,
-            @RequestHeader("X-Username") String username) {
-        ProductResponse response = productService.createProduct(request, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+     @Operation(summary = "Create a new product", description = "Create product with basic info. Requires X-Username header for audit.")
+     @PostMapping
+     public ResponseEntity<ProductResponse> createProduct(
+             @Parameter(in = ParameterIn.HEADER, description = "Username of the user performing the action", required = true) @RequestHeader("X-Username") String username,
+             @Valid @RequestBody CreateProductRequest request) {
+         ProductResponse response = productService.createProduct(request, username);
+         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
@@ -59,14 +66,15 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateProductRequest request,
-            @RequestHeader("X-Username") String username) {
-        ProductResponse response = productService.updateProduct(id, request, username);
-        return ResponseEntity.ok(response);
-    }
+     @Operation(summary = "Update an existing product")
+     @PutMapping("/{id}")
+     public ResponseEntity<ProductResponse> updateProduct(
+             @Parameter(in = ParameterIn.PATH, description = "Product ID", required = true) @PathVariable Long id,
+             @Valid @RequestBody UpdateProductRequest request,
+             @Parameter(in = ParameterIn.HEADER, description = "Username of the user performing the action", required = true) @RequestHeader("X-Username") String username) {
+         ProductResponse response = productService.updateProduct(id, request, username);
+         return ResponseEntity.ok(response);
+     }
 
     @GetMapping("/search")
     public ResponseEntity<Page<ProductResponse>> searchProducts(

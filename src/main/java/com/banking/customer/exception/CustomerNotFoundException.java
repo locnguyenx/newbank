@@ -1,21 +1,14 @@
 package com.banking.customer.exception;
 
-public class CustomerNotFoundException extends RuntimeException {
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    private static final String ERROR_CODE_PREFIX = "CUST-";
-    private final String errorCode;
-
+public class CustomerNotFoundException extends BaseException {
     public CustomerNotFoundException(String customerNumber) {
-        super("Customer not found with customer number: " + customerNumber);
-        this.errorCode = ERROR_CODE_PREFIX + "002";
+        super(MessageCatalog.CUSTOMER_NOT_FOUND, "Customer not found with customer number: " + customerNumber);
     }
 
     public CustomerNotFoundException(Long id) {
-        super("Customer not found with id: " + id);
-        this.errorCode = ERROR_CODE_PREFIX + "002";
-    }
-
-    public String getErrorCode() {
-        return errorCode;
+        super(MessageCatalog.CUSTOMER_NOT_FOUND, "Customer not found with id: " + id);
     }
 }

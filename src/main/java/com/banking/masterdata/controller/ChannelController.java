@@ -1,6 +1,7 @@
 package com.banking.masterdata.controller;
 
 import com.banking.masterdata.dto.request.CreateChannelRequest;
+import com.banking.masterdata.dto.request.UpdateChannelRequest;
 import com.banking.masterdata.dto.response.ChannelResponse;
 import com.banking.masterdata.service.ChannelService;
 import jakarta.validation.Valid;
@@ -35,6 +36,14 @@ public class ChannelController {
     @PutMapping("/{code}/deactivate")
     public ResponseEntity<ChannelResponse> deactivateChannel(@PathVariable String code) {
         ChannelResponse response = channelService.deactivateChannel(code);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{code}")
+    public ResponseEntity<ChannelResponse> updateChannel(
+            @PathVariable String code,
+            @Valid @RequestBody UpdateChannelRequest request) {
+        ChannelResponse response = channelService.updateChannel(code, request);
         return ResponseEntity.ok(response);
     }
 }

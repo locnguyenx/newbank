@@ -10,10 +10,13 @@ import type {
   EffectiveLimitResponse,
   CreateLimitDefinitionRequest,
   AssignLimitRequest,
-  ApprovalActionRequest,
-  PaginatedResponse,
   LimitStatus,
 } from '@/types/limit.types';
+import type { PaginatedResponse } from '@/types/product.types';
+
+interface ApprovalActionRequest {
+  reason?: string;
+}
 
 export const limitService = {
   getLimitDefinitions(status?: LimitStatus): Promise<LimitDefinition[]> {

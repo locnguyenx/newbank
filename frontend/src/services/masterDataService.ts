@@ -1,22 +1,136 @@
 import apiClient from './apiClient';
-import type {
-  Currency,
-  Country,
-  Industry,
-  ExchangeRate,
-  Holiday,
-  Branch,
-  Channel,
-  DocumentType,
-  CreateCurrencyRequest,
-  CreateCountryRequest,
-  CreateIndustryRequest,
-  CreateExchangeRateRequest,
-  CreateHolidayRequest,
-  CreateBranchRequest,
-  CreateChannelRequest,
-  CreateDocumentTypeRequest,
-} from '@/types/masterData.types';
+
+interface Currency {
+  code?: string;
+  name?: string;
+  symbol?: string;
+  decimalPlaces?: number;
+  active?: boolean;
+}
+
+interface Country {
+  isoCode?: string;
+  name?: string;
+  region?: string;
+  active?: boolean;
+}
+
+interface Branch {
+  code?: string;
+  name?: string;
+  countryCode?: string;
+  address?: string;
+  active?: boolean;
+}
+
+interface Channel {
+  code?: string;
+  name?: string;
+  active?: boolean;
+}
+
+interface DocumentType {
+  code?: string;
+  name?: string;
+  category?: string;
+  active?: boolean;
+}
+
+interface Industry {
+  code?: string;
+  name?: string;
+  parentCode?: string;
+  active?: boolean;
+}
+
+interface ExchangeRate {
+  id?: number;
+  baseCurrencyCode?: string;
+  targetCurrencyCode?: string;
+  rate?: number;
+  effectiveDate?: string;
+}
+
+interface Holiday {
+  id?: number;
+  countryCode?: string;
+  holidayDate?: string;
+  description?: string;
+}
+
+interface CreateCurrencyRequest {
+  code: string;
+  name: string;
+  symbol?: string;
+  decimalPlaces: number;
+}
+
+interface UpdateCurrencyRequest {
+  name?: string;
+  symbol?: string;
+}
+
+interface CreateCountryRequest {
+  isoCode: string;
+  name: string;
+  region?: string;
+}
+
+interface UpdateCountryRequest {
+  name?: string;
+  region?: string;
+}
+
+interface CreateBranchRequest {
+  code: string;
+  name: string;
+  countryCode: string;
+  address?: string;
+}
+
+interface UpdateBranchRequest {
+  name?: string;
+  address?: string;
+}
+
+interface CreateChannelRequest {
+  code: string;
+  name: string;
+}
+
+interface UpdateChannelRequest {
+  name?: string;
+}
+
+interface CreateDocumentTypeRequest {
+  code: string;
+  name: string;
+  category: string;
+}
+
+interface UpdateDocumentTypeRequest {
+  name?: string;
+  category?: string;
+}
+
+interface CreateIndustryRequest {
+  code: string;
+  name: string;
+  parentCode?: string;
+}
+
+interface CreateExchangeRateRequest {
+  baseCurrencyCode: string;
+  targetCurrencyCode: string;
+  rate: number;
+  effectiveDate: string;
+}
+
+interface CreateHolidayRequest {
+  countryCode: string;
+  holidayDate: string;
+  description?: string;
+}
 
 const BASE = '/master-data';
 
@@ -38,6 +152,10 @@ export const masterDataService = {
     return apiClient.put(`${BASE}/currencies/${code}/deactivate`).then((res) => res.data);
   },
 
+  updateCurrency(code: string, data: UpdateCurrencyRequest): Promise<Currency> {
+    return apiClient.put(`${BASE}/currencies/${code}`, data).then((res) => res.data);
+  },
+
   // Country
   getCountries(activeOnly?: boolean): Promise<Country[]> {
     return apiClient.get(`${BASE}/countries`, { params: activeOnly !== undefined ? { activeOnly } : undefined }).then((res) => res.data);
@@ -53,6 +171,10 @@ export const masterDataService = {
 
   deactivateCountry(isoCode: string): Promise<Country> {
     return apiClient.put(`${BASE}/countries/${isoCode}/deactivate`).then((res) => res.data);
+  },
+
+  updateCountry(isoCode: string, data: UpdateCountryRequest): Promise<Country> {
+    return apiClient.put(`${BASE}/countries/${isoCode}`, data).then((res) => res.data);
   },
 
   // Industry
@@ -111,6 +233,10 @@ export const masterDataService = {
     return apiClient.put(`${BASE}/branches/${code}/deactivate`).then((res) => res.data);
   },
 
+  updateBranch(code: string, data: UpdateBranchRequest): Promise<Branch> {
+    return apiClient.put(`${BASE}/branches/${code}`, data).then((res) => res.data);
+  },
+
   // Channel
   getChannels(): Promise<Channel[]> {
     return apiClient.get(`${BASE}/channels`).then((res) => res.data);
@@ -124,6 +250,10 @@ export const masterDataService = {
     return apiClient.put(`${BASE}/channels/${code}/deactivate`).then((res) => res.data);
   },
 
+  updateChannel(code: string, data: UpdateChannelRequest): Promise<Channel> {
+    return apiClient.put(`${BASE}/channels/${code}`, data).then((res) => res.data);
+  },
+
   // Document Type
   getDocumentTypes(category?: string): Promise<DocumentType[]> {
     return apiClient.get(`${BASE}/document-types`, { params: category ? { category } : undefined }).then((res) => res.data);
@@ -135,5 +265,9 @@ export const masterDataService = {
 
   deactivateDocumentType(code: string): Promise<DocumentType> {
     return apiClient.put(`${BASE}/document-types/${code}/deactivate`).then((res) => res.data);
+  },
+
+  updateDocumentType(code: string, data: UpdateDocumentTypeRequest): Promise<DocumentType> {
+    return apiClient.put(`${BASE}/document-types/${code}`, data).then((res) => res.data);
   },
 };

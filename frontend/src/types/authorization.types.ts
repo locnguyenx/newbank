@@ -1,64 +1,29 @@
-export type AuthorizationStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED' | 'PENDING';
+// Re-export types from API
+import type { AuthorizationResponse } from '@/api/api';
+export type { AuthorizationResponse } from '@/api/api';
+import {
+  AuthorizationResponseStatusEnum,
+  CreateAuthorizationRequestRelationshipTypeEnum,
+  UpdateAuthorizationRequestRelationshipTypeEnum,
+} from '@/api/api';
+export {
+  AuthorizationResponseStatusEnum,
+  CreateAuthorizationRequestRelationshipTypeEnum,
+  UpdateAuthorizationRequestRelationshipTypeEnum,
+};
+import type { CreateAuthorizationRequest, UpdateAuthorizationRequest } from '@/api/api';
 
-export type AuthorizationType = 'SIGNATORY' | 'POWER_OF_ATTORNEY' | 'JOINT_AUTHORITY' | 'SOLE_AUTHORITY' | 'DELEGATED';
+export type Authorization = AuthorizationResponse;
+export type { CreateAuthorizationRequest, UpdateAuthorizationRequest };
 
-export type AuthorizationDocumentType = 'ID_DOCUMENT' | 'POWER_OF_ATTORNEY_LETTER' | 'BOARD_RESOLUTION' | 'SPECIMEN_SIGNATURE' | 'OTHER';
+// Define enums that are used but not directly exported by API
+export type AuthorizationType = typeof CreateAuthorizationRequestRelationshipTypeEnum[keyof typeof CreateAuthorizationRequestRelationshipTypeEnum];
+export type AuthorizationStatus = typeof AuthorizationResponseStatusEnum[keyof typeof AuthorizationResponseStatusEnum];
 
-export interface AuthorizationDocument {
-  id: number;
-  documentType: AuthorizationDocumentType;
-  fileName: string;
-  uploadedAt: string;
-  status: 'UPLOADED' | 'VERIFIED' | 'REJECTED';
-  rejectionReason?: string;
-}
-
-export interface Authorization {
-  id: number;
-  customerId: number;
-  customerNumber: string;
-  authorizationType: AuthorizationType;
-  status: AuthorizationStatus;
-  authorizedPersonName: string;
-  authorizedPersonEmail: string;
-  authorizedPersonPhone: string;
-  transactionLimit: number | null;
-  currency: string;
-  effectiveDate: string;
-  expiryDate: string | null;
-  documents: AuthorizationDocument[];
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateAuthorizationRequest {
-  customerId: number;
-  authorizationType: AuthorizationType;
-  authorizedPersonName: string;
-  authorizedPersonEmail: string;
-  authorizedPersonPhone: string;
-  transactionLimit: number | null;
-  currency: string;
-  effectiveDate: string;
-  expiryDate: string | null;
-  notes: string | null;
-}
-
-export interface UpdateAuthorizationRequest {
-  id: number;
-  authorizationType?: AuthorizationType;
-  authorizedPersonName?: string;
-  authorizedPersonEmail?: string;
-  authorizedPersonPhone?: string;
-  transactionLimit?: number | null;
-  currency?: string;
-  effectiveDate?: string;
-  expiryDate?: string | null;
-  notes?: string | null;
-}
-
-export interface AuthorizationDocumentUpload {
-  documentType: AuthorizationDocumentType;
-  file: File;
-}
+// Define document type (not in API, used in frontend)
+export type AuthorizationDocumentType = 
+  | 'ID_DOCUMENT'
+  | 'POWER_OF_ATTORNEY_LETTER'
+  | 'BOARD_RESOLUTION'
+  | 'SPECIMEN_SIGNATURE'
+  | 'OTHER';

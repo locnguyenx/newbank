@@ -27,13 +27,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductVersionRepository productVersionRepository;
+    private final ProductSegmentService productSegmentService;
 
     public ProductService(ProductRepository productRepository, 
                          ProductMapper productMapper, 
-                         ProductVersionRepository productVersionRepository) {
+                         ProductVersionRepository productVersionRepository,
+                         ProductSegmentService productSegmentService) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
         this.productVersionRepository = productVersionRepository;
+        this.productSegmentService = productSegmentService;
     }
 
     @Transactional
@@ -57,7 +60,11 @@ public class ProductService {
         ProductVersion version = new ProductVersion(savedProduct, 1, ProductStatus.DRAFT);
         version.getAudit().setCreatedBy(createdBy);
         version.getAudit().setUpdatedBy(createdBy);
-        productVersionRepository.save(version);
+        ProductVersion savedVersion = productVersionRepository.save(version);
+
+        if (request.getCustomerTypes() != null && !request.getCustomerTypes().isEmpty()) {
+            productSegmentService.assignSegments(savedVersion.getId(), request.getCustomerTypes(), createdBy);
+        }
 
         return productMapper.toResponse(savedProduct);
     }
@@ -92,6 +99,10 @@ public class ProductService {
             product.setDescription(request.getDescription());
         }
         product.getAudit().setUpdatedBy(updatedBy);
+
+        if (request.getCustomerTypes() != null && !request.getCustomerTypes().isEmpty()) {
+            productSegmentService.assignSegments(currentVersion.getId(), request.getCustomerTypes(), updatedBy);
+        }
 
         Product savedProduct = productRepository.save(product);
         return productMapper.toResponse(savedProduct);

@@ -1,6 +1,7 @@
 package com.banking.masterdata.controller;
 
 import com.banking.masterdata.dto.request.CreateCountryRequest;
+import com.banking.masterdata.dto.request.UpdateCountryRequest;
 import com.banking.masterdata.dto.response.CountryResponse;
 import com.banking.masterdata.service.CountryService;
 import jakarta.validation.Valid;
@@ -42,6 +43,14 @@ public class CountryController {
     @PutMapping("/{isoCode}/deactivate")
     public ResponseEntity<CountryResponse> deactivateCountry(@PathVariable String isoCode) {
         CountryResponse response = countryService.deactivateCountry(isoCode);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{isoCode}")
+    public ResponseEntity<CountryResponse> updateCountry(
+            @PathVariable String isoCode,
+            @Valid @RequestBody UpdateCountryRequest request) {
+        CountryResponse response = countryService.updateCountry(isoCode, request);
         return ResponseEntity.ok(response);
     }
 }

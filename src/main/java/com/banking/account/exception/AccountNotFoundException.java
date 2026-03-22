@@ -1,11 +1,10 @@
 package com.banking.account.exception;
 
-public class AccountNotFoundException extends RuntimeException {
-    public AccountNotFoundException(String accountNumber) {
-        super("Account not found: " + accountNumber);
-    }
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    public String getErrorCode() {
-        return "ACCT-002";
+public class AccountNotFoundException extends BaseException {
+    public AccountNotFoundException(String accountNumber) {
+        super(MessageCatalog.ACCOUNT_NOT_FOUND, "Account not found: " + accountNumber);
     }
 }

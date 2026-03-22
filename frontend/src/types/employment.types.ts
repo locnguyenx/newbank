@@ -1,44 +1,15 @@
-export type EmploymentStatus = 'ACTIVE' | 'INACTIVE' | 'TERMINATED';
+// Re-export types from API
+import type {
+  EmploymentResponse,
+  BulkUploadResult,
+  CreateEmploymentRequest,
+} from '@/api/api';
+export type {
+  EmploymentResponse,
+  BulkUploadResult,
+  CreateEmploymentRequest,
+};
 
-export interface Employment {
-  id: number;
-  customerId: number;
-  employeeName: string;
-  employeeId: string;
-  department: string;
-  position: string;
-  startDate: string;
-  endDate?: string;
-  status: EmploymentStatus;
-  salary: number;
-  currency: string;
-  createdAt: string;
-  createdBy: string;
-  updatedAt: string;
-  updatedBy: string;
-}
-
-export interface BulkUploadResult {
-  totalRows: number;
-  successCount: number;
-  failureCount: number;
-  errors: BulkUploadError[];
-}
-
-export interface BulkUploadError {
-  row: number;
-  field: string;
-  message: string;
-  value: string;
-}
-
-export interface CreateEmploymentPayload {
-  customerId: number;
-  employeeName: string;
-  employeeId: string;
-  department: string;
-  position: string;
-  startDate: string;
-  salary: number;
-  currency: string;
-}
+// Export type aliases
+export type Employment = EmploymentResponse;
+export type CreateEmploymentPayload = CreateEmploymentRequest;

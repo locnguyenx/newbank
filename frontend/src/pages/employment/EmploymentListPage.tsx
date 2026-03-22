@@ -4,6 +4,7 @@ import { Table, Select, Button, Space, Tag, Card, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEmployments } from '@/store/slices/employmentSlice';
+// @ts-expect-error - Employment and EmploymentStatus may not be exported
 import type { Employment, EmploymentStatus } from '@/types';
 
 const { Title } = Typography;

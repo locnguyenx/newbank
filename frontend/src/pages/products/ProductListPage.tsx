@@ -23,10 +23,11 @@ export function ProductListPage() {
   const filteredProducts = products.filter((product) => {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
+      const productAny = product as any;
       const matchesSearch =
         product.code.toLowerCase().includes(searchLower) ||
         product.name.toLowerCase().includes(searchLower) ||
-        (product.description && product.description.toLowerCase().includes(searchLower));
+        (productAny.description && productAny.description.toLowerCase().includes(searchLower));
       if (!matchesSearch) return false;
     }
     if (filters.family && product.family !== filters.family) return false;
@@ -36,9 +37,9 @@ export function ProductListPage() {
 
   const getFamilyLabel = (family: ProductFamily): string => {
     const labels: Record<ProductFamily, string> = {
-      [ProductFamily.ACCOUNT]: 'Account',
-      [ProductFamily.PAYMENT]: 'Payment',
-      [ProductFamily.TRADE_FINANCE]: 'Trade Finance',
+      [ProductFamily.Account]: 'Account',
+      [ProductFamily.Payment]: 'Payment',
+      [ProductFamily.TradeFinance]: 'Trade Finance',
     };
     return labels[family] || family;
   };
@@ -120,9 +121,9 @@ export function ProductListPage() {
               allowClear
               onChange={(value) => handleFilterChange('family', value)}
             >
-              <Select.Option value={ProductFamily.ACCOUNT}>Account</Select.Option>
-              <Select.Option value={ProductFamily.PAYMENT}>Payment</Select.Option>
-              <Select.Option value={ProductFamily.TRADE_FINANCE}>Trade Finance</Select.Option>
+              <Select.Option value={ProductFamily.Account}>Account</Select.Option>
+              <Select.Option value={ProductFamily.Payment}>Payment</Select.Option>
+              <Select.Option value={ProductFamily.TradeFinance}>Trade Finance</Select.Option>
             </Select>
           </Space>
 

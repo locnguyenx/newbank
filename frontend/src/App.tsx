@@ -8,6 +8,7 @@ import {
   CorporateCustomerForm,
   SMECustomerForm,
   IndividualCustomerForm,
+  CustomerEditPage,
 } from '@/pages/customers';
 import { EmploymentListPage, BulkUploadPage } from '@/pages/employment';
 import { AuthorizationListPage, AuthorizationFormPage } from '@/pages/authorizations';
@@ -38,7 +39,7 @@ function App() {
           <Route path="/customers/new/corporate" element={<CorporateCustomerForm />} />
           <Route path="/customers/new/sme" element={<SMECustomerForm />} />
           <Route path="/customers/:id" element={<CustomerDetailPage />} />
-          <Route path="/customers/:id/edit" element={<IndividualCustomerForm />} />
+          <Route path="/customers/:id/edit" element={<CustomerEditPage />} />
           <Route path="/accounts" element={<AccountListPage />} />
           <Route path="/accounts/new" element={<AccountOpeningForm />} />
           <Route path="/accounts/:accountNumber" element={<AccountDetailPage />} />

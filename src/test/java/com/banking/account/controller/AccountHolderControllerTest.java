@@ -64,7 +64,7 @@ class AccountHolderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("ACCT-002"));
+                .andExpect(jsonPath("$.messageCode").value("ACCOUNT_001"));
     }
 
     @Test

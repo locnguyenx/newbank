@@ -49,14 +49,14 @@ class FeeWaiverServiceTest {
         CreateFeeWaiverRequest request = new CreateFeeWaiverRequest();
         request.setChargeId(1L);
         request.setScope("CUSTOMER");
-        request.setReferenceId("CUST-001");
+        request.setReferenceId("CUSTOMER_002");
         request.setWaiverPercentage(50);
         request.setValidFrom(LocalDate.now());
         request.setValidTo(LocalDate.now().plusYears(1));
 
         when(chargeDefinitionRepository.findById(1L)).thenReturn(Optional.of(charge));
         when(feeWaiverRepository.findByChargeDefinitionIdAndScopeAndReferenceId(
-                1L, WaiverScope.CUSTOMER, "CUST-001")).thenReturn(Optional.empty());
+                1L, WaiverScope.CUSTOMER, "CUSTOMER_002")).thenReturn(Optional.empty());
         when(feeWaiverRepository.save(any())).thenAnswer(inv -> {
             FeeWaiver waiver = inv.getArgument(0);
             waiver.setId(1L);
@@ -66,7 +66,7 @@ class FeeWaiverServiceTest {
         FeeWaiverResponse response = feeWaiverService.createWaiver(request);
 
         assertEquals("CUSTOMER", response.getScope());
-        assertEquals("CUST-001", response.getReferenceId());
+        assertEquals("CUSTOMER_002", response.getReferenceId());
         assertEquals(50, response.getWaiverPercentage());
     }
 
@@ -75,7 +75,7 @@ class FeeWaiverServiceTest {
         CreateFeeWaiverRequest request = new CreateFeeWaiverRequest();
         request.setChargeId(999L);
         request.setScope("CUSTOMER");
-        request.setReferenceId("CUST-001");
+        request.setReferenceId("CUSTOMER_002");
         request.setWaiverPercentage(50);
         request.setValidFrom(LocalDate.now());
 
@@ -89,20 +89,20 @@ class FeeWaiverServiceTest {
         ChargeDefinition charge = new ChargeDefinition("Transfer Fee", ChargeType.TRANSACTION_FEE, "USD");
         charge.setId(1L);
 
-        FeeWaiver existing = new FeeWaiver(charge, WaiverScope.CUSTOMER, "CUST-001",
+        FeeWaiver existing = new FeeWaiver(charge, WaiverScope.CUSTOMER, "CUSTOMER_002",
                 50, LocalDate.now(), LocalDate.now().plusYears(1));
         existing.setId(1L);
 
         CreateFeeWaiverRequest request = new CreateFeeWaiverRequest();
         request.setChargeId(1L);
         request.setScope("CUSTOMER");
-        request.setReferenceId("CUST-001");
+        request.setReferenceId("CUSTOMER_002");
         request.setWaiverPercentage(50);
         request.setValidFrom(LocalDate.now());
 
         when(chargeDefinitionRepository.findById(1L)).thenReturn(Optional.of(charge));
         when(feeWaiverRepository.findByChargeDefinitionIdAndScopeAndReferenceId(
-                1L, WaiverScope.CUSTOMER, "CUST-001")).thenReturn(Optional.of(existing));
+                1L, WaiverScope.CUSTOMER, "CUSTOMER_002")).thenReturn(Optional.of(existing));
 
         assertThrows(WaiverAlreadyExistsException.class, () -> feeWaiverService.createWaiver(request));
     }

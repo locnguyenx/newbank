@@ -2,6 +2,7 @@ package com.banking.masterdata.service;
 
 import com.banking.masterdata.domain.entity.DocumentType;
 import com.banking.masterdata.dto.request.CreateDocumentTypeRequest;
+import com.banking.masterdata.dto.request.UpdateDocumentTypeRequest;
 import com.banking.masterdata.dto.response.DocumentTypeResponse;
 import com.banking.masterdata.exception.DocumentTypeAlreadyExistsException;
 import com.banking.masterdata.exception.DocumentTypeNotFoundException;
@@ -53,6 +54,21 @@ public class DocumentTypeService {
                 .orElseThrow(() -> new DocumentTypeNotFoundException(code));
 
         documentType.setActive(false);
+        DocumentType savedDocumentType = documentTypeRepository.save(documentType);
+        return masterDataMapper.toResponse(savedDocumentType);
+    }
+
+    public DocumentTypeResponse updateDocumentType(String code, UpdateDocumentTypeRequest request) {
+        DocumentType documentType = documentTypeRepository.findById(code)
+                .orElseThrow(() -> new DocumentTypeNotFoundException(code));
+
+        if (request.getName() != null) {
+            documentType.setName(request.getName());
+        }
+        if (request.getCategory() != null) {
+            documentType.setCategory(request.getCategory());
+        }
+
         DocumentType savedDocumentType = documentTypeRepository.save(documentType);
         return masterDataMapper.toResponse(savedDocumentType);
     }

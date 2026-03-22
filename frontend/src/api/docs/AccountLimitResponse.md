@@ -1,0 +1,32 @@
+# AccountLimitResponse
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **number** |  | [optional] [default to undefined]
+**limitDefinitionId** | **number** |  | [optional] [default to undefined]
+**limitName** | **string** |  | [optional] [default to undefined]
+**accountNumber** | **string** |  | [optional] [default to undefined]
+**overrideAmount** | **number** |  | [optional] [default to undefined]
+**createdAt** | **string** |  | [optional] [default to undefined]
+**updatedAt** | **string** |  | [optional] [default to undefined]
+
+## Example
+
+```typescript
+import { AccountLimitResponse } from '@openapitools/openapi-typescript-axios';
+
+const instance: AccountLimitResponse = {
+    id,
+    limitDefinitionId,
+    limitName,
+    accountNumber,
+    overrideAmount,
+    createdAt,
+    updatedAt,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

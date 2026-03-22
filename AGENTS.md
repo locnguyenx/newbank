@@ -22,11 +22,13 @@ Modern digital banking system for corporate and SME banking, focusing on busines
 | UI Library | Ant Design |
 | State | Redux Toolkit |
 
-## Commands
-
-- Build & test: `./gradlew build`
-- Dev server: `./gradlew bootRun` or `npm run dev`
-- Lint: `npm run lint`
+## Documentation
+- `docs` - at project root
+- Master Plan: `docs/superpowers/specs/2026-03-19-master-implementation-plan.md`
+- Master System Design: `docs/superpowers/architecture/system-design.md`
+- brds location: `docs/superpowers/brds/`
+- specs location: `docs/superpowers/specs/`
+- module plans: `docs/superpowers/plans/`
 
 ## Code Style Guidelines
 
@@ -51,15 +53,6 @@ src/main/java/com/banking/customer/
 - Methods/variables: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
 - Interfaces: No `I` prefix (e.g., `CustomerRepository`, not `ICustomerRepository`)
-
-**Error handling:** Custom exceptions with error codes:
-```java
-public class CustomerNotFoundException extends RuntimeException {
-    public CustomerNotFoundException(String customerNumber) {
-        super("Customer not found: " + customerNumber);
-    }
-}
-```
 
 **ID strategy:** Auto-increment BIGINT for all entities.
 
@@ -88,6 +81,16 @@ public class CustomerNotFoundException extends RuntimeException {
 - Frontend tests: `npm run test:coverage` generates HTML report in `coverage/` directory
 - Backend tests: XML reports automatically generated in `build/test-results/test/`
 
+**Test Strategy**
+In your design spec's Testing Strategy section, reference this template: `docs/superpowers/templates/test-strategy.md`
+
+**Frontend Test Requirements:**
+- Mock data MUST match actual API response (verify by calling API or checking OpenAPI spec)
+- Test BOTH create AND edit modes
+- Verify form → API data mapping (not just rendering)
+- Test error handling with user-friendly messages
+- Common API field names: `type` (not `customerType`), `name` (not `firstName`/`lastName`), `emails[]` (not `email`)
+
 **Flyway Migration Tests**
 - `FlywayMigrationIntegrationTest` auto-discovers all `@Entity` classes under `com/banking/**` on the classpath and verifies their tables exist in the schema
 - **When adding a new module**, update only `src/main/java/com/banking/BankingApplication.java` — add the new package to `@ComponentScan`, `@EntityScan`, and `@EnableJpaRepositories`. The test auto-discovers entity classes via classpath scanning — no manual registration needed.
@@ -103,9 +106,38 @@ public class CustomerNotFoundException extends RuntimeException {
 - All entities include `AuditFields` embeddable
 - Track: createdAt, createdBy, updatedAt, updatedBy
 
-### Error Codes
-- Use module prefix (e.g., `CUST-001` for customer errors)
-- Document in `docs/error-codes.md`
+### Error Codes & Message System
+
+**MUST use the centralized error handling system with message templates by Message ID.**
+
+See: `docs/superpowers/architecture/error-handling.md`
+
+**Pattern:**
+1. Add message code to `MessageCatalog.java` with user-friendly message
+2. Create exception extending `BaseException` with static factory methods
+3. Register handler in module's `@ExceptionHandler`
+4. Add message to frontend `messageService.ts`
+
+**Example:**
+```java
+// 1. MessageCatalog.java
+public static final String ACCOUNT_NON_ZERO_BALANCE = "ACCOUNT_004";
+
+// 2. Exception class
+public class InvalidAccountStateException extends BaseException {
+    public static InvalidAccountStateException nonZeroBalance() {
+        return new InvalidAccountStateException(
+            MessageCatalog.ACCOUNT_NON_ZERO_BALANCE, 
+            MessageCatalog.getMessage(MessageCatalog.ACCOUNT_NON_ZERO_BALANCE)
+        );
+    }
+}
+
+// 3. Frontend
+message.error(getErrorMessage(err));
+```
+
+**Code Review Checklist:** `docs/superpowers/guidelines/error-handling-checklist.md`
 
 ## Git Workflow
 
@@ -172,10 +204,54 @@ public class AccountService {
     private final LimitCheckService limitCheckService;      // from limits.api
     private final ProductQueryService productQueryService; // from product.api
     private final CurrencyRepository currencyRepository;    // ❌ WRONG! Should be from api
-    
+
     // Should be:
     // private final CurrencyQueryService currencyQueryService; // from masterdata.api
 }
+```
+
+## API Contract Enforcement
+
+**OpenAPI 3.0 Specification** is the single source of truth for all REST APIs.
+
+### Rules
+
+- **All backend REST endpoints** MUST be documented in `docs/api/openapi.yaml`
+- **Frontend API clients and TypeScript types** MUST be generated from `openapi.yaml`
+- **No manual hand-written API mocks** in frontend - use generated mocks from OpenAPI spec
+- **CI validation**: Run `openapi-generator-cli validate` and diff check
+
+### Workflow
+
+See `docs/superpowers/architecture/openapi-workflow.md` for complete workflow documentation.
+
+**Quick Start:**
+
+```bash
+# Terminal 1: Start backend
+./gradlew bootRun
+
+# Terminal 2: Export OpenAPI spec (after server starts, ~30 seconds)
+./gradlew exportOpenApiSpec
+
+# Generate frontend types
+./gradlew regenerateFrontendTypes
+
+# Verify build
+cd frontend && npm run build
+```
+
+**Or use sync command** (keeps frontend open):
+```bash
+./gradlew syncOpenApi
+```
+
+**Frontend-only commands:**
+```bash
+cd frontend
+npm run openapi:validate   # Validate spec
+npm run openapi:generate   # Generate types
+npm run openapi:sync       # Generate + build
 ```
 
 ## Superpowers Skills

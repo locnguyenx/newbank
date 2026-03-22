@@ -179,7 +179,7 @@ public class AccountService {
         LimitCheckResponse limitResponse = limitCheckService.checkLimit(limitRequest);
 
         if (limitResponse.getResult() == LimitCheckResult.REJECTED) {
-            throw new InvalidAccountStateException("Account opening exceeds limits: " + limitResponse.getRejectionReason());
+            throw new InvalidAccountStateException("LIMIT_001", "Account opening exceeds limits: " + limitResponse.getRejectionReason());
         }
 
         account = accountRepository.save(account);
@@ -216,15 +216,15 @@ public class AccountService {
             .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new InvalidAccountStateException("Account is already closed");
+            throw InvalidAccountStateException.alreadyClosed();
         }
 
         if (account.getStatus() == AccountStatus.FROZEN) {
-            throw new InvalidAccountStateException("Cannot close a frozen account");
+            throw InvalidAccountStateException.cannotCloseFrozen();
         }
 
         if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
-            throw new InvalidAccountStateException("Cannot close account with non-zero balance");
+            throw InvalidAccountStateException.nonZeroBalance();
         }
         account.setStatus(AccountStatus.CLOSED);
         account.setClosedAt(java.time.LocalDateTime.now());
@@ -237,7 +237,7 @@ public class AccountService {
             .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new InvalidAccountStateException("Cannot freeze a closed account");
+            throw InvalidAccountStateException.cannotFreezeClosed();
         }
 
         account.setStatus(AccountStatus.FROZEN);
@@ -250,7 +250,7 @@ public class AccountService {
             .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         if (account.getStatus() != AccountStatus.FROZEN) {
-            throw new InvalidAccountStateException("Account is not frozen");
+            throw InvalidAccountStateException.notFrozen();
         }
 
         account.setStatus(AccountStatus.ACTIVE);
@@ -272,7 +272,7 @@ public class AccountService {
         boolean exists = accountHolderRepository.findByAccount_Id(account.getId()).stream()
             .anyMatch(h -> h.getCustomerId().equals(request.getCustomerId()) && h.getStatus() == com.banking.account.domain.enums.AccountHolderStatus.ACTIVE);
         if (exists) {
-            throw new InvalidAccountStateException("Customer is already an active account holder");
+            throw InvalidAccountStateException.alreadyHolderActive();
         }
 
             AccountHolder holder = new AccountHolder(account, customerId, request.getRole(), LocalDate.now(), AccountHolderStatus.ACTIVE);
@@ -285,7 +285,7 @@ public class AccountService {
             .orElseThrow(() -> new AccountNotFoundException("AccountHolder not found: " + holderId));
 
         if (holder.getStatus() == com.banking.account.domain.enums.AccountHolderStatus.REMOVED) {
-            throw new InvalidAccountStateException("Account holder already removed");
+            throw InvalidAccountStateException.holderAlreadyRemoved();
         }
 
         holder.setStatus(com.banking.account.domain.enums.AccountHolderStatus.REMOVED);
@@ -299,7 +299,7 @@ public class AccountService {
             .orElseThrow(() -> new AccountNotFoundException("AccountHolder not found: " + holderId));
 
         if (holder.getStatus() != com.banking.account.domain.enums.AccountHolderStatus.ACTIVE) {
-            throw new InvalidAccountStateException("Cannot update role of inactive holder");
+            throw InvalidAccountStateException.inactiveHolderRole();
         }
 
         holder.setRole(newRole);

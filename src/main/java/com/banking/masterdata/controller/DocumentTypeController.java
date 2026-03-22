@@ -1,6 +1,7 @@
 package com.banking.masterdata.controller;
 
 import com.banking.masterdata.dto.request.CreateDocumentTypeRequest;
+import com.banking.masterdata.dto.request.UpdateDocumentTypeRequest;
 import com.banking.masterdata.dto.response.DocumentTypeResponse;
 import com.banking.masterdata.service.DocumentTypeService;
 import jakarta.validation.Valid;
@@ -36,6 +37,14 @@ public class DocumentTypeController {
     @PutMapping("/{code}/deactivate")
     public ResponseEntity<DocumentTypeResponse> deactivateDocumentType(@PathVariable String code) {
         DocumentTypeResponse response = documentTypeService.deactivateDocumentType(code);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{code}")
+    public ResponseEntity<DocumentTypeResponse> updateDocumentType(
+            @PathVariable String code,
+            @Valid @RequestBody UpdateDocumentTypeRequest request) {
+        DocumentTypeResponse response = documentTypeService.updateDocumentType(code, request);
         return ResponseEntity.ok(response);
     }
 }

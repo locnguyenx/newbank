@@ -1,10 +1,33 @@
-export const ProductFamily = {
-  ACCOUNT: 'ACCOUNT',
-  PAYMENT: 'PAYMENT',
-  TRADE_FINANCE: 'TRADE_FINANCE',
-} as const;
-export type ProductFamily = (typeof ProductFamily)[keyof typeof ProductFamily];
+// Re-export product-related types from generated OpenAPI client
+import type {
+  ProductResponse as ProductResponseBase,
+  ProductDetailResponse as ProductDetailResponseBase,
+  ProductFeatureResponse as ProductFeatureResponseBase,
+  ProductFeeEntryResponse as ProductFeeEntryResponseBase,
+  ProductFeatureRequest as ProductFeatureRequestBase,
+  ProductFeeEntryRequest as ProductFeeEntryRequestBase,
+  CreateProductRequest as CreateProductRequestBase,
+  UpdateProductRequest as UpdateProductRequestBase,
+  ProductVersionResponse,
+} from '@/api/api';
+import {
+  CreateProductRequestFamilyEnum,
+  CreateProductRequestCustomerTypesEnum,
+  ProductFeeEntryRequestCalculationMethodEnum,
+} from '@/api/api';
+export {
+  CreateProductRequestFamilyEnum,
+  CreateProductRequestCustomerTypesEnum,
+  ProductFeeEntryRequestCalculationMethodEnum,
+} from '@/api/api';
 
+// Re-export core types
+export type ProductResponse = ProductResponseBase;
+export type ProductDetailResponse = ProductDetailResponseBase;
+export type ProductFeatureResponse = ProductFeatureResponseBase;
+export type ProductFeeEntryResponse = ProductFeeEntryResponseBase;
+
+// Define custom frontend enum for product status (not in OpenAPI spec)
 export const ProductStatus = {
   DRAFT: 'DRAFT',
   PENDING_APPROVAL: 'PENDING_APPROVAL',
@@ -13,119 +36,46 @@ export const ProductStatus = {
   SUPERSEDED: 'SUPERSEDED',
   RETIRED: 'RETIRED',
 } as const;
-export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus];
 
-export const FeeCalculationMethod = {
-  FLAT: 'FLAT',
-  PERCENTAGE: 'PERCENTAGE',
-  TIERED_VOLUME: 'TIERED_VOLUME',
-} as const;
-export type FeeCalculationMethod = (typeof FeeCalculationMethod)[keyof typeof FeeCalculationMethod];
-/**
- * @deprecated Use Charges module (ChargeType, ChargeRule, ChargeTier) instead.
- * Kept for backward compatibility with ProductDetailResponse.feeEntries.
- */
+export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus];
 
-export interface Product {
-  id: number;
-  code: string;
-  name: string;
-  family: ProductFamily;
-  description?: string;
-}
+// Export Product (list item type)
+export type Product = ProductResponseBase;
 
-export interface ProductVersion {
-  id: number;
-  productId: number;
-  versionNumber: number;
-  status: ProductStatus;
-  submittedBy?: string;
-  approvedBy?: string;
-  rejectionComment?: string;
-  contractCount: number;
-  createdAt: string;
-}
+// Export Product detail type
+export type ProductDetail = ProductDetailResponseBase;
 
-export interface ProductDetail extends ProductVersion {
-  product: Product;
-  features: ProductFeature[];
-  /**
-   * @deprecated Use Charges module instead. Kept for backward compatibility.
-   * Data migrated via V14__migrate_product_fees_to_charges.sql.
-   */
-  feeEntries: ProductFeeEntry[];
-  segments: ProductSegment[];
-}
+// Export request types
+export type CreateProductRequest = CreateProductRequestBase;
+export type UpdateProductRequest = UpdateProductRequestBase;
+export type ProductFeatureRequest = ProductFeatureRequestBase;
+export type ProductFeeEntryRequest = ProductFeeEntryRequestBase;
 
-export interface ProductFeature {
-  id: number;
-  featureKey: string;
-  featureValue: string;
-}
+// Re-export version types
+export type ProductVersion = ProductVersionResponse;
+export type ProductFeature = ProductFeatureResponse;
+export type ProductFeeEntry = ProductFeeEntryResponse;
 
-export interface ProductFeeTier {
-  id: number;
-  tierFrom: number;
-  tierTo?: number;
-  rate: number;
-}
+// Export enums
+export { CreateProductRequestFamilyEnum as ProductFamily };
+export { CreateProductRequestCustomerTypesEnum as ProductCustomerType };
+export { ProductFeeEntryRequestCalculationMethodEnum as FeeCalculationMethod };
 
-/**
- * @deprecated Use Charges module (ChargeRule, ChargeTier) instead.
- * Kept for backward compatibility with ProductDetailResponse.feeEntries.
- */
-export interface ProductFeeEntry {
-  id: number;
-  feeType: string;
-  calculationMethod: FeeCalculationMethod;
-  amount?: number;
-  rate?: number;
-  currency: string;
-  tiers: ProductFeeTier[];
-}
-
-export interface ProductSegment {
-  id: number;
-  customerType: string;
-}
-
+// Define frontend-specific search parameters
 export interface ProductSearchParams {
   search?: string;
-  family?: ProductFamily;
-  status?: ProductStatus;
-  customerType?: string;
+  family?: CreateProductRequestFamilyEnum;
+  customerType?: CreateProductRequestCustomerTypesEnum;
+  status?: string;
   page?: number;
   size?: number;
 }
 
-export interface CreateProductRequest {
-  code: string;
-  name: string;
-  family: ProductFamily;
-  description?: string;
-}
-
-export interface UpdateProductRequest {
-  name?: string;
-  description?: string;
-}
-
-export interface ProductFeatureRequest {
-  featureKey: string;
-  featureValue: string;
-}
-
-export interface ProductFeeEntryRequest {
-  feeType: string;
-  calculationMethod: FeeCalculationMethod;
-  amount?: number;
-  rate?: number;
-  currency: string;
-  tiers?: { tierFrom: number; tierTo?: number; rate: number }[];
-}
-
-export interface PaginatedResponse<T> {
+// Re-export PaginatedResponse from API
+export type PaginatedResponse<T = ProductResponseBase> = {
   content: T[];
   totalElements: number;
   totalPages: number;
-}
+  size: number;
+  number: number;
+};

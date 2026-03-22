@@ -21,6 +21,73 @@ The Account module experienced significant merge failures from worktree. All mod
 
 ## 2. Test Conventions
 
+### Comprehensive Field Verification
+
+Tests must verify ALL fields in a request/response, not just a subset. Incomplete tests give false confidence.
+
+```java
+// WRONG — only verifies one field passes
+@Test
+void shouldUpdateCustomer() {
+    UpdateCustomerRequest request = new UpdateCustomerRequest();
+    request.setName("Updated");
+    // Only checks name is returned...
+    assertEquals("Updated", response.getName());
+    // PASSES but other fields broken!
+}
+
+// CORRECT — verifies all fields are persisted
+@Test
+void shouldUpdateCustomerWithAllFields() {
+    UpdateCustomerRequest request = new UpdateCustomerRequest();
+    request.setName("Updated");
+    request.setIndustry("Technology");
+    request.setWebsite("https://example.com");
+    request.setEmployeeCount(500);
+    // ... ALL fields in UpdateCustomerRequest
+
+    verify(customerRepository).save(captor.capture());
+    CorporateCustomer saved = captor.getValue();
+    
+    assertEquals("Updated", saved.getName());
+    assertEquals("Technology", saved.getIndustry());
+    assertEquals("https://example.com", saved.getWebsite());
+    assertEquals(500, saved.getEmployeeCount());
+}
+```
+
+**Rule:** If `UpdateCustomerRequest` has 15 fields, the test must verify all 15 are handled.
+
+**Per-Customer-Type Tests:**
+
+| Customer Type | Test Name | Fields to Verify |
+|--------------|-----------|------------------|
+| Corporate | `shouldUpdateCorporateCustomerWithAllFields` | registrationNumber, industry, website, employeeCount, annualRevenue |
+| SME | `shouldUpdateSMECustomerWithAllFields` | businessType, yearsInOperation, annualTurnover |
+| Individual | `shouldUpdateIndividualCustomerWithAllFields` | dateOfBirth, placeOfBirth, nationality, employmentStatus |
+
+**Frontend Same Principle:**
+```typescript
+// WRONG — only verifies render
+it('shows customer data', () => {
+  expect(screen.getByText('John')).toBeInTheDocument();
+});
+
+// CORRECT — verifies ALL fields from API
+it('displays all customer fields from API response', () => {
+  expect(screen.getByText('John Doe')).toBeInTheDocument();
+  expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  expect(screen.getByText('+1 555-0100')).toBeInTheDocument();
+  // ... ALL fields
+});
+```
+
+**Key Takeaway:** "Tests that only verify one field give false confidence. Tests that verify all fields find real bugs."
+
+---
+
+### Error Code Consistency
+
 ### Error Code Consistency
 
 All tests must reference error codes from exception class constants, not hardcoded strings:
@@ -76,6 +143,122 @@ Tests must use the exact DTO type the controller returns. If a service returns `
 
 ---
 
+## 2.1 Frontend Test Guidelines
+
+### API Response Shape Must Match Reality
+
+Mock data in tests MUST match the actual API response shape, not assumed shapes.
+
+```typescript
+// WRONG — Assumed shape based on form fields
+const mockCustomer = {
+  customerType: 'INDIVIDUAL',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+};
+
+// CORRECT — Matches actual API response from backend
+const mockCustomer = {
+  id: 1,
+  type: 'INDIVIDUAL',           // NOT 'customerType'
+  name: 'John Doe',              // NOT 'firstName' + 'lastName'
+  emails: ['john@example.com'],   // NOT 'email' (it's an array)
+  phones: [{ countryCode: '+1', number: '555-0100', type: 'MOBILE' }],
+};
+```
+
+**Before writing mocks, always verify by:**
+1. Calling the actual API endpoint
+2. Checking the API documentation/OpenAPI spec
+3. Reading the TypeScript types generated from OpenAPI
+
+### Test Both Create AND Edit Modes
+
+Forms have two modes that behave differently:
+
+| Mode | Route | Tests Required |
+|------|-------|---------------|
+| Create | `/customers/new` | Form renders, validates, submits correct data |
+| Edit | `/customers/:id/edit` | Form populates from API, submits correct data |
+
+```typescript
+describe('CustomerForm', () => {
+  describe('Create Mode', () => {
+    it('renders Create button', () => { /* ... */ });
+    it('submits with correct data structure', () => { /* ... */ });
+  });
+
+  describe('Edit Mode', () => {
+    it('populates fields from API response', () => { /* ... */ });
+    it('submits Update with correct data structure', () => { /* ... */ });
+  });
+});
+```
+
+### Verify Form → API Data Mapping
+
+Tests must verify that form field values are correctly transformed before sending to API:
+
+```typescript
+it('submits individual name as combined first+last', async () => {
+  fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'Jane' } });
+  fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Smith' } });
+  
+  fireEvent.click(screen.getByText('Create'));
+  
+  await waitFor(() => {
+    expect(customerService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Jane Smith' })  // NOT firstName + lastName
+    );
+  });
+});
+```
+
+### Mock Service Methods, Not Internal Implementation
+
+Mock at the service boundary, not inside components:
+
+```typescript
+// WRONG — Mocks internal implementation details
+vi.spyOn(service, 'updateCustomer').mockResolvedValue(...);
+
+// CORRECT — Mocks the public service interface
+vi.spyOn(customerService, 'update').mockResolvedValue(...);
+```
+
+### Required Test Scenarios for Forms
+
+Every form must have these tests:
+
+| # | Scenario | What to Verify |
+|---|---------|----------------|
+| 1 | Render in create mode | All fields visible, Create button shown |
+| 2 | Render in edit mode | All fields visible, Update button shown |
+| 3 | Form validation | Required fields trigger errors |
+| 4 | Form population (edit) | Fields pre-filled from API response |
+| 5 | Submit creates data | API called with correct structure |
+| 6 | Submit updates data | API called with correct structure |
+| 7 | API error handling | User-friendly error message shown |
+
+### Test Error Display, Not Just Success
+
+```typescript
+it('displays API error message', async () => {
+  vi.spyOn(customerService, 'create').mockRejectedValue({
+    response: { data: { message: 'Customer already exists' } }
+  });
+  
+  // Submit form...
+  
+  await waitFor(() => {
+    expect(screen.getByText('Customer already exists')).toBeInTheDocument();
+  });
+});
+```
+
+---
+
 ## 3. Pre-Merge Checklist
 
 Before merging from worktree to main, ALL must pass:
@@ -88,6 +271,24 @@ Before merging from worktree to main, ALL must pass:
 - [ ] All mocked return types match actual service method return types
 - [ ] All void method mocks use `doThrow()/doNothing()`, not `when().thenThrow()`
 - [ ] All HTTP status assertions match the controller's `ResponseEntity` status codes
+- [ ] **All request fields are tested** — update tests verify ALL fields in request are persisted
+
+### Backend Test Checklist
+
+- [ ] Create tests verify response contains all expected fields
+- [ ] Update tests verify ALL fields in request are persisted (not just one field)
+- [ ] Per-customer-type tests for Corporate, SME, Individual when applicable
+- [ ] Mock data matches actual API response shape
+- [ ] Error handling is tested
+
+### Frontend Test Checklist
+
+- [ ] Mock data matches actual API response (verify with API call or OpenAPI spec)
+- [ ] Tests cover BOTH create and edit modes
+- [ ] Form → API data mapping is verified (not just render)
+- [ ] Error handling is tested (API errors display user-friendly messages)
+- [ ] Field names match API: `type` not `customerType`, `name` not `firstName`/`lastName`, `emails[]` not `email`
+- [ ] **ALL fields from API response are verified** — not just some fields
 
 ---
 
@@ -138,3 +339,33 @@ Follows [Test Strategy Template](../templates/test-strategy.md) for merge failur
 | `XxxVersionServiceTest` | Lifecycle state machine | S2.1-S2.9 |
 | ... | ... | ... |
 ```
+
+---
+
+## 8. Key Lessons Learned (Recent Fixes)
+
+### Issue: Customer Forms Not Saving Correctly
+
+**Root Cause:** Mock data in tests didn't match actual API response shape.
+
+**Prevention:** Always verify API response shape before writing tests:
+```bash
+# Test actual API response
+curl -H "X-Username: system" http://localhost:8080/api/customers/1
+```
+
+**Key Differences Found:**
+| What Tests Assumed | What API Actually Returns |
+|-------------------|------------------------|
+| `customerType: 'INDIVIDUAL'` | `type: 'INDIVIDUAL'` |
+| `firstName`, `lastName` | `name: 'John Doe'` |
+| `email: 'john@example.com'` | `emails: ['john@example.com']` |
+| `phone: '555-0100'` | `phones: [{countryCode: '+1', number: '555-0100'}]` |
+
+### Issue: Edit Mode Form Didn't Populate
+
+**Root Cause:** Form components expected `customer.customerType` but API returns `customer.type`.
+
+**Prevention:** 
+- Always test edit mode, not just create mode
+- Verify field names match between form, Redux state, and API response

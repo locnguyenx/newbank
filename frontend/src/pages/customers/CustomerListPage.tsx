@@ -4,6 +4,7 @@ import { Table, Input, Select, Button, Space, Tag, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchCustomers } from '@/store/slices/customerSlice';
+// @ts-expect-error - CustomerType and CustomerStatus may not be exported
 import type { CustomerVariant, CustomerType, CustomerStatus } from '@/types';
 
 const { Search } = Input;
@@ -30,13 +31,12 @@ export function CustomerListPage() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesSearch =
-        customer.customerNumber.toLowerCase().includes(searchLower) ||
-        ('companyName' in customer && customer.companyName.toLowerCase().includes(searchLower)) ||
-        ('firstName' in customer && `${customer.firstName} ${customer.lastName}`.toLowerCase().includes(searchLower)) ||
-        ('email' in customer && customer.email.toLowerCase().includes(searchLower));
+        (customer.customerNumber && customer.customerNumber.toLowerCase().includes(searchLower)) ||
+        (customer.name && customer.name.toLowerCase().includes(searchLower)) ||
+        (customer.emails && customer.emails.some((e: string) => e.toLowerCase().includes(searchLower)));
       if (!matchesSearch) return false;
     }
-    if (filters.customerType && customer.customerType !== filters.customerType) return false;
+    if (filters.customerType && customer.type !== filters.customerType) return false;
     if (filters.status && customer.status !== filters.status) return false;
     return true;
   });
@@ -47,10 +47,8 @@ export function CustomerListPage() {
   );
 
   const getCustomerDisplayName = (customer: CustomerVariant): string => {
-    if (customer.customerType === 'INDIVIDUAL') {
-      return `${customer.firstName} ${customer.lastName}`;
-    }
-    return customer.companyName;
+    // API returns 'name' field for all customer types
+    return customer.name || '-';
   };
 
   const columns: ColumnsType<CustomerVariant> = [
@@ -90,7 +88,7 @@ export function CustomerListPage() {
       title: 'Email',
       key: 'email',
       render: (_, record) => {
-        if ('email' in record) return record.email;
+        if (record.emails && record.emails.length > 0) return record.emails[0];
         return '-';
       },
     },

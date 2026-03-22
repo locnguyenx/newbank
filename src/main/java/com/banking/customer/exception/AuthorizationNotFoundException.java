@@ -1,16 +1,10 @@
 package com.banking.customer.exception;
 
-public class AuthorizationNotFoundException extends RuntimeException {
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    private static final String ERROR_CODE_PREFIX = "AUTH-";
-    private final String errorCode;
-
+public class AuthorizationNotFoundException extends BaseException {
     public AuthorizationNotFoundException(Long id) {
-        super("Authorization not found with id: " + id);
-        this.errorCode = ERROR_CODE_PREFIX + "001";
-    }
-
-    public String getErrorCode() {
-        return errorCode;
+        super(MessageCatalog.AUTH_NOT_FOUND, "Authorization not found with id: " + id);
     }
 }

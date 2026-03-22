@@ -35,7 +35,7 @@ class GlobalExceptionHandlerTest {
 
         mockMvc.perform(get("/api/customers/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("CUST-002"))
+                .andExpect(jsonPath("$.messageCode").value("CUSTOMER_001"))
                 .andExpect(jsonPath("$.status").value(404));
     }
 
@@ -52,7 +52,7 @@ class GlobalExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("CUST-001"))
+                .andExpect(jsonPath("$.messageCode").value("CUSTOMER_002"))
                 .andExpect(jsonPath("$.status").value(409));
     }
 
@@ -66,7 +66,7 @@ class GlobalExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.fieldErrors").isArray());
     }
 
@@ -77,7 +77,7 @@ class GlobalExceptionHandlerTest {
 
         mockMvc.perform(get("/api/customers/1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"))
                 .andExpect(jsonPath("$.message").value("Invalid customer ID"));
     }
 }

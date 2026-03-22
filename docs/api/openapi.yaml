@@ -1,0 +1,5127 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/products/{productId}/versions/{versionId}/segments:
+    get:
+      tags:
+      - product-segment-controller
+      operationId: getSegments
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCustomerSegmentResponse'
+    put:
+      tags:
+      - product-segment-controller
+      operationId: assignSegments
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSegmentRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCustomerSegmentResponse'
+  /api/products/{productId}/versions/{versionId}/fees/{feeEntryId}:
+    put:
+      tags:
+      - product-pricing-controller
+      operationId: updateFeeEntry
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: feeEntryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFeeEntryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductFeeEntryResponse'
+    delete:
+      tags:
+      - product-pricing-controller
+      operationId: deleteFeeEntry
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: feeEntryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/products/{productId}/versions/{versionId}/features/{featureId}:
+    put:
+      tags:
+      - product-feature-controller
+      operationId: updateFeature
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: featureId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFeatureRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductFeatureResponse'
+    delete:
+      tags:
+      - product-feature-controller
+      operationId: deleteFeature
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: featureId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/products/{id}:
+    get:
+      tags:
+      - product-controller
+      operationId: getProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+    put:
+      tags:
+      - product-controller
+      summary: Update an existing product
+      operationId: updateProduct
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        description: Username of the user performing the action
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+  /api/master-data/document-types/{code}:
+    put:
+      tags:
+      - document-type-controller
+      operationId: updateDocumentType
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentTypeRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DocumentTypeResponse'
+  /api/master-data/document-types/{code}/deactivate:
+    put:
+      tags:
+      - document-type-controller
+      operationId: deactivateDocumentType
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DocumentTypeResponse'
+  /api/master-data/currencies/{code}:
+    get:
+      tags:
+      - currency-controller
+      operationId: getCurrency
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+    put:
+      tags:
+      - currency-controller
+      operationId: updateCurrency
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCurrencyRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+  /api/master-data/currencies/{code}/deactivate:
+    put:
+      tags:
+      - currency-controller
+      operationId: deactivateCurrency
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+  /api/master-data/countries/{isoCode}:
+    get:
+      tags:
+      - country-controller
+      operationId: getCountry
+      parameters:
+      - name: isoCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CountryResponse'
+    put:
+      tags:
+      - country-controller
+      operationId: updateCountry
+      parameters:
+      - name: isoCode
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCountryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CountryResponse'
+  /api/master-data/countries/{isoCode}/deactivate:
+    put:
+      tags:
+      - country-controller
+      operationId: deactivateCountry
+      parameters:
+      - name: isoCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CountryResponse'
+  /api/master-data/channels/{code}:
+    put:
+      tags:
+      - channel-controller
+      operationId: updateChannel
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChannelRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChannelResponse'
+  /api/master-data/channels/{code}/deactivate:
+    put:
+      tags:
+      - channel-controller
+      operationId: deactivateChannel
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChannelResponse'
+  /api/master-data/branches/{code}:
+    get:
+      tags:
+      - branch-controller
+      operationId: getBranch
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+    put:
+      tags:
+      - branch-controller
+      operationId: updateBranch
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBranchRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+  /api/master-data/branches/{code}/deactivate:
+    put:
+      tags:
+      - branch-controller
+      operationId: deactivateBranch
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+  /api/limits/definitions/{id}:
+    get:
+      tags:
+      - limit-definition-controller
+      operationId: getLimit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitDefinitionResponse'
+    put:
+      tags:
+      - limit-definition-controller
+      operationId: updateLimit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLimitDefinitionRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitDefinitionResponse'
+  /api/limits/definitions/{id}/deactivate:
+    put:
+      tags:
+      - limit-definition-controller
+      operationId: deactivateLimit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitDefinitionResponse'
+  /api/limits/definitions/{id}/activate:
+    put:
+      tags:
+      - limit-definition-controller
+      operationId: activateLimit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitDefinitionResponse'
+  /api/kyc/{id}:
+    get:
+      tags:
+      - kyc-controller
+      operationId: getKYCCheckById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+    put:
+      tags:
+      - kyc-controller
+      operationId: updateKYC
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateKYCRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/customers/{id}:
+    get:
+      tags:
+      - customer-controller
+      summary: Get customer by ID
+      description: Retrieve customer details by internal database ID
+      operationId: getCustomerById
+      parameters:
+      - name: id
+        in: path
+        description: Customer database ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+    put:
+      tags:
+      - customer-controller
+      summary: Update customer
+      description: Update customer details. Supports partial updates.
+      operationId: updateCustomer
+      parameters:
+      - name: id
+        in: path
+        description: Customer database ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+  /api/charges/interest/{id}:
+    get:
+      tags:
+      - interest-rate-controller
+      operationId: getInterestRate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterestRateResponse'
+    put:
+      tags:
+      - interest-rate-controller
+      operationId: updateInterestRate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInterestRateRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterestRateResponse'
+  /api/charges/definitions/{id}:
+    get:
+      tags:
+      - charge-definition-controller
+      operationId: getCharge
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeDefinitionResponse'
+    put:
+      tags:
+      - charge-definition-controller
+      operationId: updateCharge
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChargeDefinitionRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeDefinitionResponse'
+  /api/charges/definitions/{id}/deactivate:
+    put:
+      tags:
+      - charge-definition-controller
+      operationId: deactivateCharge
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeDefinitionResponse'
+  /api/charges/definitions/{id}/activate:
+    put:
+      tags:
+      - charge-definition-controller
+      operationId: activateCharge
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeDefinitionResponse'
+  /api/charges/definitions/{chargeId}/rules/{ruleId}:
+    put:
+      tags:
+      - charge-rule-controller
+      operationId: updateRule
+      parameters:
+      - name: chargeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChargeRuleRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeRuleResponse'
+    delete:
+      tags:
+      - charge-rule-controller
+      operationId: removeRule
+      parameters:
+      - name: chargeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/authorizations/{id}:
+    get:
+      tags:
+      - authorization-controller
+      operationId: getAuthorizationById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+    put:
+      tags:
+      - authorization-controller
+      operationId: updateAuthorization
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAuthorizationRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+  /api/accounts/{accountNumber}/unfreeze:
+    put:
+      tags:
+      - account-controller
+      operationId: unfreezeAccount
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/accounts/{accountNumber}/freeze:
+    put:
+      tags:
+      - account-controller
+      operationId: freezeAccount
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/accounts/{accountNumber}/close:
+    put:
+      tags:
+      - account-controller
+      operationId: closeAccount
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/products:
+    post:
+      tags:
+      - product-controller
+      summary: Create a new product
+      description: Create product with basic info. Requires X-Username header for
+        audit.
+      operationId: createProduct
+      parameters:
+      - name: X-Username
+        in: header
+        description: Username of the user performing the action
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+  /api/products/{productId}/versions/{versionId}/submit:
+    post:
+      tags:
+      - product-version-controller
+      operationId: submitForApproval
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/{versionId}/retire:
+    post:
+      tags:
+      - product-version-controller
+      operationId: retire
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/{versionId}/reject:
+    post:
+      tags:
+      - product-version-controller
+      operationId: reject
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectProductRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/{versionId}/fees:
+    get:
+      tags:
+      - product-pricing-controller
+      operationId: listFeeEntries
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductFeeEntryResponse'
+    post:
+      tags:
+      - product-pricing-controller
+      operationId: addFeeEntry
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFeeEntryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductFeeEntryResponse'
+  /api/products/{productId}/versions/{versionId}/features:
+    get:
+      tags:
+      - product-feature-controller
+      operationId: listFeatures
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductFeatureResponse'
+    post:
+      tags:
+      - product-feature-controller
+      operationId: addFeature
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFeatureRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductFeatureResponse'
+  /api/products/{productId}/versions/{versionId}/approve:
+    post:
+      tags:
+      - product-version-controller
+      operationId: approve
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/{versionId}/activate:
+    post:
+      tags:
+      - product-version-controller
+      operationId: activate
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: X-Username
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/master-data/industries:
+    get:
+      tags:
+      - industry-controller
+      operationId: getAllIndustries
+      parameters:
+      - name: activeOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IndustryResponse'
+    post:
+      tags:
+      - industry-controller
+      operationId: createIndustry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIndustryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IndustryResponse'
+  /api/master-data/holidays:
+    get:
+      tags:
+      - holiday-controller
+      operationId: getHolidays
+      parameters:
+      - name: countryCode
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HolidayResponse'
+    post:
+      tags:
+      - holiday-controller
+      operationId: createHoliday
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHolidayRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HolidayResponse'
+  /api/master-data/exchange-rates:
+    post:
+      tags:
+      - exchange-rate-controller
+      operationId: createExchangeRate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExchangeRateRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExchangeRateResponse'
+  /api/master-data/document-types:
+    get:
+      tags:
+      - document-type-controller
+      operationId: getActiveDocumentTypes
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentTypeResponse'
+    post:
+      tags:
+      - document-type-controller
+      operationId: createDocumentType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentTypeRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DocumentTypeResponse'
+  /api/master-data/currencies:
+    get:
+      tags:
+      - currency-controller
+      operationId: getAllCurrencies
+      parameters:
+      - name: activeOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyResponse'
+    post:
+      tags:
+      - currency-controller
+      operationId: createCurrency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCurrencyRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+  /api/master-data/countries:
+    get:
+      tags:
+      - country-controller
+      operationId: getAllCountries
+      parameters:
+      - name: activeOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryResponse'
+    post:
+      tags:
+      - country-controller
+      operationId: createCountry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCountryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CountryResponse'
+  /api/master-data/channels:
+    get:
+      tags:
+      - channel-controller
+      operationId: getActiveChannels
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelResponse'
+    post:
+      tags:
+      - channel-controller
+      operationId: createChannel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChannelRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChannelResponse'
+  /api/master-data/branches:
+    get:
+      tags:
+      - branch-controller
+      operationId: getActiveBranches
+      parameters:
+      - name: countryCode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchResponse'
+    post:
+      tags:
+      - branch-controller
+      operationId: createBranch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBranchRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+  /api/limits/definitions:
+    get:
+      tags:
+      - limit-definition-controller
+      operationId: getAllLimits
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LimitDefinitionResponse'
+    post:
+      tags:
+      - limit-definition-controller
+      operationId: createLimit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLimitDefinitionRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitDefinitionResponse'
+  /api/limits/check:
+    post:
+      tags:
+      - limit-check-controller
+      operationId: checkLimit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitCheckRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LimitCheckResponse'
+  /api/limits/assignments/product:
+    post:
+      tags:
+      - limit-assignment-controller
+      operationId: assignToProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignLimitRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductLimitResponse'
+  /api/limits/assignments/customer:
+    post:
+      tags:
+      - limit-assignment-controller
+      operationId: assignToCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignLimitRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerLimitResponse'
+  /api/limits/assignments/account:
+    post:
+      tags:
+      - limit-assignment-controller
+      operationId: assignToAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignLimitRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountLimitResponse'
+  /api/limits/approvals/{id}/reject:
+    post:
+      tags:
+      - approval-controller
+      operationId: reject_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: username
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalActionRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/limits/approvals/{id}/approve:
+    post:
+      tags:
+      - approval-controller
+      operationId: approve_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: username
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/kyc:
+    post:
+      tags:
+      - kyc-controller
+      operationId: initiateKYC
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateKYCRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/kyc/{id}/submit:
+    post:
+      tags:
+      - kyc-controller
+      operationId: submitForReview
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/kyc/{id}/reject:
+    post:
+      tags:
+      - kyc-controller
+      operationId: rejectKYC
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectKYCRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/kyc/{id}/documents:
+    post:
+      tags:
+      - kyc-controller
+      operationId: submitDocuments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitDocumentsRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/kyc/{id}/approve:
+    post:
+      tags:
+      - kyc-controller
+      operationId: approveKYC
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveKYCRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+  /api/employments:
+    post:
+      tags:
+      - employment-controller
+      operationId: createEmployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmploymentRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/EmploymentResponse'
+  /api/employments/bulk:
+    post:
+      tags:
+      - employment-controller
+      operationId: bulkUploadEmployees
+      parameters:
+      - name: employerId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkUploadResult'
+  /api/customers/sme:
+    post:
+      tags:
+      - customer-controller
+      summary: Create a new SME customer
+      description: Creates a new small/medium enterprise customer with business type
+        and turnover
+      operationId: createSME
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSMECustomerRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+  /api/customers/individual:
+    post:
+      tags:
+      - customer-controller
+      summary: Create a new individual customer
+      description: Creates a new individual customer with personal details
+      operationId: createIndividual
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIndividualCustomerRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+  /api/customers/corporate:
+    post:
+      tags:
+      - customer-controller
+      summary: Create a new corporate customer
+      description: "Creates a new corporate customer with registration details, industry,\
+        \ and annual revenue"
+      operationId: createCorporate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCorporateCustomerRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+  /api/charges/waivers:
+    get:
+      tags:
+      - fee-waiver-controller
+      operationId: getWaivers
+      parameters:
+      - name: scope
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: referenceId
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeWaiverResponse'
+    post:
+      tags:
+      - fee-waiver-controller
+      operationId: createWaiver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeeWaiverRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FeeWaiverResponse'
+  /api/charges/interest:
+    post:
+      tags:
+      - interest-rate-controller
+      operationId: createInterestRate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInterestRateRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/InterestRateResponse'
+  /api/charges/definitions:
+    get:
+      tags:
+      - charge-definition-controller
+      operationId: getAllCharges
+      parameters:
+      - name: chargeType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChargeDefinitionResponse'
+    post:
+      tags:
+      - charge-definition-controller
+      operationId: createCharge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChargeDefinitionRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeDefinitionResponse'
+  /api/charges/definitions/{chargeId}/rules:
+    get:
+      tags:
+      - charge-rule-controller
+      operationId: getRules
+      parameters:
+      - name: chargeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChargeRuleResponse'
+    post:
+      tags:
+      - charge-rule-controller
+      operationId: addRule
+      parameters:
+      - name: chargeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChargeRuleRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeRuleResponse'
+  /api/charges/calculate:
+    post:
+      tags:
+      - charge-calculation-controller
+      operationId: calculate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargeCalculationRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ChargeCalculationResponse'
+  /api/charges/assignments/product:
+    post:
+      tags:
+      - charge-assignment-controller
+      operationId: assignToProduct_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignChargeRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductChargeResponse'
+    delete:
+      tags:
+      - charge-assignment-controller
+      operationId: unassignFromProduct
+      parameters:
+      - name: chargeId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: productCode
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/charges/assignments/customer:
+    post:
+      tags:
+      - charge-assignment-controller
+      operationId: assignToCustomer_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignChargeRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CustomerChargeOverrideResponse'
+    delete:
+      tags:
+      - charge-assignment-controller
+      operationId: unassignFromCustomer
+      parameters:
+      - name: chargeId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/authorizations:
+    post:
+      tags:
+      - authorization-controller
+      operationId: createAuthorization
+      parameters:
+      - name: customerId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthorizationRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+  /api/authorizations/{id}/revoke:
+    post:
+      tags:
+      - authorization-controller
+      operationId: revokeAuthorization
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/accounts:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccounts
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - SAVINGS
+          - FIXED_DEPOSIT
+          - LOAN
+          - ESCROW
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - ACTIVE
+          - DORMANT
+          - FROZEN
+          - CLOSED
+      - name: customerId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageAccountResponse'
+    post:
+      tags:
+      - account-controller
+      operationId: openAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountOpeningRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+  /api/accounts/{accountNumber}/holders:
+    post:
+      tags:
+      - account-holder-controller
+      operationId: addHolder
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountHolderRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/products/{productId}/versions:
+    get:
+      tags:
+      - product-version-controller
+      operationId: listVersions
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/{versionId}:
+    get:
+      tags:
+      - product-version-controller
+      operationId: getVersionDetail
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/products/{productId}/versions/compare:
+    get:
+      tags:
+      - product-version-controller
+      operationId: compareVersions
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: v1
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: v2
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionDiffResponse'
+  /api/products/{id}/detail:
+    get:
+      tags:
+      - product-controller
+      operationId: getProductDetail
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductDetailResponse'
+  /api/products/search:
+    get:
+      tags:
+      - product-controller
+      operationId: searchProducts
+      parameters:
+      - name: family
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: customerType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageProductResponse'
+  /api/products/code/{code}:
+    get:
+      tags:
+      - product-controller
+      operationId: getProductByCode
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+  /api/product-query/version/{versionId}:
+    get:
+      tags:
+      - product-query-controller
+      operationId: getProductVersionById
+      parameters:
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/product-query/family/{family}:
+    get:
+      tags:
+      - product-query-controller
+      operationId: getProductsByFamily
+      parameters:
+      - name: family
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - ACCOUNT
+          - PAYMENT
+          - TRADE_FINANCE
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - DRAFT
+          - PENDING_APPROVAL
+          - APPROVED
+          - ACTIVE
+          - SUPERSEDED
+          - RETIRED
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductVersionResponse'
+  /api/product-query/customer-type/{type}:
+    get:
+      tags:
+      - product-query-controller
+      operationId: getProductsByCustomerType
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - CORPORATE
+          - SME
+          - INDIVIDUAL
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - DRAFT
+          - PENDING_APPROVAL
+          - APPROVED
+          - ACTIVE
+          - SUPERSEDED
+          - RETIRED
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductVersionResponse'
+  /api/product-query/active:
+    get:
+      tags:
+      - product-query-controller
+      operationId: getActiveProductByCode
+      parameters:
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductVersionResponse'
+  /api/master-data/industries/{code}:
+    get:
+      tags:
+      - industry-controller
+      operationId: getIndustry
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IndustryResponse'
+  /api/master-data/holidays/check:
+    get:
+      tags:
+      - holiday-controller
+      operationId: isHoliday
+      parameters:
+      - name: countryCode
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/master-data/exchange-rates/latest:
+    get:
+      tags:
+      - exchange-rate-controller
+      operationId: getLatestRate
+      parameters:
+      - name: base
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: target
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExchangeRateResponse'
+  /api/master-data/exchange-rates/convert:
+    get:
+      tags:
+      - exchange-rate-controller
+      operationId: convertAmount
+      parameters:
+      - name: base
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: target
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: amount
+        in: query
+        required: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: number
+  /api/limits/check/effective:
+    get:
+      tags:
+      - limit-check-controller
+      operationId: getEffectiveLimits
+      parameters:
+      - name: accountNumber
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: productCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: currency
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EffectiveLimitResponse'
+  /api/limits/assignments/product/{code}:
+    get:
+      tags:
+      - limit-assignment-controller
+      operationId: getProductLimits
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductLimitResponse'
+  /api/limits/assignments/customer/{id}:
+    get:
+      tags:
+      - limit-assignment-controller
+      operationId: getCustomerLimits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerLimitResponse'
+  /api/limits/assignments/account/{num}:
+    get:
+      tags:
+      - limit-assignment-controller
+      operationId: getAccountLimits
+      parameters:
+      - name: num
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountLimitResponse'
+  /api/limits/approvals/pending:
+    get:
+      tags:
+      - approval-controller
+      operationId: getPendingApprovals
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApprovalRequestResponse'
+  /api/employments/{id}:
+    get:
+      tags:
+      - employment-controller
+      operationId: getEmploymentById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/EmploymentResponse'
+  /api/customers:
+    get:
+      tags:
+      - customer-controller
+      summary: List all customers
+      description: Returns paginated list of all customers (no filtering)
+      operationId: listCustomers
+      parameters:
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pageable'
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageCustomerResponse'
+  /api/customers/search:
+    get:
+      tags:
+      - customer-controller
+      summary: Search customers
+      description: "Search customers by criteria (name, type, status, etc.)"
+      operationId: searchCustomers
+      parameters:
+      - name: criteria
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/CustomerSearchCriteria'
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pageable'
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageCustomerResponse'
+  /api/charges/waivers/applicable:
+    get:
+      tags:
+      - fee-waiver-controller
+      operationId: getApplicableWaivers
+      parameters:
+      - name: chargeId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: accountNumber
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: productCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeWaiverResponse'
+  /api/charges/interest/product/{productCode}:
+    get:
+      tags:
+      - interest-rate-controller
+      operationId: getInterestRatesByProduct
+      parameters:
+      - name: productCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InterestRateResponse'
+  /api/charges/assignments/product/{productCode}:
+    get:
+      tags:
+      - charge-assignment-controller
+      operationId: getProductCharges
+      parameters:
+      - name: productCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductChargeResponse'
+  /api/charges/assignments/customer/{customerId}:
+    get:
+      tags:
+      - charge-assignment-controller
+      operationId: getCustomerOverrides
+      parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerChargeOverrideResponse'
+  /api/authorizations/customer/{customerId}:
+    get:
+      tags:
+      - authorization-controller
+      operationId: getAuthorizationsByCustomer
+      parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorizationResponse'
+  /api/accounts/{accountNumber}:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccountDetails
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/accounts/{accountNumber}/statement:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccountStatement
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fromDate
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountStatement'
+  /api/accounts/{accountNumber}/balance:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccountBalance
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountBalance'
+  /api/charges/waivers/{id}:
+    delete:
+      tags:
+      - fee-waiver-controller
+      operationId: removeWaiver
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /api/accounts/{accountNumber}/holders/{holderId}:
+    delete:
+      tags:
+      - account-holder-controller
+      operationId: removeHolder
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: holderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    ProductSegmentRequest:
+      required:
+      - customerTypes
+      type: object
+      properties:
+        customerTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - CORPORATE
+            - SME
+            - INDIVIDUAL
+    ProductCustomerSegmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerType:
+          type: string
+          enum:
+          - CORPORATE
+          - SME
+          - INDIVIDUAL
+    ProductFeeEntryRequest:
+      required:
+      - calculationMethod
+      - currency
+      - feeType
+      type: object
+      properties:
+        feeType:
+          type: string
+        calculationMethod:
+          type: string
+          enum:
+          - FLAT
+          - PERCENTAGE
+          - TIERED_VOLUME
+        amount:
+          type: number
+        rate:
+          type: number
+        currency:
+          maxLength: 3
+          minLength: 0
+          type: string
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFeeTierRequest'
+    ProductFeeTierRequest:
+      required:
+      - rate
+      - tierFrom
+      type: object
+      properties:
+        tierFrom:
+          type: integer
+          format: int64
+        tierTo:
+          type: integer
+          format: int64
+        rate:
+          type: number
+    ProductFeeEntryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        feeType:
+          type: string
+        calculationMethod:
+          type: string
+        amount:
+          type: number
+        rate:
+          type: number
+        currency:
+          type: string
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFeeTierResponse'
+    ProductFeeTierResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        tierFrom:
+          type: integer
+          format: int64
+        tierTo:
+          type: integer
+          format: int64
+        rate:
+          type: number
+    ProductFeatureRequest:
+      required:
+      - featureKey
+      - featureValue
+      type: object
+      properties:
+        featureKey:
+          type: string
+        featureValue:
+          type: string
+    ProductFeatureResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        featureKey:
+          type: string
+        featureValue:
+          type: string
+    UpdateProductRequest:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          maxLength: 200
+          minLength: 0
+          type: string
+        description:
+          type: string
+        customerTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - CORPORATE
+            - SME
+            - INDIVIDUAL
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        name:
+          type: string
+        family:
+          type: string
+        status:
+          type: string
+        versionNumber:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateDocumentTypeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+    DocumentTypeResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateCurrencyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        symbol:
+          type: string
+    CurrencyResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        decimalPlaces:
+          type: integer
+          format: int32
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateCountryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        region:
+          type: string
+    CountryResponse:
+      type: object
+      properties:
+        isoCode:
+          type: string
+        name:
+          type: string
+        region:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateChannelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    ChannelResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateBranchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+    BranchResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        countryCode:
+          type: string
+        address:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateLimitDefinitionRequest:
+      required:
+      - amount
+      - currency
+      - limitType
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        limitType:
+          type: string
+        amount:
+          minimum: 0.0001
+          exclusiveMinimum: false
+          type: number
+        currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+    LimitDefinitionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        limitType:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UpdateKYCRequest:
+      type: object
+      properties:
+        assignedOfficer:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+    KYCResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int64
+        customerName:
+          type: string
+        kycLevel:
+          type: string
+          enum:
+          - STANDARD
+          - ENHANCED
+          - EXEMPT
+        status:
+          type: string
+          enum:
+          - NOT_STARTED
+          - IN_PROGRESS
+          - PENDING_REVIEW
+          - APPROVED
+          - REJECTED
+          - EXPIRED
+        assignedOfficer:
+          type: string
+        riskScore:
+          type: integer
+          format: int32
+        dueDate:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        nextReviewDate:
+          type: string
+          format: date-time
+    UpdateCustomerRequest:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        taxId:
+          type: string
+        registrationNumber:
+          type: string
+        industry:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        annualRevenueAmount:
+          type: integer
+          format: int64
+        annualRevenueCurrency:
+          type: string
+        employeeCount:
+          type: integer
+          format: int32
+        website:
+          type: string
+        businessType:
+          type: string
+        annualTurnoverAmount:
+          type: integer
+          format: int64
+        annualTurnoverCurrency:
+          type: string
+        yearsInOperation:
+          type: integer
+          format: int32
+        dateOfBirth:
+          type: string
+          format: date
+        placeOfBirth:
+          type: string
+        nationality:
+          type: string
+        employerId:
+          type: integer
+          format: int64
+        employmentStatus:
+          type: string
+    AddressDto:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerNumber:
+          type: string
+        type:
+          type: string
+          enum:
+          - CORPORATE
+          - SME
+          - INDIVIDUAL
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACTIVE
+          - SUSPENDED
+          - CLOSED
+        name:
+          type: string
+        taxId:
+          type: string
+        registrationNumber:
+          type: string
+        industry:
+          type: string
+        annualRevenueAmount:
+          type: number
+        annualRevenueCurrency:
+          type: string
+        employeeCount:
+          type: integer
+          format: int32
+        website:
+          type: string
+        businessType:
+          type: string
+        annualTurnoverAmount:
+          type: number
+        annualTurnoverCurrency:
+          type: string
+        yearsInOperation:
+          type: integer
+          format: int32
+        dateOfBirth:
+          type: string
+          format: date
+        placeOfBirth:
+          type: string
+        nationality:
+          type: string
+        employerId:
+          type: integer
+          format: int64
+        employmentStatus:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - TERMINATED
+          - ON_LEAVE
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressDto'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneDto'
+        emails:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+    PhoneDto:
+      type: object
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+        type:
+          type: string
+          enum:
+          - MOBILE
+          - LANDLINE
+          - WORK
+          - FAX
+    CreateInterestRateRequest:
+      type: object
+      properties:
+        chargeId:
+          type: integer
+          format: int64
+        productCode:
+          type: string
+        fixedRate:
+          type: number
+        accrualSchedule:
+          type: string
+        applicationSchedule:
+          type: string
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestTierRequest'
+    InterestTierRequest:
+      type: object
+      properties:
+        balanceFrom:
+          type: number
+        balanceTo:
+          type: number
+        rate:
+          type: number
+    InterestRateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        chargeDefinitionId:
+          type: integer
+          format: int64
+        productCode:
+          type: string
+        fixedRate:
+          type: number
+        accrualSchedule:
+          type: string
+        applicationSchedule:
+          type: string
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestTierResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    InterestTierResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        balanceFrom:
+          type: number
+        balanceTo:
+          type: number
+        rate:
+          type: number
+    UpdateChargeDefinitionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        chargeType:
+          type: string
+        currency:
+          type: string
+    ChargeDefinitionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        chargeType:
+          type: string
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateChargeRuleRequest:
+      required:
+      - calculationMethod
+      type: object
+      properties:
+        calculationMethod:
+          type: string
+        flatAmount:
+          type: number
+        percentageRate:
+          type: number
+        minAmount:
+          type: number
+        maxAmount:
+          type: number
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TierRequest'
+    TierRequest:
+      required:
+      - rate
+      - tierFrom
+      type: object
+      properties:
+        tierFrom:
+          type: integer
+          format: int64
+        tierTo:
+          type: integer
+          format: int64
+        rate:
+          type: number
+    ChargeRuleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        chargeDefinitionId:
+          type: integer
+          format: int64
+        calculationMethod:
+          type: string
+        flatAmount:
+          type: number
+        percentageRate:
+          type: number
+        minAmount:
+          type: number
+        maxAmount:
+          type: number
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChargeTierResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ChargeTierResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        tierFrom:
+          type: integer
+          format: int64
+        tierTo:
+          type: integer
+          format: int64
+        rate:
+          type: number
+    UpdateAuthorizationRequest:
+      type: object
+      properties:
+        relationshipType:
+          type: string
+          enum:
+          - OWNER
+          - DIRECTOR
+          - AUTHORIZED_SIGNATORY
+          - BENEFICIAL_OWNER
+        effectiveDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        isPrimary:
+          type: boolean
+        documentReference:
+          type: string
+    AuthorizationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int64
+        customerName:
+          type: string
+        authorizedPersonId:
+          type: integer
+          format: int64
+        authorizedPersonName:
+          type: string
+        relationshipType:
+          type: string
+          enum:
+          - OWNER
+          - DIRECTOR
+          - AUTHORIZED_SIGNATORY
+          - BENEFICIAL_OWNER
+        isPrimary:
+          type: boolean
+        effectiveDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - EXPIRED
+          - REVOKED
+        documentReferences:
+          type: array
+          items:
+            type: string
+    CreateProductRequest:
+      required:
+      - code
+      - family
+      - name
+      type: object
+      properties:
+        code:
+          maxLength: 50
+          minLength: 0
+          type: string
+        name:
+          maxLength: 200
+          minLength: 0
+          type: string
+        family:
+          type: string
+          enum:
+          - ACCOUNT
+          - PAYMENT
+          - TRADE_FINANCE
+        description:
+          type: string
+        customerTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - CORPORATE
+            - SME
+            - INDIVIDUAL
+    ProductVersionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        versionNumber:
+          type: integer
+          format: int32
+        status:
+          type: string
+        submittedBy:
+          type: string
+        approvedBy:
+          type: string
+        rejectionComment:
+          type: string
+        contractCount:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+    RejectProductRequest:
+      required:
+      - comment
+      type: object
+      properties:
+        comment:
+          type: string
+    CreateIndustryRequest:
+      required:
+      - code
+      - name
+      type: object
+      properties:
+        code:
+          maxLength: 10
+          minLength: 1
+          type: string
+        name:
+          type: string
+        parentCode:
+          type: string
+    IndustryResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        parentCode:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateHolidayRequest:
+      required:
+      - countryCode
+      - holidayDate
+      type: object
+      properties:
+        countryCode:
+          type: string
+        holidayDate:
+          type: string
+          format: date
+        description:
+          type: string
+    HolidayResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        countryCode:
+          type: string
+        holidayDate:
+          type: string
+          format: date
+        description:
+          type: string
+    CreateExchangeRateRequest:
+      required:
+      - baseCurrencyCode
+      - effectiveDate
+      - rate
+      - targetCurrencyCode
+      type: object
+      properties:
+        baseCurrencyCode:
+          type: string
+        targetCurrencyCode:
+          type: string
+        rate:
+          type: number
+        effectiveDate:
+          type: string
+          format: date
+    ExchangeRateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        baseCurrencyCode:
+          type: string
+        targetCurrencyCode:
+          type: string
+        rate:
+          type: number
+        effectiveDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateDocumentTypeRequest:
+      required:
+      - category
+      - code
+      - name
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+    CreateCurrencyRequest:
+      required:
+      - code
+      - decimalPlaces
+      - name
+      type: object
+      properties:
+        code:
+          maxLength: 3
+          minLength: 3
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        decimalPlaces:
+          maximum: 10
+          minimum: 0
+          type: integer
+          format: int32
+    CreateCountryRequest:
+      required:
+      - isoCode
+      - name
+      type: object
+      properties:
+        isoCode:
+          type: string
+        name:
+          type: string
+        region:
+          type: string
+    CreateChannelRequest:
+      required:
+      - code
+      - name
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+    CreateBranchRequest:
+      required:
+      - code
+      - countryCode
+      - name
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        countryCode:
+          type: string
+        address:
+          type: string
+    LimitCheckRequest:
+      required:
+      - accountNumber
+      - currency
+      - limitType
+      - transactionAmount
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        productCode:
+          type: string
+        transactionAmount:
+          type: number
+        currency:
+          type: string
+        transactionReference:
+          type: string
+        limitType:
+          type: string
+    LimitCheckResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+          - ALLOWED
+          - REJECTED
+          - REQUIRES_APPROVAL
+        effectiveLimit:
+          type: number
+        currentUsage:
+          type: number
+        remainingAmount:
+          type: number
+        approvalRequired:
+          type: boolean
+        rejectionReason:
+          type: string
+    AssignLimitRequest:
+      required:
+      - limitId
+      - referenceId
+      type: object
+      properties:
+        limitId:
+          type: integer
+          format: int64
+        referenceId:
+          type: string
+        overrideAmount:
+          type: number
+    ProductLimitResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        limitDefinitionId:
+          type: integer
+          format: int64
+        limitName:
+          type: string
+        productCode:
+          type: string
+        overrideAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CustomerLimitResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        limitDefinitionId:
+          type: integer
+          format: int64
+        limitName:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        overrideAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AccountLimitResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        limitDefinitionId:
+          type: integer
+          format: int64
+        limitName:
+          type: string
+        accountNumber:
+          type: string
+        overrideAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApprovalActionRequest:
+      required:
+      - action
+      type: object
+      properties:
+        action:
+          type: string
+        reason:
+          type: string
+    InitiateKYCRequest:
+      required:
+      - customerId
+      - level
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        level:
+          type: string
+          enum:
+          - STANDARD
+          - ENHANCED
+          - EXEMPT
+    RejectKYCRequest:
+      required:
+      - officerId
+      - reason
+      type: object
+      properties:
+        officerId:
+          type: string
+        reason:
+          type: string
+    SubmitDocumentsRequest:
+      required:
+      - documentReferences
+      - documentTypes
+      type: object
+      properties:
+        documentTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - CERTIFICATE_OF_INCORPORATION
+            - ARTICLES_OF_ASSOCIATION
+            - PROOF_OF_ADDRESS
+            - TAX_CERTIFICATE
+            - PASSPORT
+            - UTILITY_BILL
+            - BANK_STATEMENT
+        documentReferences:
+          type: array
+          items:
+            type: string
+    ApproveKYCRequest:
+      required:
+      - officerId
+      type: object
+      properties:
+        officerId:
+          type: string
+    CreateEmploymentRequest:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          format: int64
+        employerId:
+          type: integer
+          format: int64
+        employeeNumber:
+          type: string
+        department:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+          format: date
+    EmploymentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        employeeId:
+          type: integer
+          format: int64
+        employeeName:
+          type: string
+        employerId:
+          type: integer
+          format: int64
+        employerName:
+          type: string
+        employeeNumber:
+          type: string
+        department:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - TERMINATED
+          - ON_LEAVE
+    BulkUploadResult:
+      type: object
+      properties:
+        successCount:
+          type: integer
+          format: int32
+        failureCount:
+          type: integer
+          format: int32
+        errors:
+          type: array
+          items:
+            type: string
+    CreateSMECustomerRequest:
+      required:
+      - name
+      - taxId
+      type: object
+      properties:
+        name:
+          type: string
+        taxId:
+          type: string
+        registrationNumber:
+          type: string
+        industry:
+          type: string
+        businessType:
+          type: string
+        annualTurnoverAmount:
+          type: string
+        annualTurnoverCurrency:
+          type: string
+        yearsInOperation:
+          type: integer
+          format: int32
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressDto'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneDto'
+        emails:
+          type: array
+          items:
+            type: string
+    CreateIndividualCustomerRequest:
+      required:
+      - name
+      - taxId
+      type: object
+      properties:
+        name:
+          type: string
+        taxId:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        placeOfBirth:
+          type: string
+        nationality:
+          type: string
+        employerId:
+          type: integer
+          format: int64
+        employmentStatus:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - TERMINATED
+          - ON_LEAVE
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressDto'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneDto'
+        emails:
+          type: array
+          items:
+            type: string
+    CreateCorporateCustomerRequest:
+      required:
+      - name
+      - taxId
+      type: object
+      properties:
+        name:
+          type: string
+        taxId:
+          type: string
+        registrationNumber:
+          type: string
+        industry:
+          type: string
+        annualRevenueAmount:
+          type: string
+        annualRevenueCurrency:
+          type: string
+        employeeCount:
+          type: integer
+          format: int32
+        website:
+          type: string
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressDto'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneDto'
+        emails:
+          type: array
+          items:
+            type: string
+    CreateFeeWaiverRequest:
+      required:
+      - chargeId
+      - referenceId
+      - scope
+      - validFrom
+      - waiverPercentage
+      type: object
+      properties:
+        chargeId:
+          type: integer
+          format: int64
+        scope:
+          type: string
+        referenceId:
+          type: string
+        waiverPercentage:
+          maximum: 100
+          minimum: 0
+          type: integer
+          format: int32
+        validFrom:
+          type: string
+          format: date
+        validTo:
+          type: string
+          format: date
+    FeeWaiverResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        chargeDefinitionId:
+          type: integer
+          format: int64
+        chargeName:
+          type: string
+        scope:
+          type: string
+        referenceId:
+          type: string
+        waiverPercentage:
+          type: integer
+          format: int32
+        validFrom:
+          type: string
+          format: date
+        validTo:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateChargeDefinitionRequest:
+      required:
+      - chargeType
+      - currency
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        chargeType:
+          type: string
+        currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+    ChargeCalculationRequest:
+      type: object
+      properties:
+        productCode:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        accountNumber:
+          type: string
+        chargeType:
+          type: string
+        transactionAmount:
+          type: number
+        transactionCount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+    ChargeCalculationResponse:
+      type: object
+      properties:
+        baseAmount:
+          type: number
+        waiverAmount:
+          type: number
+        finalAmount:
+          type: number
+        waiverApplied:
+          type: boolean
+        waiverId:
+          type: string
+        ruleApplied:
+          type: string
+    AssignChargeRequest:
+      required:
+      - chargeId
+      - referenceId
+      type: object
+      properties:
+        chargeId:
+          type: integer
+          format: int64
+        referenceId:
+          type: string
+        overrideAmount:
+          type: number
+    ProductChargeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        chargeDefinitionId:
+          type: integer
+          format: int64
+        chargeName:
+          type: string
+        productCode:
+          type: string
+        overrideAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CustomerChargeOverrideResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        chargeDefinitionId:
+          type: integer
+          format: int64
+        chargeName:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        overrideAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateAuthorizationRequest:
+      required:
+      - authorizedPersonId
+      - effectiveDate
+      - relationshipType
+      type: object
+      properties:
+        authorizedPersonId:
+          type: integer
+          format: int64
+        relationshipType:
+          type: string
+          enum:
+          - OWNER
+          - DIRECTOR
+          - AUTHORIZED_SIGNATORY
+          - BENEFICIAL_OWNER
+        effectiveDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        isPrimary:
+          type: boolean
+        documentReference:
+          type: string
+    AccountHolderRequest:
+      required:
+      - customerId
+      - role
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        role:
+          type: string
+          enum:
+          - PRIMARY
+          - JOINT
+          - AUTHORIZED_SIGNATORY
+          - NOMINEE
+    AccountOpeningRequest:
+      required:
+      - currency
+      - customerId
+      - holders
+      - initialDeposit
+      - productCode
+      - type
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        productCode:
+          type: string
+        type:
+          type: string
+          enum:
+          - CURRENT
+          - SAVINGS
+          - FIXED_DEPOSIT
+          - LOAN
+          - ESCROW
+        currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+        initialDeposit:
+          type: number
+        holders:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountHolderRequest'
+    AccountResponse:
+      required:
+      - accountNumber
+      - balance
+      - currency
+      - status
+      - type
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        accountNumber:
+          type: string
+        type:
+          type: string
+          enum:
+          - CURRENT
+          - SAVINGS
+          - FIXED_DEPOSIT
+          - LOAN
+          - ESCROW
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACTIVE
+          - DORMANT
+          - FROZEN
+          - CLOSED
+        currency:
+          type: string
+        balance:
+          type: number
+        productId:
+          type: integer
+          format: int64
+        productVersionId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        openedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+    FeatureDiff:
+      type: object
+      properties:
+        featureKey:
+          type: string
+        oldValue:
+          type: string
+        newValue:
+          type: string
+        changeType:
+          type: string
+          enum:
+          - ADDED
+          - REMOVED
+          - CHANGED
+    FeeDiff:
+      type: object
+      properties:
+        feeType:
+          type: string
+        oldValue:
+          type: string
+        newValue:
+          type: string
+        changeType:
+          type: string
+          enum:
+          - ADDED
+          - REMOVED
+          - CHANGED
+    FieldDiff:
+      type: object
+      properties:
+        fieldName:
+          type: string
+        oldValue:
+          type: string
+        newValue:
+          type: string
+        changeType:
+          type: string
+          enum:
+          - ADDED
+          - REMOVED
+          - CHANGED
+    ProductVersionDiffResponse:
+      type: object
+      properties:
+        versionId1:
+          type: integer
+          format: int64
+        versionId2:
+          type: integer
+          format: int64
+        generalFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDiff'
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureDiff'
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeDiff'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentDiff'
+    SegmentDiff:
+      type: object
+      properties:
+        customerType:
+          type: string
+        oldValue:
+          type: string
+        newValue:
+          type: string
+        changeType:
+          type: string
+          enum:
+          - ADDED
+          - REMOVED
+          - CHANGED
+    ProductDetailResponse:
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/ProductInfo'
+        id:
+          type: integer
+          format: int64
+        versionNumber:
+          type: integer
+          format: int64
+        status:
+          type: string
+        contractCount:
+          type: integer
+          format: int32
+        submittedBy:
+          type: string
+        approvedBy:
+          type: string
+        rejectionComment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFeatureResponse'
+        feeEntries:
+          type: array
+          deprecated: true
+          items:
+            $ref: '#/components/schemas/ProductFeeEntryResponse'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentInfo'
+    ProductInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        name:
+          type: string
+        family:
+          type: string
+        description:
+          type: string
+    SegmentInfo:
+      type: object
+      properties:
+        customerType:
+          type: string
+    PageProductResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+        offset:
+          type: integer
+          format: int64
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+    SortObject:
+      type: object
+      properties:
+        direction:
+          type: string
+        nullHandling:
+          type: string
+        ascending:
+          type: boolean
+        property:
+          type: string
+        ignoreCase:
+          type: boolean
+    EffectiveLimitResponse:
+      type: object
+      properties:
+        limitDefinitionId:
+          type: integer
+          format: int64
+        limitName:
+          type: string
+        limitType:
+          type: string
+        effectiveLimit:
+          type: number
+        source:
+          type: string
+        currency:
+          type: string
+        status:
+          type: string
+    ApprovalRequestResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        limitDefinitionId:
+          type: integer
+          format: int64
+        transactionReference:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        accountNumber:
+          type: string
+        status:
+          type: string
+        rejectionReason:
+          type: string
+        approvedBy:
+          type: string
+        decisionAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    PageCustomerResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerResponse'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        empty:
+          type: boolean
+    CustomerSearchCriteria:
+      type: object
+      properties:
+        name:
+          type: string
+        customerNumber:
+          type: string
+        taxId:
+          type: string
+        type:
+          type: string
+          enum:
+          - CORPORATE
+          - SME
+          - INDIVIDUAL
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACTIVE
+          - SUSPENDED
+          - CLOSED
+    PageAccountResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountResponse'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        empty:
+          type: boolean
+    AccountStatement:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          format: date
+        openingBalance:
+          type: number
+        closingBalance:
+          type: number
+        totalCredits:
+          type: number
+        totalDebits:
+          type: number
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionEntry'
+    TransactionEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+        amount:
+          type: number
+        type:
+          type: string
+    AccountBalance:
+      type: object
+      properties:
+        availableBalance:
+          type: number
+        ledgerBalance:
+          type: number
+        holdAmount:
+          type: number
+        currency:
+          type: string

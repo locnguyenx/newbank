@@ -1213,7 +1213,7 @@ Each exception class must define `ERROR_CODE` as a public constant:
 
 ## Related Documents
 
-- [System Design](../2026-03-19-system-design.md)
+- [System Design](docs/superpowers/architecture/system-design.md))
 - [Master Implementation Plan](../2026-03-19-master-implementation-plan.md)
 - [Account Management Spec](./account-management-spec.md)
 - [Cash Management Spec](./cash-management-spec.md)

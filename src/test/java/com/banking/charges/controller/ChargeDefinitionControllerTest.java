@@ -73,7 +73,7 @@ class ChargeDefinitionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("CHRG-002"));
+                .andExpect(jsonPath("$.messageCode").value("CHRG-002"));
     }
 
     @Test
@@ -87,7 +87,7 @@ class ChargeDefinitionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("CHRG-003"));
+                .andExpect(jsonPath("$.messageCode").value("CHRG-003"));
     }
 
     @Test
@@ -142,7 +142,7 @@ class ChargeDefinitionControllerTest {
     void getCharge_notFound_returns404() throws Exception {
         mockMvc.perform(get("/api/charges/definitions/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("CHRG-001"));
+                .andExpect(jsonPath("$.messageCode").value("CHRG-001"));
     }
 
     @Test

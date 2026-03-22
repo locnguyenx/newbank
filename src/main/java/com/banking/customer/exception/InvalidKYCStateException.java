@@ -1,16 +1,10 @@
 package com.banking.customer.exception;
 
-public class InvalidKYCStateException extends RuntimeException {
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    private static final String ERROR_CODE_PREFIX = "KYC-";
-    private final String errorCode;
-
+public class InvalidKYCStateException extends BaseException {
     public InvalidKYCStateException(String message) {
-        super(message);
-        this.errorCode = ERROR_CODE_PREFIX + "002";
-    }
-
-    public String getErrorCode() {
-        return errorCode;
+        super(MessageCatalog.KYC_INVALID_STATE, message);
     }
 }

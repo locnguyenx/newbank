@@ -86,7 +86,7 @@ class ProductVersionControllerTest {
         mockMvc.perform(post("/api/products/1/versions/1/submit")
                         .header("X-Username", "testuser"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("PROD-004"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-004"));
     }
 
     @Test
@@ -110,7 +110,7 @@ class ProductVersionControllerTest {
         mockMvc.perform(post("/api/products/1/versions/1/approve")
                         .header("X-Username", "submitter"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.errorCode").value("PROD-007"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-007"));
     }
 
     @Test
@@ -137,7 +137,7 @@ class ProductVersionControllerTest {
                         .header("X-Username", "rejector")
                         .content("{\"comment\": \"\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -161,7 +161,7 @@ class ProductVersionControllerTest {
         mockMvc.perform(post("/api/products/1/versions/1/activate")
                         .header("X-Username", "activator"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("PROD-004"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-004"));
     }
 
     @Test
@@ -185,7 +185,7 @@ class ProductVersionControllerTest {
         mockMvc.perform(post("/api/products/1/versions/1/retire")
                         .header("X-Username", "retirer"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("PROD-006"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-006"));
     }
 
     @Test

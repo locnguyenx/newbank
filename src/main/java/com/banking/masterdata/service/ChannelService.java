@@ -2,6 +2,7 @@ package com.banking.masterdata.service;
 
 import com.banking.masterdata.domain.entity.Channel;
 import com.banking.masterdata.dto.request.CreateChannelRequest;
+import com.banking.masterdata.dto.request.UpdateChannelRequest;
 import com.banking.masterdata.dto.response.ChannelResponse;
 import com.banking.masterdata.exception.ChannelAlreadyExistsException;
 import com.banking.masterdata.exception.ChannelNotFoundException;
@@ -48,6 +49,18 @@ public class ChannelService {
                 .orElseThrow(() -> new ChannelNotFoundException(code));
 
         channel.setActive(false);
+        Channel savedChannel = channelRepository.save(channel);
+        return masterDataMapper.toResponse(savedChannel);
+    }
+
+    public ChannelResponse updateChannel(String code, UpdateChannelRequest request) {
+        Channel channel = channelRepository.findById(code)
+                .orElseThrow(() -> new ChannelNotFoundException(code));
+
+        if (request.getName() != null) {
+            channel.setName(request.getName());
+        }
+
         Channel savedChannel = channelRepository.save(channel);
         return masterDataMapper.toResponse(savedChannel);
     }

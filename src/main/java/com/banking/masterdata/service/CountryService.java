@@ -2,6 +2,7 @@ package com.banking.masterdata.service;
 
 import com.banking.masterdata.domain.entity.Country;
 import com.banking.masterdata.dto.request.CreateCountryRequest;
+import com.banking.masterdata.dto.request.UpdateCountryRequest;
 import com.banking.masterdata.dto.response.CountryResponse;
 import com.banking.masterdata.exception.CountryNotFoundException;
 import com.banking.masterdata.mapper.MasterDataMapper;
@@ -59,6 +60,21 @@ public class CountryService {
                 .orElseThrow(() -> new CountryNotFoundException(isoCode));
 
         country.setActive(false);
+        Country savedCountry = countryRepository.save(country);
+        return masterDataMapper.toResponse(savedCountry);
+    }
+
+    public CountryResponse updateCountry(String isoCode, UpdateCountryRequest request) {
+        Country country = countryRepository.findById(isoCode)
+                .orElseThrow(() -> new CountryNotFoundException(isoCode));
+
+        if (request.getName() != null) {
+            country.setName(request.getName());
+        }
+        if (request.getRegion() != null) {
+            country.setRegion(request.getRegion());
+        }
+
         Country savedCountry = countryRepository.save(country);
         return masterDataMapper.toResponse(savedCountry);
     }

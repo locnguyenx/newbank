@@ -2,6 +2,11 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import type { Authorization, CreateAuthorizationRequest, UpdateAuthorizationRequest, AuthorizationDocumentType } from '@/types/authorization.types';
 import { authorizationService } from '@/services/authorizationService';
 
+interface UpdateAuthorizationPayload {
+  id: number;
+  request: UpdateAuthorizationRequest;
+}
+
 interface AuthorizationState {
   authorizations: Authorization[];
   currentAuthorization: Authorization | null;
@@ -37,10 +42,10 @@ export const createAuthorization = createAsyncThunk<Authorization, CreateAuthori
   }
 );
 
-export const updateAuthorization = createAsyncThunk<Authorization, UpdateAuthorizationRequest>(
+export const updateAuthorization = createAsyncThunk<Authorization, UpdateAuthorizationPayload>(
   'authorizations/update',
-  async (request) => {
-    return authorizationService.update(request);
+  async ({ id, request }) => {
+    return authorizationService.update(id, request);
   }
 );
 

@@ -106,7 +106,7 @@ class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"));
     }
 
     @Test
@@ -163,6 +163,6 @@ class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("AUTH-001"));
+                .andExpect(jsonPath("$.messageCode").value("AUTH_001"));
     }
 }

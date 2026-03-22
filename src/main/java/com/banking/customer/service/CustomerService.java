@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -74,7 +75,96 @@ public class CustomerService {
             customer.setTaxId(request.getTaxId());
         }
         
-        customer.setName(request.getName());
+        if (request.getName() != null) {
+            customer.setName(request.getName());
+        }
+        
+        if (request.getRegistrationNumber() != null) {
+            if (customer instanceof CorporateCustomer) {
+                ((CorporateCustomer) customer).setRegistrationNumber(request.getRegistrationNumber());
+            } else if (customer instanceof SMECustomer) {
+                ((SMECustomer) customer).setRegistrationNumber(request.getRegistrationNumber());
+            }
+        }
+        
+        if (request.getIndustry() != null) {
+            if (customer instanceof CorporateCustomer) {
+                ((CorporateCustomer) customer).setIndustry(request.getIndustry());
+            } else if (customer instanceof SMECustomer) {
+                ((SMECustomer) customer).setIndustry(request.getIndustry());
+            }
+        }
+        
+        if (request.getWebsite() != null && customer instanceof CorporateCustomer) {
+            ((CorporateCustomer) customer).setWebsite(request.getWebsite());
+        }
+        
+        if (request.getEmployeeCount() != null && customer instanceof CorporateCustomer) {
+            ((CorporateCustomer) customer).setEmployeeCount(request.getEmployeeCount());
+        }
+        
+        if (request.getAnnualRevenueAmount() != null && customer instanceof CorporateCustomer) {
+            CorporateCustomer corp = (CorporateCustomer) customer;
+            String currency = request.getAnnualRevenueCurrency() != null ? request.getAnnualRevenueCurrency() : "USD";
+            corp.setAnnualRevenue(new com.banking.customer.domain.embeddable.Money(
+                BigDecimal.valueOf(request.getAnnualRevenueAmount()), 
+                currency
+            ));
+        }
+        
+        if (request.getAnnualTurnoverAmount() != null && customer instanceof SMECustomer) {
+            SMECustomer sme = (SMECustomer) customer;
+            String currency = request.getAnnualTurnoverCurrency() != null ? request.getAnnualTurnoverCurrency() : "USD";
+            sme.setAnnualTurnover(new com.banking.customer.domain.embeddable.Money(
+                BigDecimal.valueOf(request.getAnnualTurnoverAmount()), 
+                currency
+            ));
+        }
+        
+        if (request.getYearsInOperation() != null && customer instanceof SMECustomer) {
+            ((SMECustomer) customer).setYearsInOperation(request.getYearsInOperation());
+        }
+        
+        if (request.getBusinessType() != null && customer instanceof SMECustomer) {
+            ((SMECustomer) customer).setBusinessType(request.getBusinessType());
+        }
+        
+        if (request.getDateOfBirth() != null && customer instanceof IndividualCustomer) {
+            ((IndividualCustomer) customer).setDateOfBirth(request.getDateOfBirth());
+        }
+        
+        if (request.getNationality() != null && customer instanceof IndividualCustomer) {
+            ((IndividualCustomer) customer).setNationality(request.getNationality());
+        }
+        
+        if (request.getPlaceOfBirth() != null && customer instanceof IndividualCustomer) {
+            ((IndividualCustomer) customer).setPlaceOfBirth(request.getPlaceOfBirth());
+        }
+        
+        if (request.getEmploymentStatus() != null && customer instanceof IndividualCustomer) {
+            try {
+                com.banking.customer.domain.enums.EmploymentStatus status = 
+                    com.banking.customer.domain.enums.EmploymentStatus.valueOf(request.getEmploymentStatus());
+                ((IndividualCustomer) customer).setEmploymentStatus(status);
+            } catch (IllegalArgumentException e) {
+                // Invalid enum value, skip
+            }
+        }
+        
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            customer.getEmails().clear();
+            customer.addEmail(request.getEmail());
+        }
+        
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            customer.getPhones().clear();
+            customer.addPhone(new com.banking.customer.domain.embeddable.PhoneNumber(
+                "+1", 
+                request.getPhoneNumber(),
+                com.banking.customer.domain.enums.PhoneType.WORK
+            ));
+        }
+        
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toResponse(savedCustomer);
     }

@@ -81,7 +81,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("PROD-003"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-003"));
     }
 
     @Test
@@ -94,7 +94,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -107,7 +107,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -120,7 +120,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -142,7 +142,7 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/api/products/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("PROD-001"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-001"));
     }
 
     @Test
@@ -162,7 +162,7 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/api/products/code/INVALID"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("PROD-001"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-001"));
     }
 
     @Test
@@ -197,7 +197,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("PROD-001"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-001"));
     }
 
     @Test
@@ -213,7 +213,7 @@ class ProductControllerTest {
                         .header("X-Username", "testuser")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("PROD-004"));
+                .andExpect(jsonPath("$.messageCode").value("PROD-004"));
     }
 
     @Test

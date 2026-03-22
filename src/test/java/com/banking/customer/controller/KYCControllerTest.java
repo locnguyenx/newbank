@@ -89,7 +89,7 @@ class KYCControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.messageCode").value("VALIDATION_001"));
     }
 
     @Test
@@ -166,7 +166,7 @@ class KYCControllerTest {
 
         mockMvc.perform(get("/api/kyc/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("KYC-001"));
+                .andExpect(jsonPath("$.messageCode").value("KYC_001"));
     }
 
     @Test
@@ -195,6 +195,6 @@ class KYCControllerTest {
 
         mockMvc.perform(post("/api/kyc/1/submit"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value("KYC-002"));
+                .andExpect(jsonPath("$.messageCode").value("KYC_002"));
     }
 }

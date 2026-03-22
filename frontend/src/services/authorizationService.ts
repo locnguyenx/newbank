@@ -18,9 +18,8 @@ export const authorizationService = {
     return response.data;
   },
 
-  update: async (request: UpdateAuthorizationRequest): Promise<Authorization> => {
-    const { id, ...data } = request;
-    const response = await apiClient.put(`/authorizations/${id}`, data);
+  update: async (id: number, request: Partial<UpdateAuthorizationRequest>): Promise<Authorization> => {
+    const response = await apiClient.put(`/authorizations/${id}`, request);
     return response.data;
   },
 

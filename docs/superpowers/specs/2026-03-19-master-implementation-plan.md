@@ -577,7 +577,7 @@ UI Foundation → Account Management UI → Customer Management UI
 
 ## Related Documents
 
-- [System Design](./2026-03-19-system-design.md)
+- [System Design](docs/superpowers/architecture/system-design.md)
 - [Customer Management Spec](./modules/customer-management-spec.md)
 - [Account Management Spec](./modules/account-management-spec.md)
 - [Cash Management Spec](./modules/cash-management-spec.md)

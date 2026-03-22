@@ -64,15 +64,25 @@ export const fetchProductById = createAsyncThunk<ProductDetail, number>(
 
 export const createProduct = createAsyncThunk<Product, CreateProductRequest>(
   'product/create',
-  async (data) => {
-    return await productService.createProduct(data);
+  async (data, { rejectWithValue }) => {
+    try {
+      return await productService.createProduct(data);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to create product';
+      return rejectWithValue(message);
+    }
   }
 );
 
 export const updateProduct = createAsyncThunk<Product, { id: number; data: UpdateProductRequest }>(
   'product/update',
-  async ({ id, data }) => {
-    return await productService.updateProduct(id, data);
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      return await productService.updateProduct(id, data);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to update product';
+      return rejectWithValue(message);
+    }
   }
 );
 
@@ -176,17 +186,17 @@ const productSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchProducts
-      .addCase(fetchProducts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.products = action.payload.content;
-        state.pagination.totalElements = action.payload.totalElements;
-        state.pagination.totalPages = action.payload.totalPages;
-      })
+       // fetchProducts
+       .addCase(fetchProducts.pending, (state) => {
+         state.loading = true;
+         state.error = null;
+       })
+        .addCase(fetchProducts.fulfilled, (state, action) => {
+          state.loading = false;
+          state.products = action.payload.content || [];
+          state.pagination.totalElements = action.payload.totalElements;
+          state.pagination.totalPages = action.payload.totalPages;
+        })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch products';
@@ -201,7 +211,7 @@ const productSlice = createSlice({
         state.selectedProduct = action.payload;
         state.features = action.payload.features || [];
         state.feeEntries = action.payload.feeEntries || [];
-        state.segments = action.payload.segments?.map((s) => s.customerType) || [];
+        state.segments = (action.payload.segments?.map((s) => s.customerType).filter((s): s is string => s !== undefined) || []);
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
@@ -209,7 +219,23 @@ const productSlice = createSlice({
       })
       // createProduct
       .addCase(createProduct.fulfilled, (state, action) => {
-        state.products.push(action.payload);
+        const existingIndex = state.products.findIndex(p => p.id === action.payload.id);
+        if (existingIndex !== -1) {
+          state.products[existingIndex] = action.payload; // Replace
+        } else {
+          state.products.push(action.payload);
+        }
+      })
+      // updateProduct
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const index = state.products.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) {
+          state.products[index] = action.payload;
+        }
+        // NOTE: Do NOT replace selectedProduct with the update response.
+        // updateProduct returns ProductResponse, not ProductDetailResponse.
+        // selectedProduct needs product and segments which are only in ProductDetailResponse.
+        // Instead, the component should re-fetch product detail after update.
       })
       // submitForApproval, approveProduct, rejectProduct, activateProduct, retireProduct
       .addCase(submitForApproval.fulfilled, (state, action) => {

@@ -21,7 +21,7 @@ public class AccountExceptionHandler {
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAccountNotFoundException(AccountNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
-                ex.getErrorCode(),
+                ex.getMessageCode(),
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value()
         );
@@ -31,7 +31,7 @@ public class AccountExceptionHandler {
     @ExceptionHandler(DuplicateAccountException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateAccountException(DuplicateAccountException ex) {
         ErrorResponse error = new ErrorResponse(
-                ex.getErrorCode(),
+                ex.getMessageCode(),
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value()
         );
@@ -41,7 +41,7 @@ public class AccountExceptionHandler {
     @ExceptionHandler(InvalidAccountStateException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAccountStateException(InvalidAccountStateException ex) {
         ErrorResponse error = new ErrorResponse(
-                ex.getErrorCode(),
+                ex.getMessageCode(),
                 ex.getMessage(),
                 HttpStatus.BAD_REQUEST.value()
         );
@@ -55,7 +55,7 @@ public class AccountExceptionHandler {
                 .collect(Collectors.toList());
 
         ValidationErrorResponse error = new ValidationErrorResponse(
-                "VALIDATION_ERROR",
+                "VALIDATION_001",
                 "Validation failed",
                 HttpStatus.BAD_REQUEST.value(),
                 fieldErrors
@@ -64,20 +64,20 @@ public class AccountExceptionHandler {
     }
 
     public static class ErrorResponse {
-        private String errorCode;
+        private String messageCode;
         private String message;
         private int status;
         private Instant timestamp;
 
-        public ErrorResponse(String errorCode, String message, int status) {
-            this.errorCode = errorCode;
+        public ErrorResponse(String messageCode, String message, int status) {
+            this.messageCode = messageCode;
             this.message = message;
             this.status = status;
             this.timestamp = Instant.now();
         }
 
-        public String getErrorCode() {
-            return errorCode;
+        public String getMessageCode() {
+            return messageCode;
         }
 
         public String getMessage() {
@@ -94,22 +94,22 @@ public class AccountExceptionHandler {
     }
 
     public static class ValidationErrorResponse {
-        private String errorCode;
+        private String messageCode;
         private String message;
         private int status;
         private Instant timestamp;
         private List<FieldError> fieldErrors;
 
-        public ValidationErrorResponse(String errorCode, String message, int status, List<FieldError> fieldErrors) {
-            this.errorCode = errorCode;
+        public ValidationErrorResponse(String messageCode, String message, int status, List<FieldError> fieldErrors) {
+            this.messageCode = messageCode;
             this.message = message;
             this.status = status;
             this.timestamp = Instant.now();
             this.fieldErrors = fieldErrors;
         }
 
-        public String getErrorCode() {
-            return errorCode;
+        public String getMessageCode() {
+            return messageCode;
         }
 
         public String getMessage() {

@@ -2,6 +2,7 @@ package com.banking.product.service;
 
 import com.banking.product.domain.entity.Product;
 import com.banking.product.domain.entity.ProductVersion;
+import com.banking.product.domain.embeddable.AuditFields;
 import com.banking.product.domain.enums.ProductFamily;
 import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.dto.request.CreateProductRequest;
@@ -44,11 +45,14 @@ class ProductServiceTest {
     @Mock
     private ProductVersionRepository productVersionRepository;
 
+    @Mock
+    private ProductSegmentService productSegmentService;
+
     private ProductService productService;
 
     @BeforeEach
     void setUp() {
-        productService = new ProductService(productRepository, productMapper, productVersionRepository);
+        productService = new ProductService(productRepository, productMapper, productVersionRepository, productSegmentService);
     }
 
     private CreateProductRequest req(String code) {
@@ -98,6 +102,37 @@ class ProductServiceTest {
             productService.createProduct(req("BIZ-CURRENT"), "alice"));
         
         verify(productRepository, never()).save(any());
+    }
+
+    @Test
+    void createProduct_withCustomerTypes_callsAssignSegments() {
+        CreateProductRequest request = new CreateProductRequest();
+        request.setCode("NEW-PROD");
+        request.setName("New Product");
+        request.setFamily(ProductFamily.ACCOUNT);
+        request.setCustomerTypes(List.of(
+            com.banking.customer.domain.enums.CustomerType.CORPORATE,
+            com.banking.customer.domain.enums.CustomerType.INDIVIDUAL
+        ));
+
+        Product savedProduct = mock(Product.class);
+        ProductVersion savedVersion = mock(ProductVersion.class);
+        AuditFields auditFields = mock(AuditFields.class);
+
+        lenient().when(productRepository.existsByCode("NEW-PROD")).thenReturn(false);
+        lenient().when(productMapper.toEntity(any())).thenReturn(savedProduct);
+        lenient().when(savedProduct.getAudit()).thenReturn(auditFields);
+        lenient().when(productRepository.save(any())).thenReturn(savedProduct);
+        lenient().when(productVersionRepository.save(any())).thenReturn(savedVersion);
+        lenient().when(productMapper.toResponse(any())).thenReturn(new ProductResponse());
+
+        productService.createProduct(request, "alice");
+
+        verify(productSegmentService).assignSegments(
+            any(),
+            eq(request.getCustomerTypes()),
+            eq("alice")
+        );
     }
 
     @Test
@@ -228,5 +263,34 @@ class ProductServiceTest {
 
         assertThrows(InvalidProductStatusException.class, () ->
             productService.updateProduct(1L, upd, "alice"));
+    }
+
+    @Test
+    void updateProduct_withCustomerTypes_callsAssignSegments() {
+        Product existingProduct = mock(Product.class);
+        ProductVersion draftVersion = mock(ProductVersion.class);
+        AuditFields auditFields = mock(AuditFields.class);
+        
+        lenient().when(existingProduct.getCode()).thenReturn("BIZ-CURRENT");
+        lenient().when(existingProduct.getAudit()).thenReturn(auditFields);
+        lenient().when(draftVersion.getStatus()).thenReturn(ProductStatus.DRAFT);
+        lenient().when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        lenient().when(productVersionRepository.findTopByProductIdOrderByVersionNumberDesc(1L)).thenReturn(Optional.of(draftVersion));
+        lenient().when(productRepository.save(any())).thenReturn(existingProduct);
+
+        UpdateProductRequest upd = new UpdateProductRequest();
+        upd.setName("Updated Name");
+        upd.setCustomerTypes(List.of(
+            com.banking.customer.domain.enums.CustomerType.CORPORATE,
+            com.banking.customer.domain.enums.CustomerType.SME
+        ));
+
+        productService.updateProduct(1L, upd, "alice");
+
+        verify(productSegmentService).assignSegments(
+            any(),
+            eq(upd.getCustomerTypes()),
+            eq("alice")
+        );
     }
 }

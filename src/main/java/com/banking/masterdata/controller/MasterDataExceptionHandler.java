@@ -165,20 +165,20 @@ public class MasterDataExceptionHandler {
     }
 
     public static class ErrorResponse {
-        private String errorCode;
+        private String messageCode;
         private String message;
         private int status;
         private Instant timestamp;
 
-        public ErrorResponse(String errorCode, String message, int status) {
-            this.errorCode = errorCode;
+        public ErrorResponse(String messageCode, String message, int status) {
+            this.messageCode = messageCode;
             this.message = message;
             this.status = status;
             this.timestamp = Instant.now();
         }
 
-        public String getErrorCode() {
-            return errorCode;
+        public String getMessageCode() {
+            return messageCode;
         }
 
         public String getMessage() {
@@ -195,22 +195,22 @@ public class MasterDataExceptionHandler {
     }
 
     public static class ValidationErrorResponse {
-        private String errorCode;
+        private String messageCode;
         private String message;
         private int status;
         private Instant timestamp;
         private List<FieldError> fieldErrors;
 
-        public ValidationErrorResponse(String errorCode, String message, int status, List<FieldError> fieldErrors) {
-            this.errorCode = errorCode;
+        public ValidationErrorResponse(String messageCode, String message, int status, List<FieldError> fieldErrors) {
+            this.messageCode = messageCode;
             this.message = message;
             this.status = status;
             this.timestamp = Instant.now();
             this.fieldErrors = fieldErrors;
         }
 
-        public String getErrorCode() {
-            return errorCode;
+        public String getMessageCode() {
+            return messageCode;
         }
 
         public String getMessage() {

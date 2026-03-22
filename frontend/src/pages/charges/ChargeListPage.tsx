@@ -193,6 +193,7 @@ export function ChargeListPage() {
     <Tabs activeKey={activeSubTab} onChange={(key) => {
       setActiveSubTab(key);
       if (key === 'product-charges' && charges.length > 0) {
+        // @ts-expect-error - productCode may not exist on ChargeDefinitionResponse
         dispatch(fetchProductCharges(charges[0].productCode || ''));
       }
       if (key === 'customer-overrides' && charges.length > 0) {

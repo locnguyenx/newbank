@@ -1,86 +1,66 @@
-export type AccountType = 'CURRENT' | 'SAVINGS' | 'FIXED_DEPOSIT' | 'LOAN' | 'ESCROW';
-export type AccountStatus = 'PENDING' | 'ACTIVE' | 'DORMANT' | 'FROZEN' | 'CLOSED';
-export type Currency = string;  // Validated against Master Data
-export type AccountHolderRole = 'PRIMARY' | 'JOINT' | 'AUTHORIZED_SIGNATORY' | 'NOMINEE';
+// Re-export types from API
+import type { AccountResponse, AccountOpeningRequest, AccountHolderRequest } from '@/api/api';
+export type { AccountResponse, AccountOpeningRequest, AccountHolderRequest } from '@/api/api';
+import {
+  AccountResponseTypeEnum,
+  AccountResponseStatusEnum,
+} from '@/api/api';
+export {
+  AccountResponseTypeEnum,
+  AccountResponseStatusEnum,
+};
 
-export interface AccountResponse {
-  id: number;
-  accountNumber: string;
-  type: AccountType;
-  status: AccountStatus;
-  currency: Currency;
-  balance: number;
-  productId: number;
-  customerId?: number;
-  openedAt: string;
-  closedAt: string | null;
-}
-
-export interface AccountDetails {
-  id: number;
-  accountNumber: string;
-  type: AccountType;
-  status: AccountStatus;
-  currency: Currency;
-  balance: number;
-  productId: number;
-  customerId?: number;
-  openedAt: string;
-  closedAt: string | null;
-  accountBalance: {
-    availableBalance: number;
-    ledgerBalance: number;
-    holdAmount: number;
-    currency: Currency;
-  };
-  holders: AccountHolderSummary[];
+// Extend generated types with additional fields needed by frontend
+export interface AccountBalance {
+  availableBalance: number;
+  ledgerBalance: number;
+  holdAmount: number;
+  currency: string;
 }
 
 export interface AccountHolderSummary {
   id: number;
-  customerName: string;
-  role: AccountHolderRole;
-  status: string;
-  effectiveFrom: string;
+  customerId: number;
+  customerName?: string;
+  role: string;
 }
 
-export interface AccountStatementFilter {
-  fromDate: string;
-  toDate: string;
-  transactionType?: string;
-}
+// Account holder role options
+export const AccountHolderRole = {
+  PRIMARY: 'PRIMARY',
+  JOINT: 'JOINT',
+  SIGNATORY: 'SIGNATORY',
+  BENEFICIARY: 'BENEFICIARY',
+} as const;
+export type AccountHolderRole = typeof AccountHolderRole[keyof typeof AccountHolderRole];
 
+// Account statement type
 export interface AccountStatement {
+  id: number;
   accountNumber: string;
-  fromDate: string;
-  toDate: string;
+  periodStart: string;
+  periodEnd: string;
   openingBalance: number;
   closingBalance: number;
-  totalCredits: number;
-  totalDebits: number;
-  transactions: TransactionEntry[];
+  currency: string;
+  transactions: AccountTransaction[];
 }
 
-export interface TransactionEntry {
-  id: string;
+export interface AccountTransaction {
+  id: number;
   date: string;
   description: string;
   amount: number;
-  type: 'CREDIT' | 'DEBIT';
+  balance: number;
+  reference: string;
 }
 
-export interface AccountOpeningRequest {
-  customerId: number;
-  productCode: string;
-  type: AccountType;
-  currency: Currency;
-  initialDeposit: number;
-  holders: { customerId: number; role: AccountHolderRole }[];
-}
+// Re-export enums for convenience
+export type AccountType = typeof AccountResponseTypeEnum[keyof typeof AccountResponseTypeEnum];
+export type AccountStatus = typeof AccountResponseStatusEnum[keyof typeof AccountResponseStatusEnum];
 
-export interface CustomerAccountSummary {
-  customerId: number;
-  totalBalance: number;
-  accountCount: number;
-  currency: string;
-}
+// Re-export complex types used in services
+export type AccountDetails = AccountResponse & {
+  accountBalance?: AccountBalance;
+  holders?: AccountHolderSummary[];
+};

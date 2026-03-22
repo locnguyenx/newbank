@@ -1,16 +1,10 @@
 package com.banking.customer.exception;
 
-public class KYCNotFoundException extends RuntimeException {
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    private static final String ERROR_CODE_PREFIX = "KYC-";
-    private final String errorCode;
-
+public class KYCNotFoundException extends BaseException {
     public KYCNotFoundException(Long kycCheckId) {
-        super("KYC check not found with id: " + kycCheckId);
-        this.errorCode = ERROR_CODE_PREFIX + "001";
-    }
-
-    public String getErrorCode() {
-        return errorCode;
+        super(MessageCatalog.KYC_NOT_FOUND, "KYC check not found with id: " + kycCheckId);
     }
 }

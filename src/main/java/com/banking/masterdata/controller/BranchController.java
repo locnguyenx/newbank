@@ -1,6 +1,7 @@
 package com.banking.masterdata.controller;
 
 import com.banking.masterdata.dto.request.CreateBranchRequest;
+import com.banking.masterdata.dto.request.UpdateBranchRequest;
 import com.banking.masterdata.dto.response.BranchResponse;
 import com.banking.masterdata.service.BranchService;
 import jakarta.validation.Valid;
@@ -42,6 +43,14 @@ public class BranchController {
     @PutMapping("/{code}/deactivate")
     public ResponseEntity<BranchResponse> deactivateBranch(@PathVariable String code) {
         BranchResponse response = branchService.deactivateBranch(code);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{code}")
+    public ResponseEntity<BranchResponse> updateBranch(
+            @PathVariable String code,
+            @Valid @RequestBody UpdateBranchRequest request) {
+        BranchResponse response = branchService.updateBranch(code, request);
         return ResponseEntity.ok(response);
     }
 }

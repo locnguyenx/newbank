@@ -8,7 +8,7 @@ export const employmentService = {
   },
 
   create: async (data: CreateEmploymentPayload): Promise<Employment> => {
-    const response = await apiClient.post(`/customers/${data.customerId}/employees`, data);
+    const response = await apiClient.post(`/customers/${(data as any).customerId || (data as any).employerId}/employees`, data);
     return response.data;
   },
 

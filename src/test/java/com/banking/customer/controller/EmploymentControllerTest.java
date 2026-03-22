@@ -8,6 +8,7 @@ import com.banking.customer.domain.enums.CustomerStatus;
 import com.banking.customer.domain.enums.EmploymentStatus;
 import com.banking.customer.dto.BulkUploadResult;
 import com.banking.customer.exception.CustomerNotFoundException;
+import com.banking.common.controller.GlobalCatchAllExceptionHandler;
 import com.banking.customer.repository.CustomerRepository;
 import com.banking.customer.repository.EmploymentRelationshipRepository;
 import com.banking.customer.service.EmploymentRelationshipService;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmploymentController.class)
+@Import(GlobalCatchAllExceptionHandler.class)
 class EmploymentControllerTest {
 
     @Autowired
@@ -103,7 +106,7 @@ class EmploymentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("CUST-002"));
+                .andExpect(jsonPath("$.messageCode").value("CUSTOMER_001"));
     }
 
     @Test

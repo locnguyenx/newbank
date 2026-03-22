@@ -51,7 +51,7 @@ class KYCServiceTest {
         kycService = new KYCService(kycCheckRepository, kycDocumentRepository, officerAssignmentService, 
             sanctionsScreeningService, eventPublisher);
         testCustomer = new com.banking.customer.domain.entity.CorporateCustomer(
-            "CUST-001", "Test Corp", com.banking.customer.domain.enums.CustomerStatus.ACTIVE);
+            "CUSTOMER_002", "Test Corp", com.banking.customer.domain.enums.CustomerStatus.ACTIVE);
     }
 
     @Test

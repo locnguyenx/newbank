@@ -1,11 +1,10 @@
 package com.banking.account.exception;
 
-public class DuplicateAccountException extends RuntimeException {
-    public DuplicateAccountException(String accountNumber) {
-        super("Duplicate account number: " + accountNumber);
-    }
+import com.banking.common.exception.BaseException;
+import com.banking.common.message.MessageCatalog;
 
-    public String getErrorCode() {
-        return "ACCT-001";
+public class DuplicateAccountException extends BaseException {
+    public DuplicateAccountException(String accountNumber) {
+        super(MessageCatalog.ACCOUNT_ALREADY_EXISTS, "Account already exists: " + accountNumber);
     }
 }
