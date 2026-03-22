@@ -40,7 +40,7 @@ This project uses **Contract-First API Development** with OpenAPI 3.0 as the sin
 # Regenerate frontend types (if spec already exists)
 ./gradlew regenerateFrontendTypes
 
-# Full sync: export + generate types (requires running server)
+# Full sync: export + generate types (requires running server for export, or spec file exists to generate types only)
 ./gradlew syncOpenApi
 ```
 

@@ -243,6 +243,7 @@ cd frontend && npm run build
 
 **Or use sync command** (keeps frontend open):
 ```bash
+# Full sync: export + generate types (requires running server for export, or spec file exists to generate types only)
 ./gradlew syncOpenApi
 ```
 
