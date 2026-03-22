@@ -57,9 +57,10 @@ com/banking/common/
 │   │   ├── UserPrincipal.java            # Implements UserDetails
 │   │   └── dto/                          # LoginRequest, TokenResponse, MfaRequest
 │   ├── rbac/
-│   │   ├── Role.java                     # Enum: ADMIN, MAKER, CHECKER, VIEWER
+│   │   ├── Role.java                     # Enum: SYSTEM_ADMIN, HO_ADMIN, BRANCH_ADMIN, DEPARTMENT_MAKER, DEPARTMENT_CHECKER, DEPARTMENT_VIEWER, COMPANY_ADMIN, COMPANY_MAKER, COMPANY_CHECKER, COMPANY_VIEWER
 │   │   ├── ScopeType.java                # Enum: GLOBAL, BRANCH, DEPARTMENT, COMPANY
 │   │   ├── UserScope.java                # Maps user to scope (branch/company)
+│   │   ├── UserScopeRepository.java      # Query scopes by user, by scope
 │   │   ├── PermissionEvaluator.java      # Custom PermissionEvaluator for @PreAuthorize
 │   │   └── AmountThreshold.java          # Role + max approval amount
 │   ├── iam/
@@ -95,6 +96,8 @@ com/banking/common/
 │   │       ├── BulkImportRequest.java / BulkImportResult.java
 │   │       └── ActivityLogResponse.java
 │   └── mfa/
+│       ├── MfaSecret.java                # JPA entity: mfa_secrets table
+│       ├── MfaSecretRepository.java      # Persist/retrieve MFA secrets
 │       ├── TotpService.java              # Generate/verify TOTP codes
 │       ├── SmsOtpService.java            # Send/verify SMS OTP
 │       └── MfaConfig.java                # MFA provider configuration
@@ -111,25 +114,48 @@ com/banking/common/
     └── DomainEventListener.java          # Base listener with error handling
 ```
 
+### Kafka Topics
+
+| Topic | Partitions | Consumer Group | Events |
+|-------|-----------|----------------|--------|
+| `customer-events` | 3 | `customer-consumer-group` | CustomerCreated, CustomerUpdated, CustomerDeactivated |
+| `kyc-events` | 3 | `kyc-consumer-group` | KYCStatusChanged, SanctionsScreeningCompleted |
+| `account-events` | 3 | `account-consumer-group` | AccountOpened, AccountClosed |
+| `audit-events` | 3 | `audit-consumer-group` | (future: cross-module audit streaming) |
+
 ## 3. Data Model
 
 ### New Tables
 
 ```sql
+-- Users (core identity table)
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    user_type VARCHAR(20) NOT NULL,     -- INTERNAL, EXTERNAL
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',  -- ACTIVE, INACTIVE, LOCKED
+    mfa_enabled BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
 -- Refresh tokens
 CREATE TABLE refresh_tokens (
     id BIGSERIAL PRIMARY KEY,
     token_hash VARCHAR(64) NOT NULL UNIQUE,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users(id),
     expires_at TIMESTAMP NOT NULL,
     revoked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL
 );
 
+CREATE INDEX idx_refresh_tokens_user ON refresh_tokens(user_id);
+
 -- MFA secrets
 CREATE TABLE mfa_secrets (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES users(id),
     totp_secret VARCHAR(64),
     mfa_type VARCHAR(20) NOT NULL,  -- TOTP, SMS
     enabled BOOLEAN DEFAULT FALSE,
@@ -267,7 +293,7 @@ Controllers are already at `/api/...`. When gateway is added, it proxies to the 
 
 | Layer | What | Depends on |
 |-------|------|-----------|
-| **0** | Fix foundation module `api` packages (5 modules) | None |
+| **0** | Fix foundation module `api` packages (5 modules) — add `<module>.api` package with service interfaces, move cross-module imports to use api/dto only (see AGENTS.md Architecture Enforcement) | None |
 | **1a** | Spring Security + JWT + Auth endpoints | Layer 0 |
 | **1b** | RBAC + user scopes + approval thresholds | Layer 1a |
 | **1c** | MFA (TOTP + SMS) | Layer 1a |

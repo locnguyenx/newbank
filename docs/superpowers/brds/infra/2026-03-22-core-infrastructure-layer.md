@@ -42,6 +42,7 @@ Establish the foundational infrastructure that all banking modules depend on —
 - **US-1** As a bank user, I can log in with email and password to receive JWT access and refresh tokens
 - **US-2** As a bank user, I can refresh my access token without re-entering credentials
 - **US-3** As a bank user, I must complete MFA (TOTP or SMS) after password login
+- **US-3b** As a bank user, I can enroll in MFA by scanning a QR code to set up TOTP
 
 #### IAM: Role Management (System Admin)
 
@@ -88,6 +89,7 @@ Establish the foundational infrastructure that all banking modules depend on —
 | US-1 | FR-01, FR-02 |
 | US-2 | FR-03 |
 | US-3 | FR-04 |
+| US-3b | FR-04 |
 | US-4 | FR-16 |
 | US-5 | FR-16 |
 | US-6 | FR-16 |
