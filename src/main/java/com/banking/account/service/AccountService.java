@@ -21,14 +21,12 @@ import com.banking.account.dto.AccountHolderRequest;
 import com.banking.account.dto.AccountResponse;
 import com.banking.customer.api.CustomerQueryService;
 import com.banking.customer.api.dto.CustomerDTO;
-import com.banking.product.dto.response.ProductVersionResponse;
-import com.banking.product.service.ProductQueryService;
-import com.banking.limits.service.LimitCheckService;
+import com.banking.product.api.ProductQueryService;
+import com.banking.product.api.dto.ProductVersionDTO;
+import com.banking.limits.api.LimitCheckService;
+import com.banking.limits.api.dto.LimitCheckResult;
 import com.banking.limits.service.LimitAssignmentService;
-import com.banking.limits.dto.request.LimitCheckRequest;
-import com.banking.limits.dto.response.LimitCheckResponse;
 import com.banking.limits.dto.response.ProductLimitResponse;
-import com.banking.limits.domain.enums.LimitCheckResult;
 import com.banking.masterdata.repository.CurrencyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -98,7 +96,7 @@ public class AccountService {
             throw new IllegalArgumentException("Currency is inactive: " + request.getCurrency());
         }
 
-        Optional<ProductVersionResponse> productVersion = productQueryService.getActiveProductByCode(request.getProductCode());
+        Optional<ProductVersionDTO> productVersion = productQueryService.findActiveVersionByCode(request.getProductCode());
 
         Long productId = null;
         Long productVersionId = null;
@@ -167,19 +165,15 @@ public class AccountService {
         account.setBalance(request.getInitialDeposit());
         account.setStatus(AccountStatus.ACTIVE);
 
-        LimitCheckRequest limitRequest = new LimitCheckRequest();
-        limitRequest.setAccountNumber(accountNumber);
-        limitRequest.setCustomerId(customerId);
-        limitRequest.setProductCode(request.getProductCode());
-        limitRequest.setTransactionAmount(request.getInitialDeposit() != null ? request.getInitialDeposit() : BigDecimal.ZERO);
-        limitRequest.setCurrency(request.getCurrency() != null ? request.getCurrency() : "USD");
-        limitRequest.setTransactionReference("ACCT-OPEN-" + accountNumber);
-        limitRequest.setLimitType("PER_TRANSACTION");
+        LimitCheckResult limitResult = limitCheckService.checkLimit(
+                customerId,
+                "PER_TRANSACTION",
+                request.getInitialDeposit() != null ? request.getInitialDeposit() : BigDecimal.ZERO,
+                request.getCurrency() != null ? request.getCurrency() : "USD"
+        );
 
-        LimitCheckResponse limitResponse = limitCheckService.checkLimit(limitRequest);
-
-        if (limitResponse.getResult() == LimitCheckResult.REJECTED) {
-            throw new InvalidAccountStateException("LIMIT_001", "Account opening exceeds limits: " + limitResponse.getRejectionReason());
+        if (!limitResult.isApproved()) {
+            throw new InvalidAccountStateException("LIMIT_001", "Account opening exceeds limits: " + limitResult.getReason());
         }
 
         account = accountRepository.save(account);

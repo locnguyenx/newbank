@@ -1,6 +1,6 @@
 package com.banking.product.service;
 
-import com.banking.customer.domain.enums.CustomerType;
+import com.banking.product.domain.enums.CustomerType;
 import com.banking.product.domain.entity.ProductCustomerSegment;
 import com.banking.product.domain.entity.ProductVersion;
 import com.banking.product.domain.enums.ProductStatus;

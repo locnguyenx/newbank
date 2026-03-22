@@ -1,5 +1,7 @@
 package com.banking.charges.service;
 
+import com.banking.charges.api.ChargeCalculationService;
+import com.banking.charges.api.dto.ChargeResult;
 import com.banking.charges.domain.entity.*;
 import com.banking.charges.domain.enums.CalculationMethod;
 import com.banking.charges.domain.enums.ChargeStatus;
@@ -13,11 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class ChargeCalculationService {
+public class ChargeCalculationServiceImpl implements ChargeCalculationService {
 
     private final CustomerChargeOverrideRepository customerOverrideRepository;
     private final ProductChargeRepository productChargeRepository;
@@ -27,13 +30,13 @@ public class ChargeCalculationService {
     private final ChargeDefinitionRepository chargeDefinitionRepository;
     private final InterestRateService interestRateService;
 
-    public ChargeCalculationService(CustomerChargeOverrideRepository customerOverrideRepository,
-                                   ProductChargeRepository productChargeRepository,
-                                   ChargeRuleRepository chargeRuleRepository,
-                                   ChargeTierRepository chargeTierRepository,
-                                   FeeWaiverRepository feeWaiverRepository,
-                                   ChargeDefinitionRepository chargeDefinitionRepository,
-                                   InterestRateService interestRateService) {
+    public ChargeCalculationServiceImpl(CustomerChargeOverrideRepository customerOverrideRepository,
+                                    ProductChargeRepository productChargeRepository,
+                                    ChargeRuleRepository chargeRuleRepository,
+                                    ChargeTierRepository chargeTierRepository,
+                                    FeeWaiverRepository feeWaiverRepository,
+                                    ChargeDefinitionRepository chargeDefinitionRepository,
+                                    InterestRateService interestRateService) {
         this.customerOverrideRepository = customerOverrideRepository;
         this.productChargeRepository = productChargeRepository;
         this.chargeRuleRepository = chargeRuleRepository;
@@ -41,6 +44,33 @@ public class ChargeCalculationService {
         this.feeWaiverRepository = feeWaiverRepository;
         this.chargeDefinitionRepository = chargeDefinitionRepository;
         this.interestRateService = interestRateService;
+    }
+
+    @Override
+    public ChargeResult calculateCharge(Long productId, String chargeType, BigDecimal amount, String currency) {
+        ChargeCalculationRequest request = new ChargeCalculationRequest();
+        request.setChargeType(chargeType);
+        request.setTransactionAmount(amount);
+
+        ChargeCalculationResponse response = calculate(request);
+
+        return new ChargeResult(chargeType, response.getFinalAmount(), currency, null);
+    }
+
+    @Override
+    public List<ChargeResult> calculateAllCharges(Long productId, BigDecimal amount, String currency) {
+        List<ChargeResult> results = new ArrayList<>();
+        List<ChargeDefinition> activeDefinitions = chargeDefinitionRepository.findAll()
+                .stream()
+                .filter(cd -> cd.getStatus() == ChargeStatus.ACTIVE)
+                .toList();
+
+        for (ChargeDefinition definition : activeDefinitions) {
+            ChargeResult result = calculateCharge(productId, definition.getChargeType().name(), amount, currency);
+            results.add(result);
+        }
+
+        return results;
     }
 
     public ChargeCalculationResponse calculate(ChargeCalculationRequest request) {

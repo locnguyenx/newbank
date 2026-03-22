@@ -1,6 +1,6 @@
 package com.banking.product.dto.request;
 
-import com.banking.customer.domain.enums.CustomerType;
+import com.banking.product.domain.enums.CustomerType;
 import com.banking.product.domain.enums.ProductFamily;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

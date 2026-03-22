@@ -1,9 +1,9 @@
 package com.banking.masterdata.service;
 
+import com.banking.masterdata.api.dto.CurrencyDTO;
 import com.banking.masterdata.dto.response.BranchResponse;
 import com.banking.masterdata.dto.response.ChannelResponse;
 import com.banking.masterdata.dto.response.CountryResponse;
-import com.banking.masterdata.dto.response.CurrencyResponse;
 import com.banking.masterdata.dto.response.DocumentTypeResponse;
 import com.banking.masterdata.dto.response.IndustryResponse;
 import com.banking.masterdata.repository.BranchRepository;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class MasterDataQueryService {
+public class MasterDataQueryService implements com.banking.masterdata.api.MasterDataQueryService {
 
     private final CurrencyRepository currencyRepository;
     private final CountryRepository countryRepository;
@@ -50,9 +50,17 @@ public class MasterDataQueryService {
         this.documentTypeRepository = documentTypeRepository;
     }
 
-    public List<CurrencyResponse> getActiveCurrencies() {
+    @Override
+    public List<CurrencyDTO> getActiveCurrencies() {
         return currencyRepository.findByIsActiveTrue().stream()
-                .map(CurrencyResponse::fromEntity)
+                .map(currency -> {
+                    CurrencyDTO dto = new CurrencyDTO();
+                    dto.setCode(currency.getCode());
+                    dto.setName(currency.getName());
+                    dto.setDecimalPlaces(currency.getDecimalPlaces());
+                    dto.setActive(currency.isActive());
+                    return dto;
+                })
                 .toList();
     }
 
@@ -68,10 +76,12 @@ public class MasterDataQueryService {
                 .toList();
     }
 
+    @Override
     public BigDecimal convertAmount(String base, String target, BigDecimal amount) {
         return exchangeRateService.convertAmount(base, target, amount);
     }
 
+    @Override
     public boolean isHoliday(String countryCode, LocalDate date) {
         return holidayService.isHoliday(countryCode, date);
     }

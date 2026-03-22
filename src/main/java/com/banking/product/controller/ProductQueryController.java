@@ -1,10 +1,10 @@
 package com.banking.product.controller;
 
-import com.banking.customer.domain.enums.CustomerType;
+import com.banking.product.domain.enums.CustomerType;
 import com.banking.product.domain.enums.ProductFamily;
 import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.dto.response.ProductVersionResponse;
-import com.banking.product.service.ProductQueryService;
+import com.banking.product.service.ProductQueryServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("/api/product-query")
 public class ProductQueryController {
 
-    private final ProductQueryService productQueryService;
+    private final ProductQueryServiceImpl productQueryService;
 
-    public ProductQueryController(ProductQueryService productQueryService) {
+    public ProductQueryController(ProductQueryServiceImpl productQueryService) {
         this.productQueryService = productQueryService;
     }
 

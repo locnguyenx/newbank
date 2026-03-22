@@ -1,6 +1,6 @@
 package com.banking.product.domain.entity;
 
-import com.banking.customer.domain.enums.CustomerType;
+import com.banking.product.domain.enums.CustomerType;
 import com.banking.product.domain.embeddable.AuditFields;
 import jakarta.persistence.*;
 

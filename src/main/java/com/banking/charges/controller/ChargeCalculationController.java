@@ -2,7 +2,7 @@ package com.banking.charges.controller;
 
 import com.banking.charges.dto.request.ChargeCalculationRequest;
 import com.banking.charges.dto.response.ChargeCalculationResponse;
-import com.banking.charges.service.ChargeCalculationService;
+import com.banking.charges.service.ChargeCalculationServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/charges")
 public class ChargeCalculationController {
 
-    private final ChargeCalculationService calculationService;
+    private final ChargeCalculationServiceImpl calculationService;
 
-    public ChargeCalculationController(ChargeCalculationService calculationService) {
+    public ChargeCalculationController(ChargeCalculationServiceImpl calculationService) {
         this.calculationService = calculationService;
     }
 

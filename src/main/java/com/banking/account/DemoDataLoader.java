@@ -17,7 +17,8 @@ import com.banking.product.domain.enums.ProductFamily;
 import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.repository.ProductRepository;
 import com.banking.product.repository.ProductVersionRepository;
-import com.banking.product.service.ProductQueryService;
+import com.banking.product.api.ProductQueryService;
+import com.banking.product.api.dto.ProductVersionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -153,10 +154,10 @@ public class DemoDataLoader implements CommandLineRunner {
         if (individual == null) throw new RuntimeException("Demo customer CUST-003 not found. Ensure CustomerDemoDataLoader runs first.");
         Long individualId = individual.getId();
 
-        var pvCurrent = productQueryService.getActiveProductByCode("CURRENT").orElseThrow();
-        var pvSavings = productQueryService.getActiveProductByCode("SAVINGS").orElseThrow();
-        var pvFd = productQueryService.getActiveProductByCode("FIXED-DEPOSIT").orElseThrow();
-        var pvLoan = productQueryService.getActiveProductByCode("LOAN").orElseThrow();
+        var pvCurrent = productQueryService.findActiveVersionByCode("CURRENT").orElseThrow();
+        var pvSavings = productQueryService.findActiveVersionByCode("SAVINGS").orElseThrow();
+        var pvFd = productQueryService.findActiveVersionByCode("FIXED-DEPOSIT").orElseThrow();
+        var pvLoan = productQueryService.findActiveVersionByCode("LOAN").orElseThrow();
 
         CurrentAccount corporateCurrent = new CurrentAccount(
                 "ACC-001", corporateId, pvCurrent.getProductId(), "USD",
