@@ -24,7 +24,7 @@ Modern digital banking system for corporate and SME banking, focusing on busines
 
 ## Documentation
 - `docs` - at project root
-- Master Plan: `docs/superpowers/specs/2026-03-19-master-implementation-plan.md`
+- Master Plan: `docs/superpowers/plans/2026-03-19-master-implementation-plan.md`
 - Master System Design: `docs/superpowers/architecture/system-design.md`
 - brds location: `docs/superpowers/brds/`
 - specs location: `docs/superpowers/specs/`

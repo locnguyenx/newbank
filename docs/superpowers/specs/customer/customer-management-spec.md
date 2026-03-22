@@ -1214,12 +1214,12 @@ Each exception class must define `ERROR_CODE` as a public constant:
 ## Related Documents
 
 - [System Design](docs/superpowers/architecture/system-design.md))
-- [Master Implementation Plan](../2026-03-19-master-implementation-plan.md)
-- [Account Management Spec](./account-management-spec.md)
+- [Master Implementation Plan](docs/superpowers/plans/2026-03-19-master-implementation-plan.md)
+- [Account Management Spec](../account/design.md)
 - [Cash Management Spec](./cash-management-spec.md)
 - [Trade Finance Spec](./trade-finance-spec.md)
 - [Payments Spec](./payments-spec.md)
-- [Product Configuration Spec](./product-configuration-spec.md)
-- [Limits Management Spec](./limits-management-spec.md)
-- [Charges Management Spec](./charges-management-spec.md)
-- [Master Data Spec](./master-data-spec.md)
+- [Product Configuration Spec](../product/design.md)
+- [Limits Management Spec](../limits/design.md)
+- [Charges Management Spec](../charges/design.md)
+- [Master Data Spec](../master-data/design.md)

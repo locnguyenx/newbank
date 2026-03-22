@@ -865,13 +865,13 @@ All financial operations generate immutable audit records:
 
 ## Related Documents
 
-- [Master Implementation Plan](./master-implementation-plan.md)
-- [Customer Management Spec](./modules/customer-management-spec.md)
-- [Account Management Spec](./modules/account-management-spec.md)
-- [Cash Management Spec](./modules/cash-management-spec.md)
-- [Trade Finance Spec](./modules/trade-finance-spec.md)
-- [Payments Spec](./modules/payments-spec.md)
-- [Product Configuration Spec](./modules/product-configuration-spec.md)
-- [Limits Management Spec](./modules/limits-management-spec.md)
-- [Charges Management Spec](./modules/charges-management-spec.md)
-- [Master Data Spec](./modules/master-data-spec.md)
+- [Master Implementation Plan](docs/superpowers/plans/2026-03-19-master-implementation-plan.md)
+- [Customer Management Spec](../specs/customer/design.md)
+- [Account Management Spec](../specs/account/design.md)
+- [Cash Management Spec](./cash-management-spec.md)
+- [Trade Finance Spec](./trade-finance-spec.md)
+- [Payments Spec](./payments-spec.md)
+- [Product Configuration Spec](../specs/product/design.md)
+- [Limits Management Spec](../specs/limits/design.md)
+- [Charges Management Spec](../specs/charges/design.md)
+- [Master Data Spec](../specs/master-data/design.md)
