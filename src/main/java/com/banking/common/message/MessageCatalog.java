@@ -27,7 +27,13 @@ public final class MessageCatalog {
     public static final String LIMIT_EXCEEDED = "LIMIT_001";
     public static final String LIMIT_NOT_FOUND = "LIMIT_002";
     
-    public static final String AUTH_NOT_FOUND = "AUTH_001";
+    public static final String AUTH_NOT_FOUND = "AUTH_007";
+    public static final String AUTH_INVALID_CREDENTIALS = "AUTH_001";
+    public static final String AUTH_TOKEN_EXPIRED = "AUTH_002";
+    public static final String AUTH_INVALID_TOKEN = "AUTH_003";
+    public static final String AUTH_MFA_REQUIRED = "AUTH_004";
+    public static final String AUTH_MFA_INVALID = "AUTH_005";
+    public static final String AUTH_ACCOUNT_LOCKED = "AUTH_006";
     
     public static final String KYC_NOT_FOUND = "KYC_001";
     public static final String KYC_INVALID_STATE = "KYC_002";
@@ -68,6 +74,12 @@ public final class MessageCatalog {
         MESSAGES.put(LIMIT_NOT_FOUND, "Limit not found");
         
         MESSAGES.put(AUTH_NOT_FOUND, "Authorization not found");
+        MESSAGES.put(AUTH_INVALID_CREDENTIALS, "Invalid email or password");
+        MESSAGES.put(AUTH_TOKEN_EXPIRED, "Your session has expired. Please log in again.");
+        MESSAGES.put(AUTH_INVALID_TOKEN, "Invalid or malformed authentication token");
+        MESSAGES.put(AUTH_MFA_REQUIRED, "Multi-factor authentication required");
+        MESSAGES.put(AUTH_MFA_INVALID, "Invalid multi-factor authentication code");
+        MESSAGES.put(AUTH_ACCOUNT_LOCKED, "Your account has been locked. Please contact support.");
         
         MESSAGES.put(KYC_NOT_FOUND, "KYC record not found");
         MESSAGES.put(KYC_INVALID_STATE, "Invalid KYC state for this operation");
