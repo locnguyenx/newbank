@@ -725,11 +725,21 @@ if (response.isApprovalRequired()) {
 
 The Limits module listens for `AccountOpenedEvent` published by the Account module to automatically assign product limits when a new account is created.
 
+**Architectural Compliance (AGENTS.md Rule 4):**
+- **Async for side-effects:** Limit assignment is a side-effect (not part of account creation transaction)
+- **Rule 4 Rationale:** This separation improves resilience - if limit assignment fails, account creation still succeeds
+- **Reference:** See `AGENTS.md` section "## Architecture Enforcement" → "Rule 4: Async for side-effects, sync for validation"
+
 **Why Event-Driven?**
 - **Loose Coupling:** Account module doesn't directly call `LimitAssignmentService`; it just publishes an event
 - **Resilience:** Limit assignment failures don't block account creation (fire-and-forget)
 - **Change Isolation:** Account module can change without affecting limits; limits logic can change without account changes
 - **Architectural Compliance:** Eliminates direct dependency on `LimitAssignmentService` (was violating module boundaries)
+
+**Module Boundary Compliance:**
+- Account module publishes events (no direct import of limits classes) ✅
+- Limits module consumes events (imports `AccountOpenedEvent` from account module's `event` package) ✅
+- No direct service-to-service calls across modules ✅
 
 **Event Listener Implementation:**
 
@@ -789,7 +799,27 @@ The `AccountOpenedEvent` provides all necessary data:
 
 ---
 
-## 8. Error Handling
+## 8. Implementation Guardrails
+
+**For Future Developers:**
+The Limits module is a **foundation module** that provides APIs to business modules. When implementing new features:
+
+1. **Maintain API stability:** All public services (`LimitCheckService`, `LimitAssignmentService`) are in `com.banking.limits.api` package
+2. **Event consumption:** When consuming events from other modules (like `AccountOpenedEvent`), keep error handling defensive - never let consumer failures affect event publishers
+3. **Module boundaries:** When integrating with other modules, only import from their `.api` or `.dto` packages (never `.domain.entity`, `.repository`, `.service`)
+4. **Test coverage:** Ensure unit tests mock dependencies using API interfaces, not implementations
+
+**Code Review Checklist:**
+- [ ] New dependencies are on API interfaces, not implementations
+- [ ] Event listeners are defensive (catch + log, don't rethrow)
+- [ ] No direct database queries to other modules' tables (use services)
+- [ ] No circular dependencies introduced
+
+See `AGENTS.md` for the complete architecture enforcement rules.
+
+---
+
+## 9. Error Handling
 
 | Exception | Error Code | HTTP Status | Trigger |
 |-----------|-----------|-------------|---------|
