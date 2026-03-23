@@ -1,7 +1,7 @@
 # Customer Management Module Specification
 
 **Module:** Customer Management (Foundation)  
-**Version:** 1.1  
+**Version:** 1.1
 **Date:** 2026-03-19  
 **Status:** Draft  
 **Updated:** Added frontend, Core Banking integration, third-party integration
