@@ -472,3 +472,17 @@ public class DomainEventPublisher {
 ---
 
 ## 10. Deferred Infrastructure (Future Implementation)
+
+| Item | Current State | When to Implement | Impact if Deferred |
+|------|--------------|-------------------|-------------------|
+| **CI/CD Pipeline** | None | Phase 2 | No code changes needed, pure DevOps |
+| **Monitoring (Actuator + Prometheus/Grafana)** | None | Phase 2 | Add Spring Boot Actuator dependency + metrics config. Minimal refactoring. |
+| **API Gateway (Kong/Spring Cloud Gateway)** | Conventions defined | Phase 2-3 | Routes proxy to existing `/api/...` paths. No controller changes needed. |
+| **PostgreSQL (production)** | H2 for dev/tests | Phase 2 | Flyway migrations already target PostgreSQL. Switch datasource config only. |
+| **ELK Stack (Centralized Logging)** | Basic Spring logging | Phase 3 | Add Logback JSON encoder + Filebeat. No code changes. |
+| **Vault (Secrets Management)** | None | Phase 3 | Replace `application.yml` secrets with Vault paths. Config change only. |
+| **Distributed Tracing (Jaeger/Zipkin)** | None | Phase 3 | Add Micrometer Tracing + Brave. Minimal code changes. |
+| **Kafka Schema Registry** | None | Phase 3 | Add Avro/JSON Schema for event contracts. No existing code changes. |
+| **SSO Integration (Azure AD)** | None | When required | Add OAuth2 social login flow alongside existing username/password. Auth controller handles both paths. |
+| **Company Admin: Request new accounts** | None | Phase 2 | Extends self-service portal. Depends on Account module API. |
+| **Company Admin: Manage signatories** | None | Phase 2 | Extends self-service portal. Depends on Customer module authorization. |
