@@ -1,6 +1,7 @@
 package com.banking.common.security.auth;
 
 import com.banking.common.security.auth.dto.LoginRequest;
+import com.banking.common.security.auth.dto.MfaEnrollResponse;
 import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
 import com.banking.common.security.auth.exception.InvalidCredentialsException;
@@ -14,7 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -101,5 +104,33 @@ public class AuthService {
         refreshTokenRepository.save(newRefreshToken);
 
         return new TokenResponse(accessToken, newRefreshTokenValue, jwtConfig.getAccessTokenExpiry());
+    }
+
+    @Transactional
+    public MfaEnrollResponse enrollMfa(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        String secret = generateTotpSecret();
+
+        user.setMfaSecret(secret);
+        user.setMfaEnabled(true);
+        userRepository.save(user);
+
+        String qrCodeUrl = String.format("otpauth://totp/BankingApp:%s?secret=%s&issuer=BankingApp",
+                user.getEmail(), secret);
+
+        return new MfaEnrollResponse(secret, qrCodeUrl);
+    }
+
+    private String generateTotpSecret() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes)
+                .replace("+", "")
+                .replace("/", "")
+                .replace("=", "")
+                .toUpperCase();
     }
 }

@@ -1,6 +1,7 @@
 package com.banking.common.security.auth;
 
 import com.banking.common.security.auth.dto.LoginRequest;
+import com.banking.common.security.auth.dto.MfaEnrollResponse;
 import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
 import com.banking.common.security.entity.RefreshTokenRepository;
@@ -145,5 +146,19 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void enrollMfa_shouldReturnMfaEnrollResponse() throws Exception {
+        MfaEnrollResponse enrollResponse = new MfaEnrollResponse(
+                "JBSWY3DPEHPK3PXP",
+                "otpauth://totp/BankingApp:test@bank.com?secret=JBSWY3DPEHPK3PXP&issuer=BankingApp"
+        );
+        when(authService.enrollMfa(any())).thenReturn(enrollResponse);
+
+        mockMvc.perform(post("/api/auth/mfa/enroll"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.secret").value("JBSWY3DPEHPK3PXP"))
+                .andExpect(jsonPath("$.qrCodeUrl").value("otpauth://totp/BankingApp:test@bank.com?secret=JBSWY3DPEHPK3PXP&issuer=BankingApp"));
     }
 }

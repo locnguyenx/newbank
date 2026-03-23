@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (user != null) {
                 UsernamePasswordAuthenticationToken authentication = 
                     new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
+                        user.getId(),
                         null,
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserType().name()))
                     );

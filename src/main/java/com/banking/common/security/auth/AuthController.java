@@ -1,11 +1,14 @@
 package com.banking.common.security.auth;
 
 import com.banking.common.security.auth.dto.LoginRequest;
+import com.banking.common.security.auth.dto.MfaEnrollResponse;
 import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +44,21 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).build();
         }
+    }
+
+    @PostMapping("/mfa/enroll")
+    public ResponseEntity<MfaEnrollResponse> enrollMfa() {
+        Long userId = getCurrentUserId();
+        MfaEnrollResponse response = authService.enrollMfa(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Long) {
+            return (Long) authentication.getPrincipal();
+        }
+        throw new BadCredentialsException("User not authenticated");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

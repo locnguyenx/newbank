@@ -38,6 +38,9 @@ public class User {
     @Column(name = "mfa_enabled")
     private boolean mfaEnabled = false;
 
+    @Column(name = "mfa_secret")
+    private String mfaSecret;
+
     @Embedded
     private AuditFields auditFields = new AuditFields("system");
 
@@ -96,6 +99,14 @@ public class User {
 
     public void setMfaEnabled(boolean mfaEnabled) {
         this.mfaEnabled = mfaEnabled;
+    }
+
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
     }
 
     public AuditFields getAuditFields() {
