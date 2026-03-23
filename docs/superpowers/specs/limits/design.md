@@ -809,13 +809,31 @@ The Limits module is a **foundation module** that provides APIs to business modu
 3. **Module boundaries:** When integrating with other modules, only import from their `.api` or `.dto` packages (never `.domain.entity`, `.repository`, `.service`)
 4. **Test coverage:** Ensure unit tests mock dependencies using API interfaces, not implementations
 
+### Communication Patterns Reference
+
+The Limits module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Limits Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous limit checks that affect immediate response | Other modules call `limitCheckService.checkLimit()` |
+| **Event Publishing** | Asynchronous notifications of limit changes (optional) | `LimitExceededEvent` published if limit is exceeded |
+| **Event Consumption** | Asynchronous processing of events from other modules | `AccountOpenedEvent` listener assigns limits |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Limit checks that need immediate result (rejection/approval)
+- Use **Event Publishing/Consumption** for: Asynchronous processing that doesn't block primary transaction
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 **Code Review Checklist:**
 - [ ] New dependencies are on API interfaces, not implementations
 - [ ] Event listeners are defensive (catch + log, don't rethrow)
 - [ ] No direct database queries to other modules' tables (use services)
 - [ ] No circular dependencies introduced
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for the complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 

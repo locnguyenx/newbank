@@ -1230,14 +1230,31 @@ Customer module publishes events (via `CustomerEventPublisher`) for:
 
 These events should contain minimal data (IDs, status codes) and allow other modules to react without blocking the primary transaction.
 
+### Communication Patterns Reference
+
+The Customer module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Customer Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous validation when other modules need customer data | Other modules call `customerQueryService.findById()` |
+| **Event Publishing** | Asynchronous notifications of customer lifecycle changes | `KYCApprovedEvent` published when KYC verification completes |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Queries that need immediate result
+- Use **Event Publishing** for: Notifications of state changes that other modules may react to
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 **Code Review Checklist:**
 - [ ] New API interfaces are placed in `.api` package and are stable
 - [ ] DTOs are in `.dto` package and contain no JPA annotations
 - [ ] Domain events extend `ApplicationEvent` and contain necessary data for consumers
 - [ ] No direct repository access from other modules exposed in service interfaces
 - [ ] No circular dependencies introduced (e.g., customer shouldn't call account if account calls customer)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 

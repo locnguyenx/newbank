@@ -650,6 +650,22 @@ src/
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Communication Pattern Guidance
+
+For internal cross-module communication, use **both** patterns based on the use case:
+
+| Scenario | Pattern | Rationale | Example |
+|----------|---------|-----------|---------|
+| **Validation** (needs immediate result for response) | **Direct Interface Call** | Synchronous call returns result immediately; caller needs the result to proceed | AccountService calls `limitCheckService.checkLimit()` to validate transaction before account opening |
+| **Side-effect** (fire-and-forget) | **Event Publishing** | Asynchronous notification; publisher doesn't need to wait for consumer to process | AccountService publishes `AccountOpenedEvent`; Limits module assigns limits asynchronously |
+
+**Key Principle:** See AGENTS.md Rule 4:
+> "Async for side-effects, sync for validation"
+> - Use domain events (`@EventListener`) for: Notifications, analytics, cache updates, limit assignments, fee applications
+> - Use direct service calls for: Validation that affects immediate response, required data for business logic computations
+
+**Both patterns are valid** for internal module communication. The Module Communication diagram shows Event Bus for asynchronous patterns; direct interface calls remain appropriate for synchronous validation.
+
 ### External Integration
 
 ```

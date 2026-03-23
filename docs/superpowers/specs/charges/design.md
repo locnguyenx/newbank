@@ -940,6 +940,21 @@ Charges module may depend on:
 
 All dependencies must be on **API interfaces** only, not implementations.
 
+### Communication Patterns Reference
+
+The Charges module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Charges Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous fee/interest calculations | Other modules call `chargeCalculationService.calculate()` |
+| **Event Publishing** | Asynchronous notifications of fee-related changes | `ChargeAppliedEvent` published when charges are applied |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Fee/interest calculations that need immediate result
+- Use **Event Publishing** for: Notifications of charge events that other modules may react to
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 **Code Review Checklist:**
 - [ ] All public services are in `.api` package
 - [ ] All external-facing DTOs are in `.dto` package
@@ -947,8 +962,10 @@ All dependencies must be on **API interfaces** only, not implementations.
 - [ ] No direct repository dependencies in service APIs
 - [ ] No circular dependencies (charges should not be called by products that it depends on)
 - [ ] Event publishing for side-effects (audit, notifications)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 

@@ -1115,6 +1115,21 @@ The Product module is a **foundation module** that provides product catalog serv
 - `ProductVersionCreatedEvent` - when new version is created
 - Events should contain minimal data (IDs, codes, status); consumers fetch details via API if needed
 
+### Communication Patterns Reference
+
+The Product module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Product Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous queries for product data | Other modules call `productQueryService.findByCode()` |
+| **Event Publishing** | Asynchronous notifications of product lifecycle changes | `ProductActivatedEvent` published when product becomes available |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Queries that need immediate result
+- Use **Event Publishing** for: Notifications of state changes that other modules may react to
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 **Code Review Checklist:**
 - [ ] New services added to `.api` package, not `.service`
 - [ ] DTOs used by other modules are in `.dto` package
@@ -1122,8 +1137,10 @@ The Product module is a **foundation module** that provides product catalog serv
 - [ ] No direct repository access in API interfaces
 - [ ] Events are published for lifecycle changes that affect other modules
 - [ ] No circular dependencies (product should not depend on account/payments/etc.)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 

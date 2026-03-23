@@ -386,7 +386,26 @@ Each exception class must define `ERROR_CODE` as a public constant:
 ## Implementation Guardrails
 
 **For Future Developers:**
-When adding new features to the Account module, always verify compliance with the Module Boundary Rules (AGENTS.md). Before implementing cross-module integration:
+When adding new features to the Account module, always verify compliance with the Module Boundary Rules (AGENTS.md) and the Communication Pattern Guidance (System Design, Section 7.1).
+
+### Communication Patterns Reference
+
+The Account module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Account Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous validation that affects immediate response | `limitCheckService.checkLimit()` before account opening |
+| **Event Publishing** | Asynchronous side-effects (fire-and-forget) | `AccountOpenedEvent` for limit assignment |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Validation that needs immediate result for response
+- Use **Event Publishing** for: Side-effects that can happen asynchronously
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
+### Cross-Module Integration Checklist
+
+Before implementing cross-module integration:
 
 1. **Check for existing API** in the target module (`<module>.api` package)
 2. **If API doesn't exist**, request the target module team to create one (do NOT import internal packages)
@@ -412,8 +431,10 @@ private CurrencyRepository currencyRepository; // Violates Rule 2!
 - [ ] No JPA relationships to entities in other modules
 - [ ] Side-effects use events (unless synchronous validation required)
 - [ ] New dependencies don't create circular module dependencies
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for the complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ### Dependencies
 - Customer module (for customer data and validation)

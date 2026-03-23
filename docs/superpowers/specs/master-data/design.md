@@ -879,6 +879,21 @@ Master Data owns:
 
 Other modules reference these by **code** (String) or **ID** (Long), never by JPA entity.
 
+### Communication Patterns Reference
+
+The Master Data module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Master Data Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous queries for reference data | Other modules call `currencyQueryService.findByCode()` |
+| **Event Publishing** | Asynchronous notifications of reference data changes (optional) | `CurrencyUpdatedEvent` published if currency is deactivated |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Queries that need immediate result (read-only reference data)
+- Use **Event Publishing** for: Notifications of reference data changes (rare, but can be useful for cache invalidation)
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 **Code Review Checklist:**
 - [ ] All service interfaces are in `.api` package and marked stable
 - [ ] All DTOs are in `.dto` package with no JPA annotations
@@ -886,8 +901,10 @@ Other modules reference these by **code** (String) or **ID** (Long), never by JP
 - [ ] No circular dependencies (master-data depends on nothing)
 - [ ] Reference data is immutable where possible (e.g., currency codes)
 - [ ] Queries are efficient (indexed by code)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
 
 See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 

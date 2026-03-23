@@ -431,6 +431,23 @@ Infrastructure Layer (common.security, common.audit, common.kafka)
 - [ ] Audit annotations apply to any entity without modification
 - [ ] Kafka publisher can handle any event type without code changes
 
+### Communication Patterns Reference
+
+The Infrastructure layer uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Infrastructure | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Infrastructure services are consumed via direct injection | Business modules inject `JwtTokenProvider` interface |
+| **Event Publishing** | Infrastructure publishes events for cross-cutting concerns | Audit events, security events |
+| **Event Consumption** | Infrastructure consumes business events for routing/cross-cutting | `DomainEventPublisher` bridges Spring events to Kafka |
+
+**Key Principle (from System Design):**
+- Infrastructure provides **interfaces** that business modules implement/call directly
+- Infrastructure publishes **events** for cross-cutting concerns (audit, security)
+- Infrastructure consumes **business events** for routing/fan-out (e.g., Kafka bridge)
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
 ### For All Modules Using Infrastructure:
 
 When using infrastructure services (security, audit, events):
@@ -440,6 +457,7 @@ When using infrastructure services (security, audit, events):
 - ❌ Don't bypass infrastructure (e.g., manual audit log entries, custom JWT logic)
 
 See `AGENTS.md` for complete architecture enforcement rules (note: infra modules are exempt from Rule 2's `.api` requirement since they provide implementation, not API contract to business modules — but they must still provide clear extension points via interfaces).
+See System Design Section 7.1 for communication pattern guidance.
 
 ---
 
