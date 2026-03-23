@@ -158,10 +158,23 @@ Error responses include appropriate HTTP status codes and error codes (ACCT-XXX 
 
 ## Integration Points
 
+### Architectural Compliance
+
+The Account module strictly follows the **Module Boundary Rules** defined in `AGENTS.md`:
+
+| Rule | Compliance in this Module |
+|------|---------------------------|
+| **Rule 1: No domain entity sharing** | ✅ Only imports DTOs from other modules (`CustomerDTO`, `ProductVersionDTO`, `CurrencyDTO`) |
+| **Rule 2: Only api/dto packages public** | ✅ All cross-module imports are from `<module>.api` packages only |
+| **Rule 3: JPA relationships within module** | ✅ Account entities only reference other Account entities; cross-module refs use `Long id` |
+| **Rule 4: Async for side-effects** | ✅ Limit assignment is async via `AccountOpenedEvent`; validation (limit check) is sync |
+
+**Reference:** See `AGENTS.md` section "## Architecture Enforcement" for complete rules.
+
 ### Customer Module
 - **Dependency:** Uses `CustomerQueryService` API (read-only)
 - **Purpose:** Validates customer exists, retrieves customer details for account holders
-- **Architectural Compliance:** ✅ Only depends on `com.banking.customer.api` package
+- **Architectural Compliance:** ✅ Only depends on `com.banking.customer.api` package (Rule 2)
 - **Rationale:** Maintains loose coupling; customer internal implementation can change without affecting account module
 
 ### Product Module
@@ -367,6 +380,40 @@ Each exception class must define `ERROR_CODE` as a public constant:
 - Multi-currency account support
 - Sweep account functionality
 - Overdraft protection and lines of credit
+
+---
+
+## Implementation Guardrails
+
+**For Future Developers:**
+When adding new features to the Account module, always verify compliance with the Module Boundary Rules (AGENTS.md). Before implementing cross-module integration:
+
+1. **Check for existing API** in the target module (`<module>.api` package)
+2. **If API doesn't exist**, request the target module team to create one (do NOT import internal packages)
+3. **Use events for side-effects** (notifications, cache updates, async processing)
+4. **Use direct API calls for validation** that affects the immediate response
+5. **Never import** from: `<module>.domain.entity`, `<module>.repository`, `<module>.service`, `<module>.config`
+
+**Example - Adding New Integration:**
+```java
+// ✅ CORRECT: Using Master Data API
+@Autowired
+private CurrencyQueryService currencyQueryService;
+
+CurrencyDTO currency = currencyQueryService.findByCode("USD");
+
+// ❌ WRONG: Direct repository access
+@Autowired
+private CurrencyRepository currencyRepository; // Violates Rule 2!
+```
+
+**Code Review Checklist:**
+- [ ] All cross-module imports are from `.api` or `.dto` packages only
+- [ ] No JPA relationships to entities in other modules
+- [ ] Side-effects use events (unless synchronous validation required)
+- [ ] New dependencies don't create circular module dependencies
+
+See `AGENTS.md` for the complete architecture enforcement rules.
 
 ### Dependencies
 - Customer module (for customer data and validation)
