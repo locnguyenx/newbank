@@ -15,6 +15,7 @@ import com.banking.masterdata.api.CurrencyQueryService;
 import com.banking.masterdata.api.dto.CurrencyDTO;
 import com.banking.product.api.ProductQueryService;
 import com.banking.product.api.dto.ProductVersionDTO;
+import com.banking.product.service.ProductQueryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ class AccountServiceIntegrationTest {
     private CurrencyQueryService currencyQueryService;
 
     @MockBean
-    private ProductQueryService productQueryService;
+    private ProductQueryServiceImpl productQueryServiceImpl;
 
     @MockBean
     private CustomerQueryService customerQueryService;
@@ -78,7 +79,7 @@ class AccountServiceIntegrationTest {
         productVersion.setProductName("Current Account");
         productVersion.setVersionNumber(1);
         productVersion.setStatus("ACTIVE");
-        when(productQueryService.findActiveVersionByCode(any())).thenReturn(Optional.of(productVersion));
+        when(productQueryServiceImpl.findActiveVersionByCode(any())).thenReturn(Optional.of(productVersion));
 
         LimitCheckResponse allowedResponse = new LimitCheckResponse();
         allowedResponse.setResult(LimitCheckResult.ALLOWED);
