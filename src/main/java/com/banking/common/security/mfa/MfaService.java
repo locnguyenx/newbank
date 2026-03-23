@@ -19,24 +19,23 @@ public class MfaService {
     private final MfaSecretRepository mfaSecretRepository;
     private final CodeVerifier codeVerifier;
     private final SecretGenerator secretGenerator;
-    private final CodeGenerator codeGenerator;
-    private final TimeProvider timeProvider;
 
     public MfaService(MfaSecretRepository mfaSecretRepository) {
-        this.mfaSecretRepository = mfaSecretRepository;
-        this.secretGenerator = new DefaultSecretGenerator();
-        this.timeProvider = new SystemTimeProvider();
-        this.codeGenerator = new DefaultCodeGenerator();
-        this.codeVerifier = new DefaultCodeVerifier(codeGenerator, timeProvider);
-        ((DefaultCodeVerifier) this.codeVerifier).setAllowedTimePeriodDiscrepancy(1);
+        this(mfaSecretRepository, createDefaultCodeVerifier());
     }
 
-    MfaService(MfaSecretRepository mfaSecretRepository, CodeVerifier codeVerifier) {
+    public MfaService(MfaSecretRepository mfaSecretRepository, CodeVerifier codeVerifier) {
         this.mfaSecretRepository = mfaSecretRepository;
-        this.codeVerifier = codeVerifier;
         this.secretGenerator = new DefaultSecretGenerator();
-        this.codeGenerator = new DefaultCodeGenerator();
-        this.timeProvider = new SystemTimeProvider();
+        this.codeVerifier = codeVerifier;
+    }
+
+    private static CodeVerifier createDefaultCodeVerifier() {
+        TimeProvider timeProvider = new SystemTimeProvider();
+        CodeGenerator codeGenerator = new DefaultCodeGenerator();
+        DefaultCodeVerifier verifier = new DefaultCodeVerifier(codeGenerator, timeProvider);
+        verifier.setAllowedTimePeriodDiscrepancy(1);
+        return verifier;
     }
 
     public String generateSecret() {

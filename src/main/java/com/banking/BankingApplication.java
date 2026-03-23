@@ -20,6 +20,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 })
 @EntityScan(basePackages = {
     "com.banking.common.security.entity",
+    "com.banking.common.security.iam.entity",
+    "com.banking.common.security.mfa",
+    "com.banking.common.security.rbac",
+    "com.banking.common.audit",
     "com.banking.customer.domain",
     "com.banking.masterdata.domain",
     "com.banking.account.domain",
@@ -29,6 +33,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 })
 @EnableJpaRepositories(basePackages = {
     "com.banking.common.security.entity",
+    "com.banking.common.audit",
+    "com.banking.common.security.iam",
+    "com.banking.common.security.mfa",
+    "com.banking.common.security.rbac",
     "com.banking.customer.repository",
     "com.banking.masterdata.repository",
     "com.banking.account.repository",
