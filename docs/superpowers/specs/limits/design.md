@@ -721,6 +721,72 @@ if (response.isApprovalRequired()) {
 }
 ```
 
+### Event-Driven Integration with Account Module
+
+The Limits module listens for `AccountOpenedEvent` published by the Account module to automatically assign product limits when a new account is created.
+
+**Why Event-Driven?**
+- **Loose Coupling:** Account module doesn't directly call `LimitAssignmentService`; it just publishes an event
+- **Resilience:** Limit assignment failures don't block account creation (fire-and-forget)
+- **Change Isolation:** Account module can change without affecting limits; limits logic can change without account changes
+- **Architectural Compliance:** Eliminates direct dependency on `LimitAssignmentService` (was violating module boundaries)
+
+**Event Listener Implementation:**
+
+```java
+@Component
+public class AccountOpenedEventListener {
+
+    private final LimitAssignmentService limitAssignmentService;
+
+    @EventListener
+    public void handleAccountOpened(AccountOpenedEvent event) {
+        log.info("Processing AccountOpenedEvent for account: {}, product: {}", 
+                 event.getAccountNumber(), event.getProductCode());
+
+        List<ProductLimitResponse> productLimits = 
+            limitAssignmentService.getProductLimits(event.getProductCode());
+        
+        for (ProductLimitResponse productLimit : productLimits) {
+            try {
+                limitAssignmentService.assignToAccount(
+                    productLimit.getLimitDefinitionId(),
+                    event.getAccountNumber(),
+                    productLimit.getOverrideAmount()
+                );
+                log.info("Assigned limit {} to account {}", 
+                         productLimit.getLimitDefinitionId(), 
+                         event.getAccountNumber());
+            } catch (Exception e) {
+                log.warn("Failed to assign limit {} to account {}: {}", 
+                         productLimit.getLimitDefinitionId(), 
+                         event.getAccountNumber(), 
+                         e.getMessage());
+                // Continue with other limits - don't fail the entire event
+            }
+        }
+    }
+}
+```
+
+**Event Data Contract:**
+
+The `AccountOpenedEvent` provides all necessary data:
+- `accountNumber`: The newly created account number
+- `productCode`: The product code (e.g., "CURRENT", "SAVINGS")
+- `customerId`: The primary customer ID
+- `currency`, `initialBalance`: For limit calculations if needed
+
+**Error Handling:**
+- Individual limit assignment failures are logged as WARN but don't stop processing
+- Global exception handler catches unexpected errors and logs ERROR
+- No retry logic (fire-and-forget); manual intervention may be needed if assignment fails
+
+**Future Enhancement:**
+- Bridge events to Kafka for distributed processing (if limits module scales to separate service)
+- Add dead-letter queue handling for persistent failures
+- Implement compensation actions for failed assignments
+
 ---
 
 ## 8. Error Handling

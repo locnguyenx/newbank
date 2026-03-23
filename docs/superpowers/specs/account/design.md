@@ -159,26 +159,103 @@ Error responses include appropriate HTTP status codes and error codes (ACCT-XXX 
 ## Integration Points
 
 ### Customer Module
-- Reads customer information for account opening
-- Validates customer eligibility for account types
-- Links accounts to customer profiles
-- Provides customer-account summary views
+- **Dependency:** Uses `CustomerQueryService` API (read-only)
+- **Purpose:** Validates customer exists, retrieves customer details for account holders
+- **Architectural Compliance:** ✅ Only depends on `com.banking.customer.api` package
+- **Rationale:** Maintains loose coupling; customer internal implementation can change without affecting account module
 
-### Product Module (Future)
-- References product configurations for account features
-- Validates product eligibility during account opening
-- Applies product-specific rules (interest rates, fees, limits)
+### Product Module
+- **Dependency:** Uses `ProductQueryService` API (read-only)
+- **Purpose:** Validates product code, retrieves product version details, applies product-specific rules
+- **Architectural Compliance:** ✅ Only depends on `com.banking.product.api` package
+- **Rationale:** Product module owns product data; account module queries through published interface
+
+### Limits Module
+- **Dependency:** Event-driven via `AccountOpenedEvent` publication
+- **Purpose:** Assigns default product limits to new accounts (e.g., transaction limits, daily withdrawal limits)
+- **Architectural Compliance:** ✅ No direct dependency; uses Spring ApplicationEventPublisher
+- **Rationale:** 
+  - **Loose Coupling:** Limits module subscribes to events; account module doesn't know consumers exist
+  - **Resilience:** Limit assignment failures don't block account creation (fire-and-forget)
+  - **Scalability:** Can be distributed to separate JVMs via Kafka (future)
+  - **Change Isolation:** Limits module can change assignment logic without account module changes
+- **Implementation:** See "Event-Driven Architecture" section below
+
+### Master Data Module
+- **Dependency:** Uses `CurrencyQueryService` API (read-only)
+- **Purpose:** Validates currency code and active status during account opening
+- **Architectural Compliance:** ✅ Only depends on `com.banking.masterdata.api` package
+- **Rationale:** Ensures only active currencies are used; master data module owns currency definitions
 
 ### Transaction Module (Future)
-- Records all account transactions
-- Updates account balances in real-time
-- Provides transaction data for statements
-- Implements transaction processing workflows
+- Will consume `AccountCreatedEvent` for account provisioning in transaction ledger
+- Will publish `TransactionPostedEvent` for balance updates
+- Expected to use async event-driven integration
 
 ### Notification/Event System
-- Publishes domain events (AccountOpened, AccountClosed, etc.)
-- Sends notifications for status changes
-- Integrates with audit logging for compliance
+- Publishes domain events for cross-module communication:
+  - `AccountOpenedEvent` → triggers limit assignment, notifications, audit logging
+  - `AccountClosedEvent` → triggers cleanup, notifications
+  - `AccountFrozenEvent` → triggers compliance actions
+- Uses Spring's `ApplicationEventPublisher` (in-process) with optional Kafka bridge
+- All events contain minimal data needed for processing (IDs, codes, timestamps)
+
+## Event-Driven Architecture
+
+### Why Events?
+The Account module uses an event-driven architecture for cross-module integration to achieve:
+1. **Loose Coupling:** Modules don't call each other directly; they publish/subscribe to events
+2. **Resilience:** Event consumers can fail without affecting the primary transaction
+3. **Scalability:** Events can be distributed via Kafka for async processing across JVMs
+4. **Change Isolation:** Adding/removing consumers doesn't require changes to the publisher
+
+### Event Publishing Pattern
+```java
+// In AccountService.openAccount()
+Account account = accountRepository.save(account);
+
+AccountOpenedEvent event = new AccountOpenedEvent(
+    this,
+    account.getId(),
+    account.getAccountNumber(),
+    customerId,
+    request.getProductCode(),
+    productId,
+    productVersionId,
+    productName,
+    request.getCurrency(),
+    request.getInitialDeposit(),
+    "system" // from security context
+);
+eventPublisher.publishEvent(event);
+```
+
+### Event Consumption Pattern in Other Modules
+```java
+@Component
+public class AccountOpenedEventListener {
+    
+    @EventListener
+    public void handleAccountOpened(AccountOpenedEvent event) {
+        // Perform side effects (e.g., assign limits, send notifications)
+        // Errors are logged but don't propagate back to publisher
+    }
+}
+```
+
+### Current Event Types
+| Event | Purpose | Consumers |
+|-------|---------|-----------|
+| `AccountOpenedEvent` | Notify that account is created | Limits module (assign product limits), Notification module (welcome email), Audit module |
+| `AccountClosedEvent` | Notify that account is closed | Compliance module, Notification module |
+| `AccountFrozenEvent` | Notify account freeze | Risk module, Compliance module |
+
+### Kafka Readiness
+- Events extend Spring's `ApplicationEvent` (in-process)
+- Can be bridged to Kafka by adding `@KafkaListener` and `KafkaTemplate` without changing publishers
+- Future: Publish directly to Kafka using `DomainEventPublisher` for distributed consumers
+
+---
 
 ## Security & Authorization
 

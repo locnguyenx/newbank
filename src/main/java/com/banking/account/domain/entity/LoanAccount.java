@@ -2,7 +2,6 @@ package com.banking.account.domain.entity;
 
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
-import com.banking.customer.domain.entity.Customer;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
