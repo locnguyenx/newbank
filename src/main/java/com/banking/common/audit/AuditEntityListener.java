@@ -2,20 +2,29 @@ package com.banking.common.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class AuditEntityListener {
 
     private static final Logger log = LoggerFactory.getLogger(AuditEntityListener.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
+    
+    private static AuditLogService auditLogService;
+
+    @Autowired(required = false)
+    public void setAuditLogService(AuditLogService service) {
+        AuditEntityListener.auditLogService = service;
+    }
 
     @PostPersist
     public void postPersist(Object entity) {
@@ -36,8 +45,17 @@ public class AuditEntityListener {
         try {
             String entityType = entity.getClass().getSimpleName();
             Long entityId = getEntityId(entity);
-
             String afterJson = objectMapper.writeValueAsString(entity);
+
+            if (auditLogService != null) {
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        auditLogService.log(action, entityType, entityId, beforeJson, afterJson);
+                    } catch (Exception e) {
+                        log.error("Failed to persist audit log", e);
+                    }
+                });
+            }
 
             log.debug("Audit: {} {} id={}", action, entityType, entityId);
         } catch (JsonProcessingException e) {

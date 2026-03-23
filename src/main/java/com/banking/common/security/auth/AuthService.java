@@ -10,6 +10,8 @@ import com.banking.common.security.entity.RefreshToken;
 import com.banking.common.security.entity.RefreshTokenRepository;
 import com.banking.common.security.entity.User;
 import com.banking.common.security.entity.UserRepository;
+import com.banking.common.security.iam.entity.LoginHistory;
+import com.banking.common.security.iam.repository.LoginHistoryRepository;
 import com.banking.common.security.jwt.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtConfig jwtConfig;
     private final PasswordEncoder passwordEncoder;
@@ -32,11 +35,13 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
+            LoginHistoryRepository loginHistoryRepository,
             JwtTokenProvider jwtTokenProvider,
             JwtConfig jwtConfig,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.loginHistoryRepository = loginHistoryRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtConfig = jwtConfig;
         this.passwordEncoder = passwordEncoder;
@@ -73,6 +78,8 @@ public class AuthService {
                 Instant.now().plusMillis(jwtConfig.getRefreshTokenExpiry())
         );
         refreshTokenRepository.save(refreshToken);
+
+        loginHistoryRepository.save(new LoginHistory(user.getId(), "PASSWORD", null, null, true));
 
         return new TokenResponse(accessToken, refreshTokenValue, jwtConfig.getAccessTokenExpiry());
     }

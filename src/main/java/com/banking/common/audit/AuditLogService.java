@@ -28,4 +28,9 @@ public class AuditLogService {
             log.error("Failed to create audit log: {} {} {}", action, entityType, entityId, e);
         }
     }
+
+    public void log(AuditAction action, String entityType, Long entityId,
+                    String beforeJson, String afterJson) {
+        log(action, entityType, entityId, beforeJson, afterJson, new AuditContext());
+    }
 }
