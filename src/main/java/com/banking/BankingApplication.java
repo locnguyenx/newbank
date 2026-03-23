@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
+    "com.banking.common",
     "com.banking.customer",
     "com.banking.masterdata",
     "com.banking.account",
@@ -16,6 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.banking.charges"
 })
 @EntityScan(basePackages = {
+    "com.banking.common.security.entity",
     "com.banking.customer.domain",
     "com.banking.masterdata.domain",
     "com.banking.account.domain",
@@ -24,6 +26,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.banking.charges.domain"
 })
 @EnableJpaRepositories(basePackages = {
+    "com.banking.common.security.entity",
     "com.banking.customer.repository",
     "com.banking.masterdata.repository",
     "com.banking.account.repository",
