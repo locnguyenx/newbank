@@ -380,18 +380,95 @@ For each entity that gets `@AuditEntityListener`, verify:
 - **RBAC tests:** 100% of role × action matrix must be tested
 - **Audit tests:** Every `@AuditEntityListener` entity must have CREATE + UPDATE test
 
-## 8. Deferred Infrastructure (Future Implementation)
+## 8. Implementation Guardrails
 
-| Item | Current State | When to Implement | Impact if Deferred |
-|------|--------------|-------------------|-------------------|
-| **CI/CD Pipeline** | None | Phase 2 | No code changes needed, pure DevOps |
-| **Monitoring (Actuator + Prometheus/Grafana)** | None | Phase 2 | Add Spring Boot Actuator dependency + metrics config. Minimal refactoring. |
-| **API Gateway (Kong/Spring Cloud Gateway)** | Conventions defined | Phase 2-3 | Routes proxy to existing `/api/...` paths. No controller changes needed. |
-| **PostgreSQL (production)** | H2 for dev/tests | Phase 2 | Flyway migrations already target PostgreSQL. Switch datasource config only. |
-| **ELK Stack (Centralized Logging)** | Basic Spring logging | Phase 3 | Add Logback JSON encoder + Filebeat. No code changes. |
-| **Vault (Secrets Management)** | None | Phase 3 | Replace `application.yml` secrets with Vault paths. Config change only. |
-| **Distributed Tracing (Jaeger/Zipkin)** | None | Phase 3 | Add Micrometer Tracing + Brave. Minimal code changes. |
-| **Kafka Schema Registry** | None | Phase 3 | Add Avro/JSON Schema for event contracts. No existing code changes. |
-| **SSO Integration (Azure AD)** | None | When required | Add OAuth2 social login flow alongside existing username/password. Auth controller handles both paths. |
-| **Company Admin: Request new accounts** | None | Phase 2 | Extends self-service portal. Depends on Account module API. |
-| **Company Admin: Manage signatories** | None | Phase 2 | Extends self-service portal. Depends on Customer module authorization. |
+**For Future Developers:**
+The Infrastructure layer (`com.banking.common.*`) provides cross-cutting services used by ALL business and foundation modules. It is **dependency-free** (does not depend on any business module). This is critical: infrastructure must serve all modules without favoring any.
+
+### Dependency Rule (Infra-Specific)
+
+```
+Business Modules (Account, Customer, Product, etc.)
+    ↓ depend on
+Infrastructure Layer (common.security, common.audit, common.kafka)
+    ↓ depends on NOTHING (except maybe external libs)
+```
+
+**Infra modules MUST NOT:**
+- Import any `com.banking.[module].domain.entity` 
+- Import any `com.banking.[module].service` (internal implementations)
+- Depend on foundation modules (customer, account, product, limits, charges, masterdata)
+- Contain business logic (only generic, reusable infrastructure)
+
+**Infra modules CAN:**
+- Define generic interfaces that business modules implement (e.g., `TokenProvider` interface, implemented in security module)
+- Publish infrastructure events (`AuditEvent`, `SecurityEvent`) that business modules can listen to
+- Define base classes/utilities used by all modules (e.g., `BaseException`, `AuditFields`)
+
+### Module-Specific Guardrails
+
+#### Common Security (`com.banking.common.security`)
+- Provides JWT authentication, RBAC, MFA
+- Must not contain business-specific permissions (e.g., "ACCOUNT_OPERATOR" is business logic and belongs in customer module)
+- Role definitions should be generic (ADMIN, USER, APPROVER) or configurable via database
+- APIs: `JwtTokenProvider`, `UserDetailsService` implementations can depend on customer module (for user lookup) via **API only**
+
+#### Common Audit (`com.banking.common.audit`)
+- Provides `@AuditEntityListener` JPA entity listener
+- Must not depend on any specific entity; uses reflection to capture changes generically
+- Stores audit in generic tables (`audit_log`) with `entityName`, `entityId`, `operation`, `changes`
+
+#### Common Kafka (`com.banking.common.kafka`)
+- Provides `DomainEventPublisher` for Spring `ApplicationEvent` → Kafka bridge
+- Must not depend on specific event types; publishes any `BaseDomainEvent`
+- Event types are defined in each business module (account, customer, etc.)
+- Ideally, kafka config lives here but event schemas live in business modules
+
+### Code Review Checklist for Infra Changes:
+- [ ] No imports from `com.banking.[any-business-module]`
+- [ ] No business logic in infrastructure code
+- [ ] New security roles are truly generic or configurable (not business-specific)
+- [ ] Audit annotations apply to any entity without modification
+- [ ] Kafka publisher can handle any event type without code changes
+
+### For All Modules Using Infrastructure:
+
+When using infrastructure services (security, audit, events):
+- ✅ Inject `JwtTokenProvider` (interface) — implementation details hidden
+- ✅ Use `@Auditable` annotation on entities — infrastructure handles persistence
+- ✅ Publish events via `ApplicationEventPublisher` (or `DomainEventPublisher`) — infrastructure routes to Kafka
+- ❌ Don't bypass infrastructure (e.g., manual audit log entries, custom JWT logic)
+
+See `AGENTS.md` for complete architecture enforcement rules (note: infra modules are exempt from Rule 2's `.api` requirement since they provide implementation, not API contract to business modules — but they must still provide clear extension points via interfaces).
+
+---
+
+## 9. Kafka Integration Strategy
+
+The `DomainEventPublisher` in `com.banking.common.kafka` bridges Spring `ApplicationEvent` to Kafka:
+
+```java
+@Component
+public class DomainEventPublisher {
+    public DomainEventPublisher(KafkaTemplate<String, BaseDomainEvent> kafkaTemplate) { ... }
+    // Publishes any ApplicationEvent that extends BaseDomainEvent
+}
+```
+
+**Why this design?**
+- Business modules publish Spring events (simple, no Kafka dependencies in their code)
+- `DomainEventPublisher` listens for all `ApplicationEvent`s and forwards to Kafka topic based on `eventType`
+- Allows business modules to remain framework-agnostic (could switch to RabbitMQ, etc.)
+
+**Event Naming Convention:**
+- `com.banking.account.event.AccountOpenedEvent` → Kafka topic: `account.events`
+- `com.banking.customer.event.KYCApprovedEvent` → Kafka topic: `customer.events`
+
+**When to enable Kafka:**
+- Currently Kafka is available but not necessarily enabled in dev
+- Business modules can publish events regardless; they'll be in-process only if Kafka is down
+- Can add `@Profile("kafka-enabled")` to `DomainEventPublisher` when ready
+
+---
+
+## 10. Deferred Infrastructure (Future Implementation)

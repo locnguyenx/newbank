@@ -1082,7 +1082,49 @@ Deprecated (retained):
 
 New (recommended):
   Product (1) ── (N) ProductCharge ── (1) ChargeDefinition ── (N) ChargeRule ── (N) ChargeTier
-                                    └── (N) CustomerChargeOverride
-                                    └── (N) FeeWaiver
-                                    └── (N) InterestRate
+                                     └── (N) CustomerChargeOverride
+                                     └── (N) FeeWaiver
+                                     └── (N) InterestRate
 ```
+
+---
+
+## 8. Implementation Guardrails
+
+**For Future Developers:**
+The Product module is a **foundation module** that provides product catalog services to all business modules. It must maintain strict architectural compliance.
+
+### Module Boundary Rules (AGENTS.md)
+
+| Rule | Compliance Status |
+|------|-------------------|
+| **Rule 1: No domain entity sharing** | ✅ Other modules must not import `Product` entity directly; they use `ProductDTO` from `.dto` package |
+| **Rule 2: Only api/dto public** | ✅ Query services in `com.banking.product.api`; DTOs in `com.banking.product.dto` |
+| **Rule 3: JPA relationships within module** | ✅ Product entities only reference other Product entities; cross-module refs use `Long productId` |
+| **Rule 4: Async for side-effects** | ✅ Product lifecycle events published asynchronously (`ProductActivatedEvent`, etc.) |
+
+**API Contract Enforcement:**
+- `ProductQueryService` (read-only) in `api` package - consumed by Account, Payments, Trade Finance
+- `ProductService` (write) in `api` package - consumed by admin/management modules
+- All DTOs must be in `dto` package, with no JPA annotations
+- Service interfaces define the contract; implementations are internal
+
+**Event Publishing:**
+- `ProductActivatedEvent` - when product becomes available for sale
+- `ProductRetiredEvent` - when product is discontinued
+- `ProductVersionCreatedEvent` - when new version is created
+- Events should contain minimal data (IDs, codes, status); consumers fetch details via API if needed
+
+**Code Review Checklist:**
+- [ ] New services added to `.api` package, not `.service`
+- [ ] DTOs used by other modules are in `.dto` package
+- [ ] No domain entities exposed outside the module
+- [ ] No direct repository access in API interfaces
+- [ ] Events are published for lifecycle changes that affect other modules
+- [ ] No circular dependencies (product should not depend on account/payments/etc.)
+
+See `AGENTS.md` for complete architecture enforcement rules.
+
+---
+
+## 9. Error Handling

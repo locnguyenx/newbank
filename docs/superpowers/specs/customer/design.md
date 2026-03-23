@@ -785,7 +785,47 @@ Each exception class must define `ERROR_CODE` as a public constant:
 - Signatory management
 - Authorization flows
 
-## 10. Success Criteria
+## 10. Implementation Guardrails
+
+**For Future Developers:**
+The Customer module is a **foundation module** and must maintain strict architectural compliance:
+
+### Module Boundary Rules (AGENTS.md)
+
+| Rule | Compliance Status |
+|------|-------------------|
+| **Rule 1: No domain entity sharing** | ✅ Customer module doesn't import from other modules' domain entities (it's a foundation module - others depend on IT) |
+| **Rule 2: Only api/dto public** | ✅ When other modules need customer data, they must import from `com.banking.customer.api` or `com.banking.customer.dto` |
+| **Rule 3: JPA relationships within module** | ✅ Customer entities only reference other Customer entities |
+| **Rule 4: Async for side-effects** | ✅ KYC events published asynchronously; direct calls only for validation |
+
+**Key Principle:** As a foundation module, Customer provides services to business modules (account, payments, etc.). It should **NOT** depend on business modules. Dependencies can only be on other foundation modules (product, limits, charges, master-data) through their **API** packages.
+
+**API Contract:**
+- All public services (`CustomerQueryService`, `CustomerService`, `AuthorizationService`) must be in `com.banking.customer.api` package
+- All DTOs used by other modules must be in `com.banking.customer.dto` package
+- Never expose `domain.entity`, `repository`, or internal `service` packages to external modules
+
+**Event Publishing Pattern:**
+Customer module publishes events (via `CustomerEventPublisher`) for:
+- `CustomerCreatedEvent`
+- `KYCInitiatedEvent`
+- `KYCApprovedEvent`
+- `KYCRejectedEvent`
+- etc.
+
+These events should contain minimal data (IDs, status codes) and allow other modules to react without blocking the primary transaction.
+
+**Code Review Checklist:**
+- [ ] New API interfaces are placed in `.api` package and are stable
+- [ ] DTOs are in `.dto` package and contain no JPA annotations
+- [ ] Domain events extend `ApplicationEvent` and contain necessary data for consumers
+- [ ] No direct repository access from other modules exposed in service interfaces
+- [ ] No circular dependencies introduced (e.g., customer shouldn't call account if account calls customer)
+
+See `AGENTS.md` for complete architecture enforcement rules.
+
+## 11. Success Criteria
 
 - Customer onboarding completed in < 15 minutes
 - KYC verification processed within 24 hours
@@ -793,7 +833,7 @@ Each exception class must define `ERROR_CODE` as a public constant:
 - Zero data breaches or compliance violations
 - API response time < 200ms for 95% of requests
 
-## 11. Next Steps
+## 12. Next Steps
 
 1. Implement core domain model
 2. Set up database schema and migrations
