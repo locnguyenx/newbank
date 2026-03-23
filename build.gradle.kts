@@ -53,6 +53,15 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// Run only infrastructure tests
+tasks.register<Test>("testInfra") {
+    group = "verification"
+    description = "Run infrastructure (IAM, MFA, RBAC) tests only"
+    useJUnitPlatform()
+    
+    include("**/common/security/**/*Test.class")
+}
+
 // Task to export OpenAPI spec from running server
 tasks.register<Exec>("exportOpenApiSpec") {
     group = "openapi"

@@ -103,7 +103,7 @@ class ActivityMonitoringServiceTest {
 
     @Test
     void getFailedLoginCount_Success() {
-        when(failedLoginAttemptRepository.countRecentAttemptsByEmail("test@example.com", any(Instant.class)))
+        when(failedLoginAttemptRepository.countRecentAttemptsByEmail(eq("test@example.com"), any(Instant.class)))
                 .thenReturn(5L);
 
         long count = activityMonitoringService.getFailedLoginCount("test@example.com", 30);
