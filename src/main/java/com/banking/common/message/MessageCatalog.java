@@ -45,6 +45,15 @@ public final class MessageCatalog {
     public static final String MDATA_NOT_FOUND = "MDATA_001";
     public static final String MDATA_ALREADY_EXISTS = "MDATA_002";
     
+    public static final String IAM_ROLE_NOT_FOUND = "IAM_001";
+    public static final String IAM_ROLE_NOT_FOUND_BY_NAME = "IAM_002";
+    public static final String IAM_ROLE_CANNOT_DELETE_SYSTEM = "IAM_003";
+    public static final String IAM_ROLE_CANNOT_MODIFY_SYSTEM = "IAM_004";
+    public static final String IAM_USER_NOT_FOUND = "IAM_005";
+    public static final String IAM_USER_ALREADY_EXISTS = "IAM_006";
+    public static final String IAM_THRESHOLD_NOT_FOUND = "IAM_007";
+    public static final String IAM_INVALID_BULK_IMPORT = "IAM_008";
+    
     public static final String VALIDATION_ERROR = "VALIDATION_001";
     public static final String INTERNAL_ERROR = "SYSTEM_001";
 
@@ -90,6 +99,15 @@ public final class MessageCatalog {
         
         MESSAGES.put(MDATA_NOT_FOUND, "Record not found");
         MESSAGES.put(MDATA_ALREADY_EXISTS, "Record already exists");
+        
+        MESSAGES.put(IAM_ROLE_NOT_FOUND, "Role not found");
+        MESSAGES.put(IAM_ROLE_NOT_FOUND_BY_NAME, "Role with this name not found");
+        MESSAGES.put(IAM_ROLE_CANNOT_DELETE_SYSTEM, "Cannot delete system role");
+        MESSAGES.put(IAM_ROLE_CANNOT_MODIFY_SYSTEM, "Cannot modify system role");
+        MESSAGES.put(IAM_USER_NOT_FOUND, "User not found");
+        MESSAGES.put(IAM_USER_ALREADY_EXISTS, "User with this email already exists");
+        MESSAGES.put(IAM_THRESHOLD_NOT_FOUND, "Threshold not found");
+        MESSAGES.put(IAM_INVALID_BULK_IMPORT, "Invalid bulk import data");
         
         MESSAGES.put(VALIDATION_ERROR, "Please check your input and try again");
         MESSAGES.put(INTERNAL_ERROR, "An unexpected error occurred. Please try again later.");
