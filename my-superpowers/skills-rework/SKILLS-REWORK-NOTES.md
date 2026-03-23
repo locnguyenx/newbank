@@ -8,7 +8,7 @@
 
 ## **Updated by superpowers:brainstorming skill:**
 
-**Persist the plan progress**
+### **Persist the plan progress**
 subagent-driven-development:
 - Added "Progress Persistence" section with status markers [DONE]/[IN_PROGRESS]/[BLOCKED]/[PENDING]
 - Plan file read now skips [DONE] tasks on resume
@@ -21,7 +21,20 @@ executing-plans:
 - Added to Remember: update plan file markers for every task
 After a session interruption, you just open the plan file and see exactly where things stand.
 
-Here's what changed:
+**Instruction set:**
+In a new session, tell the agent:
+Resume the core infrastructure imp
+The agent will:
+1. Read the plan file
+2. Skip all [DONE] tasks
+3. See Task 1a.3 is [IN_PROGRESS]
+4. Create TodoWrite with remaining tasks (24 tasks left)
+5. Dispatch implementer for Task 1a.3
+The plan file is the single source of truth — [DONE] markers survive sessions.
+
+### Enforce superpowers skills to follow AGENTS.md rules
+
+**Here's what changed:**
 implementer-prompt.md:
 - Added "Architecture Rules (REQUIRED)" section telling subagent to read AGENTS.md before coding
 - Subagent must follow module boundary rules — if plan conflicts, report BLOCKED
