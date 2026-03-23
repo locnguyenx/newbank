@@ -1,6 +1,7 @@
 package com.banking.common.security.entity;
 
 import com.banking.customer.domain.embeddable.AuditFields;
+import com.banking.common.audit.AuditEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -14,7 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-@EntityListeners(org.springframework.data.jpa.domain.support.AuditingEntityListener.class)
+@EntityListeners({org.springframework.data.jpa.domain.support.AuditingEntityListener.class, AuditEntityListener.class})
 public class User {
 
     @Id
