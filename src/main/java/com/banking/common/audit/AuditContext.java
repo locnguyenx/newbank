@@ -27,6 +27,9 @@ public class AuditContext {
                 this.userId = (Long) auth.getDetails();
             }
             this.actorType = ActorType.USER;
+            if (auth.getDetails() instanceof String) {
+                this.ipAddress = (String) auth.getDetails();
+            }
         } else {
             this.actorType = ActorType.SYSTEM;
         }

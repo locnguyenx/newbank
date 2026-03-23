@@ -1,10 +1,12 @@
 package com.banking.common.security.iam.entity;
 
+import com.banking.common.audit.AuditEntityListener;
 import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "role_permissions")
+@EntityListeners({org.springframework.data.jpa.domain.support.AuditingEntityListener.class, AuditEntityListener.class})
 public class RolePermission {
 
     @Id

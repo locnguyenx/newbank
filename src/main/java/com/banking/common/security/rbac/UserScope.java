@@ -1,6 +1,7 @@
 package com.banking.common.security.rbac;
 
 import com.banking.customer.domain.embeddable.AuditFields;
+import com.banking.common.audit.AuditEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import java.util.Objects;
 @Table(name = "user_scopes", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "scope_type", "scope_id", "role"})
 })
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, AuditEntityListener.class})
 public class UserScope {
 
     @Id

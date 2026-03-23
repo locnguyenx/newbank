@@ -1,13 +1,14 @@
 package com.banking.common.security.iam.entity;
 
 import com.banking.customer.domain.embeddable.AuditFields;
+import com.banking.common.audit.AuditEntityListener;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "role_definitions")
-@EntityListeners(org.springframework.data.jpa.domain.support.AuditingEntityListener.class)
+@EntityListeners({org.springframework.data.jpa.domain.support.AuditingEntityListener.class, AuditEntityListener.class})
 public class RoleDefinition {
 
     @Id

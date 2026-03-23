@@ -1,11 +1,13 @@
 package com.banking.common.security.iam.entity;
 
+import com.banking.common.audit.AuditEntityListener;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
 
 @Entity
 @Table(name = "failed_login_attempts")
+@EntityListeners({org.springframework.data.jpa.domain.support.AuditingEntityListener.class, AuditEntityListener.class})
 public class FailedLoginAttempt {
 
     @Id
