@@ -55,6 +55,10 @@ public class AuthService {
             throw InvalidCredentialsException.invalidCredentials();
         }
 
+        if (user.isMfaEnabled()) {
+            return TokenResponse.mfaRequired();
+        }
+
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
