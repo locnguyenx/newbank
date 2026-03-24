@@ -4,10 +4,12 @@ import com.banking.cashmanagement.domain.entity.PayrollBatch;
 import com.banking.cashmanagement.domain.enums.PayrollBatchStatus;
 import com.banking.cashmanagement.dto.PayrollBatchRequest;
 import com.banking.cashmanagement.dto.PayrollBatchResponse;
+import com.banking.cashmanagement.event.PayrollProcessedEvent;
 import com.banking.cashmanagement.exception.PayrollBatchNotFoundException;
 import com.banking.cashmanagement.integration.AccountServiceAdapter;
 import com.banking.cashmanagement.integration.CustomerServiceAdapter;
 import com.banking.cashmanagement.repository.PayrollBatchRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -24,13 +26,16 @@ public class PayrollService {
     private final PayrollBatchRepository payrollBatchRepository;
     private final AccountServiceAdapter accountServiceAdapter;
     private final CustomerServiceAdapter customerServiceAdapter;
+    private final ApplicationEventPublisher eventPublisher;
     
     public PayrollService(PayrollBatchRepository payrollBatchRepository,
                           AccountServiceAdapter accountServiceAdapter,
-                          CustomerServiceAdapter customerServiceAdapter) {
+                          CustomerServiceAdapter customerServiceAdapter,
+                          ApplicationEventPublisher eventPublisher) {
         this.payrollBatchRepository = payrollBatchRepository;
         this.accountServiceAdapter = accountServiceAdapter;
         this.customerServiceAdapter = customerServiceAdapter;
+        this.eventPublisher = eventPublisher;
     }
     
     public PayrollBatchResponse createPayrollBatch(PayrollBatchRequest request) {
@@ -70,6 +75,26 @@ public class PayrollService {
         return batches.stream()
             .map(this::mapToResponse)
             .collect(Collectors.toList());
+    }
+    
+    public PayrollBatchResponse completePayrollBatch(Long id) {
+        PayrollBatch batch = payrollBatchRepository.findById(id)
+            .orElseThrow(() -> new PayrollBatchNotFoundException(id));
+        
+        batch.setStatus(PayrollBatchStatus.COMPLETED);
+        PayrollBatch saved = payrollBatchRepository.save(batch);
+        
+        PayrollProcessedEvent event = new PayrollProcessedEvent(
+            this,
+            saved.getId(),
+            saved.getBatchReference(),
+            saved.getCustomerId(),
+            saved.getTotalAmount(),
+            saved.getCurrency()
+        );
+        eventPublisher.publishEvent(event);
+        
+        return mapToResponse(saved);
     }
     
     public boolean verifySufficientFunds(Long fundingAccountId, BigDecimal amount) {
