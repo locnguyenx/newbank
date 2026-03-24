@@ -169,6 +169,6 @@ class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.messageCode").value("AUTH_001"));
+                .andExpect(jsonPath("$.messageCode").value("AUTH_007"));
     }
 }

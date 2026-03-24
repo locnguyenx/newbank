@@ -20,7 +20,7 @@ public class ProductSummaryResponse {
         response.code = product.getCode();
         response.name = product.getName();
         response.family = product.getFamily() != null ? product.getFamily().name() : null;
-        response.currentVersionNumber = product.getVersion() != null ? product.getVersion().intValue() : null;
+        response.currentVersionNumber = product.getId() != null ? product.getId().intValue() : null;
         return response;
     }
 

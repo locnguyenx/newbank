@@ -696,7 +696,7 @@ The architecture rule enforcement is working correctly - the account module no l
 
 See: `docs/superpower/specs/api-contract-spec.md` for detailed implementation.
 
-## OPENAI ISSUES
+## OPENAI ISSUES (updated in AGENTS.md)
 
 ### Remaining Issues
 
@@ -776,6 +776,35 @@ Long-term fix requires:
 1. Update backend OpenAPI annotations to include all response fields
 2. Regenerate types from updated spec
 3. Remove @ts-nocheck comments
+
+## ADDITIONAL RULES FOR TESTING (in AGENTS.md)
+
+**Summary of Updates to AGENTS.md**
+Added New Section: "Test Infrastructure Guidelines" (lines 154-246)
+1. PostgreSQL Testcontainers
+- Documented shared container approach via AbstractIntegrationTest
+- Highlights: single container reuse, application-test.yml config, ddl-auto: validate
+2. Test Approaches
+- ✅ Preferred: @SpringBootTest + @AutoConfigureMockMvc
+  - Shows complete code example
+  - Lists advantages (no conflicts, full context, works with PostgreSQL)
+- ⚠️ Avoid: @WebMvcTest
+  - Explains duplicate mock errors
+  - Provides workaround if you must use it
+3. Database Cleanup
+- Mandates deleteAllInBatch() over deleteAll()
+- Explains StaleObjectStateException risk
+4. Mock Bean Conflicts
+- Root cause: Spring test context caching
+- Solution: @DirtiesContext(classMode = AFTER_CLASS)
+- Documents trade-off (slower but reliable)
+5. TOTP Tests
+- Explains 30-second timing window issue
+- Provides solutions (disable or mock time provider)
+
+Updated Existing: "Flyway Migration Tests"
+- Added reference to AbstractIntegrationTest for PostgreSQL container usage
+The document now serves as a complete guide for future test work, preventing the same issues we encountered.
 
 ## REVISE MODULE DESIGN
 

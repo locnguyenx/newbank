@@ -14,7 +14,7 @@ public class ProductVersionResponse {
     private String submittedBy;
     private String approvedBy;
     private String rejectionComment;
-    private Integer contractCount;
+    private Long contractCount;
     private LocalDateTime createdAt;
 
     public ProductVersionResponse() {
@@ -101,11 +101,11 @@ public class ProductVersionResponse {
         this.rejectionComment = rejectionComment;
     }
 
-    public Integer getContractCount() {
+    public Long getContractCount() {
         return contractCount;
     }
 
-    public void setContractCount(Integer contractCount) {
+    public void setContractCount(Long contractCount) {
         this.contractCount = contractCount;
     }
 

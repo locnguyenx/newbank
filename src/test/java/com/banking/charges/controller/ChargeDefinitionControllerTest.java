@@ -1,5 +1,6 @@
 package com.banking.charges.controller;
 
+import com.banking.common.security.config.TestSecurityConfig;
 import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.CreateChargeDefinitionRequest;
 import com.banking.charges.repository.ChargeDefinitionRepository;
@@ -15,8 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.banking.common.security.config.TestSecurityConfig;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

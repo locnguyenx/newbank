@@ -1,5 +1,6 @@
 package com.banking.customer.service;
 
+import com.banking.common.config.AbstractIntegrationTest;
 import com.banking.customer.domain.entity.CorporateCustomer;
 import com.banking.customer.domain.entity.Customer;
 import com.banking.customer.domain.entity.CustomerAuthorization;
@@ -17,9 +18,9 @@ import com.banking.masterdata.repository.CurrencyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -27,10 +28,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Transactional
-class AuthorizationServiceIntegrationTest {
+class AuthorizationServiceIntegrationTest extends AbstractIntegrationTest {
+
+    @MockBean
+    private ApplicationEventPublisher eventPublisher;
 
     @MockBean
     private CurrencyRepository currencyRepository;
@@ -49,8 +52,8 @@ class AuthorizationServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        authorizationRepository.deleteAll();
-        customerRepository.deleteAll();
+        authorizationRepository.deleteAllInBatch();
+        customerRepository.deleteAllInBatch();
 
         testCustomer = new CorporateCustomer("CUST-AUTH-001", "Test Corporation", CustomerStatus.ACTIVE);
         testCustomer.setTaxId("TAX-AUTH-001");

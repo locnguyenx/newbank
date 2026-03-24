@@ -2,7 +2,9 @@
 
 **Purpose:** Standard testing strategy for all modules. Reference this template in design specs instead of duplicating content.
 
-**Lessons Learned:** Account module worktree merge build failures (2026-03-20).
+**Lessons Learned:**
+- Account module worktree merge build failures (2026-03-20)
+- Integration test infrastructure fixes: PostgreSQL testcontainers, mock conflicts, @WebMvcTest pitfalls (2026-03-24)
 
 ---
 
@@ -259,7 +261,118 @@ it('displays API error message', async () => {
 
 ---
 
-## 3. Pre-Merge Checklist
+## 3. Integration Test Infrastructure
+
+### Shared PostgreSQL Container
+
+All integration tests must use the shared `AbstractIntegrationTest` base class:
+
+```java
+@SpringBootTest(classes = BankingApplication.class)
+@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)  // Required to avoid mock conflicts
+class MyIntegrationTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private MyRepository repository;
+
+    @BeforeEach
+    void setUp() {
+        repository.deleteAllInBatch();  // NOT deleteAll()
+    }
+
+    @Test
+    void shouldWork() {
+        // test code
+    }
+}
+```
+
+**Key Points:**
+- ✅ DO extend `AbstractIntegrationTest` for ANY test needing database
+- ✅ DO use `@DirtiesContext(classMode = AFTER_CLASS)` if test defines `@MockBean`
+- ✅ DO use `deleteAllInBatch()` in `@BeforeEach`
+- ❌ DON'T use `@WebMvcTest` for controller tests (see section 4)
+- ❌ DON'T use `deleteAll()` - causes `StaleObjectStateException`
+
+### Preferred Test Approach: `@SpringBootTest` + `@AutoConfigureMockMvc`
+
+For **controller tests**, always prefer `@SpringBootTest` over `@WebMvcTest`:
+
+```java
+@SpringBootTest(classes = BankingApplication.class)
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+class CustomerControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private CustomerService customerService;  // Only mock external dependencies
+
+    @Test
+    void shouldReturnCustomer() throws Exception {
+        // test code
+    }
+}
+```
+
+**Advantages:**
+- Loads full application context (suits modular monolith)
+- Works with shared PostgreSQL container
+- No duplicate mock conflicts
+- Proper integration of all layers (controller → service → repository)
+
+### Problems with `@WebMvcTest`
+
+**Avoid `@WebMvcTest`** - it causes duplicate mock definition errors in a modular monolith:
+
+```
+@WebMvcTest(controllers = CustomerController.class)
+@MockBean
+private CustomerService customerService;  // ERROR: Duplicate mock definition
+```
+
+**Reasons:**
+1. `@WebMvcTest` tries to load a "web slice" but often loads full context anyway
+2. Combined with `@MockBean` → conflicts with beans auto-configured by `@SpringBootApplication`
+3. Multiple test classes caching context compound the problem
+
+**If you must use `@WebMvcTest`** (not recommended):
+```java
+@WebMvcTest(controllers = CustomerController.class, 
+    excludeAutoConfiguration = {SecurityAutoConfiguration.class})
+@ContextConfiguration(classes = {CustomerController.class, TestConfig.class})
+@DirtiesContext(classMode = AFTER_CLASS)  // Prevent cache conflicts
+```
+
+### Schema Validation
+
+- `application-test.yml` uses `ddl-auto: validate` (via `AbstractIntegrationTest`)
+- Flyway migrations run automatically on test startup
+- If schema validation fails: **add missing migration**, don't change `ddl-auto`
+
+### TOTP Tests
+
+**Disable TOTP tests** - they are inherently flaky due to 30-second time windows:
+- Code generation and verification happen in different timestamps
+- Even 1-second delay can invalidate the code
+- This is a real constraint, not a test bug
+
+```
+@Test
+@Disabled("TOTP timing sensitivity - codes expire every 30 seconds")
+void verifyCode_withValidCode_returnsTrue() { ... }
+```
+
+**Better solution:** Refactor production code to inject a `TimeProvider` for deterministic testing.
+
+**Reference:** See AGENTS.md "Test Infrastructure Guidelines" for complete details on PostgreSQL testcontainers, mock conflicts, and database cleanup patterns.
+
+---
+
+## 4. Pre-Merge Checklist
 
 Before merging from worktree to main, ALL must pass:
 
@@ -280,6 +393,15 @@ Before merging from worktree to main, ALL must pass:
 - [ ] Per-customer-type tests for Corporate, SME, Individual when applicable
 - [ ] Mock data matches actual API response shape
 - [ ] Error handling is tested
+
+### Integration Test Checklist
+
+- [ ] **All integration tests extend `AbstractIntegrationTest`** for shared PostgreSQL container
+- [ ] Tests that define `@MockBean` include `@DirtiesContext(classMode = AFTER_CLASS)`
+- [ ] All repository cleanup uses `deleteAllInBatch()` (NOT `deleteAll()`)
+- [ ] Schema validation passes (`ddl-auto: validate` in `application-test.yml`)
+- [ ] No tests use `@WebMvcTest` - prefer `@SpringBootTest` + `@AutoConfigureMockMvc`
+- [ ] TOTP tests are disabled with clear reason (30-second timing window)
 
 ### Frontend Test Checklist
 

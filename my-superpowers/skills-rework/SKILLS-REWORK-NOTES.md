@@ -1,10 +1,9 @@
 ## List of reworked skill
 
 1. **brainstorming** - apply BRD & BDD before Tech Design
-
-2. **using-git-branches** - use my new skill to use git branch insteach of **using-git-worktrees** which creating worktree
-
-3. **test-driven-development** - to be revised to enforce Test Strategy
+2. **writing-plans**- apply BRD & BDD before Tech Design
+3. **using-git-branches** - use my new skill to use git branch insteach of **using-git-worktrees** which creating worktree
+4. **test-driven-development** - to be revised to enforce Test Strategy
 
 ## **Updated by superpowers:brainstorming skill:**
 

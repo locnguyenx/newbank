@@ -1,5 +1,6 @@
 package com.banking.charges.controller;
 
+import com.banking.common.security.config.TestSecurityConfig;
 import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.ChargeCalculationRequest;
 import com.banking.charges.dto.request.CreateChargeRuleRequest;
@@ -19,8 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.banking.common.security.config.TestSecurityConfig;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

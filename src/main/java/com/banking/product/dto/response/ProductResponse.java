@@ -25,7 +25,7 @@ public class ProductResponse {
         response.code = product.getCode();
         response.name = product.getName();
         response.family = product.getFamily() != null ? product.getFamily().name() : null;
-        response.versionNumber = product.getVersion();
+        response.versionNumber = product.getId();
         if (product.getAudit() != null) {
             response.createdAt = product.getAudit().getCreatedAt();
             response.updatedAt = product.getAudit().getUpdatedAt();

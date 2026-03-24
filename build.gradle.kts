@@ -37,7 +37,7 @@ dependencies {
     implementation("dev.samstevens.totp:totp:1.7.1")
 
     implementation("org.flywaydb:flyway-core")
-    // runtimeOnly("org.postgresql:postgresql")  # Commented out for H2 development mode
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
 
     compileOnly("org.projectlombok:lombok")
@@ -47,6 +47,9 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
     testImplementation("dev.samstevens.totp:totp:1.7.1")
+    testImplementation("org.testcontainers:testcontainers:1.19.3")
+    testImplementation("org.testcontainers:postgresql:1.19.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
 }
 
 tasks.withType<Test> {

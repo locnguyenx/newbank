@@ -1,5 +1,6 @@
 package com.banking.common.security.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -8,10 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Test-specific security configuration that disables JWT authentication.
- * This is used by @WebMvcTest tests that don't load the full Spring context.
- */
 @Configuration
 @EnableWebSecurity
 @Profile("test")
@@ -31,5 +28,14 @@ public class TestSecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().anyRequest();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "com.banking.audit.enabled", havingValue = "false", matchIfMissing = false)
+    public AuditTestConfig auditTestConfig() {
+        return new AuditTestConfig();
+    }
+
+    public static class AuditTestConfig {
     }
 }

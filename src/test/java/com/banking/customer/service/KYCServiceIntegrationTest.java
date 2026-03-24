@@ -1,5 +1,6 @@
 package com.banking.customer.service;
 
+import com.banking.common.config.AbstractIntegrationTest;
 import com.banking.customer.domain.entity.CorporateCustomer;
 import com.banking.customer.domain.entity.KYCCheck;
 import com.banking.customer.domain.entity.KYCDocument;
@@ -15,9 +16,9 @@ import com.banking.masterdata.repository.CurrencyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -26,10 +27,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Transactional
-class KYCServiceIntegrationTest {
+class KYCServiceIntegrationTest extends AbstractIntegrationTest {
+
+    @MockBean
+    private ApplicationEventPublisher eventPublisher;
 
     @MockBean
     private CurrencyRepository currencyRepository;
@@ -47,8 +50,8 @@ class KYCServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        kycCheckRepository.deleteAll();
-        customerRepository.deleteAll();
+        kycCheckRepository.deleteAllInBatch();
+        customerRepository.deleteAllInBatch();
 
         testCustomer = new CorporateCustomer("CUST-KYC-001", "Test Corp", CustomerStatus.ACTIVE);
         testCustomer.setTaxId("TAX-001");

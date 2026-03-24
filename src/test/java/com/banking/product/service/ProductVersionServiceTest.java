@@ -184,7 +184,7 @@ class ProductVersionServiceTest {
     @Test
     void retire_activeToRetired() {
         ProductVersion version = createVersion(1L, product, 1, ProductStatus.ACTIVE);
-        version.setContractCount(0);
+        version.setContractCount(0L);
         ProductVersionResponse expectedResponse = createResponse(1L, ProductStatus.RETIRED);
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(version));
@@ -201,7 +201,7 @@ class ProductVersionServiceTest {
     @Test
     void retire_withContracts_throwsException() {
         ProductVersion version = createVersion(1L, product, 1, ProductStatus.ACTIVE);
-        version.setContractCount(5);
+        version.setContractCount(5L);
 
         when(productVersionRepository.findById(1L)).thenReturn(Optional.of(version));
 

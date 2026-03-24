@@ -1,5 +1,6 @@
 package com.banking.customer.service;
 
+import com.banking.common.config.AbstractIntegrationTest;
 import com.banking.customer.domain.entity.CorporateCustomer;
 import com.banking.customer.domain.entity.Customer;
 import com.banking.customer.domain.entity.EmploymentRelationship;
@@ -14,9 +15,8 @@ import com.banking.masterdata.repository.CurrencyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -25,10 +25,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Transactional
-class EmploymentRelationshipServiceIntegrationTest {
+class EmploymentRelationshipServiceIntegrationTest extends AbstractIntegrationTest {
 
     @MockBean
     private CurrencyRepository currencyRepository;
@@ -48,8 +47,8 @@ class EmploymentRelationshipServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        employmentRelationshipRepository.deleteAll();
-        customerRepository.deleteAll();
+        employmentRelationshipRepository.deleteAllInBatch();
+        customerRepository.deleteAllInBatch();
 
         testEmployee = new IndividualCustomer("EMP-001", "John Doe", CustomerStatus.ACTIVE);
         testEmployee.setTaxId("EMP-T001");

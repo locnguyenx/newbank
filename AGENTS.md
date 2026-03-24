@@ -92,7 +92,8 @@ In your design spec's Testing Strategy section, reference this template: `docs/s
 - Common API field names: `type` (not `customerType`), `name` (not `firstName`/`lastName`), `emails[]` (not `email`)
 
 **Flyway Migration Tests**
-- `FlywayMigrationIntegrationTest` auto-discovers all `@Entity` classes under `com/banking/**` on the classpath and verifies their tables exist in the schema
+- `FlywayMigrationIntegrationTest` extends `AbstractIntegrationTest` to use shared PostgreSQL container
+- Auto-discovers all `@Entity` classes under `com/banking/**` on the classpath and verifies their tables exist in the schema
 - **When adding a new module**, update only `src/main/java/com/banking/BankingApplication.java` — add the new package to `@ComponentScan`, `@EntityScan`, and `@EnableJpaRepositories`. The test auto-discovers entity classes via classpath scanning — no manual registration needed.
 
 ## Banking-Specific Guidelines
@@ -150,6 +151,21 @@ message.error(getErrorMessage(err));
 **`application.yml` uses `ddl-auto: none`** — Flyway manages all schema. Hibernate does NOT create tables. **All entity changes MUST use the [flyway-hibernate-entity-validation] skill before committing.** This is a hard requirement, not optional.
 
 See: `docs/lesson-learned/flyway-hibernate-ddl-mismatch.md`
+
+## Test Infrastructure & Strategy
+
+All tests must follow the standardized approach defined in:
+**`docs/superpowers/templates/test-strategy.md`**
+
+Key points:
+- ✅ Use `@SpringBootTest` + `@AutoConfigureMockMvc` for controllers
+- ✅ Extend `AbstractIntegrationTest` for database tests
+- ✅ Use `@DirtiesContext` to avoid mock conflicts
+- ✅ `deleteAllInBatch()` never `deleteAll()`
+- ❌ Avoid `@WebMvcTest` - causes duplicate mock errors
+- ❌ TOTP tests should be disabled (timing sensitivity)
+
+See the template for complete guidelines, checklists, and examples.
 
 ## Architecture Enforcement
 

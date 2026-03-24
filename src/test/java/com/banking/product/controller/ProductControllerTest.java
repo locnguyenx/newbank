@@ -18,9 +18,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.banking.common.security.config.TestSecurityConfig;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ProductController.class)
 @ContextConfiguration(classes = {ProductController.class, ProductExceptionHandler.class})
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class ProductControllerTest {
 
     @Autowired
