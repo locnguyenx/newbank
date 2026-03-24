@@ -16,7 +16,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
     "com.banking.account",
     "com.banking.product",
     "com.banking.limits",
-    "com.banking.charges"
+    "com.banking.charges",
+    "com.banking.cashmanagement"
 })
 @EntityScan(basePackages = {
     "com.banking.common.security.entity",
@@ -29,7 +30,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
     "com.banking.account.domain",
     "com.banking.product.domain",
     "com.banking.limits.domain",
-    "com.banking.charges.domain"
+    "com.banking.charges.domain",
+    "com.banking.cashmanagement.domain"
 })
 @EnableJpaRepositories(basePackages = {
     "com.banking.common.security.entity",
@@ -42,7 +44,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
     "com.banking.account.repository",
     "com.banking.product.repository",
     "com.banking.limits.repository",
-    "com.banking.charges.repository"
+    "com.banking.charges.repository",
+    "com.banking.cashmanagement.repository"
 })
 public class BankingApplication {
 
