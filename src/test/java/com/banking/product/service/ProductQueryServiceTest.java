@@ -1,6 +1,5 @@
 package com.banking.product.service;
 
-import com.banking.customer.domain.enums.CustomerType;
 import com.banking.product.domain.entity.Product;
 import com.banking.product.domain.entity.ProductCustomerSegment;
 import com.banking.product.domain.entity.ProductVersion;
@@ -39,14 +38,14 @@ class ProductQueryServiceTest {
     @Mock
     private ProductMapper productMapper;
 
-    private ProductQueryService productQueryService;
+    private ProductQueryServiceImpl productQueryService;
 
     private Product testProduct;
     private ProductVersion testVersion;
 
     @BeforeEach
     void setUp() {
-        productQueryService = new ProductQueryService(productRepository, productVersionRepository, productCustomerSegmentRepository, productMapper);
+        productQueryService = new ProductQueryServiceImpl(productRepository, productVersionRepository, productCustomerSegmentRepository, productMapper);
         testProduct = new Product("BIZ-CURRENT", "Business Current Account", ProductFamily.ACCOUNT, "Test product");
         testVersion = new ProductVersion(testProduct, 1, ProductStatus.ACTIVE);
     }
@@ -121,26 +120,26 @@ class ProductQueryServiceTest {
         Product product1 = new Product("BIZ-CURRENT", "Business Current", ProductFamily.ACCOUNT, "Test 1");
         ProductVersion version1 = new ProductVersion(product1, 1, ProductStatus.ACTIVE);
         
-        ProductCustomerSegment segment = new ProductCustomerSegment(version1, CustomerType.CORPORATE);
+        ProductCustomerSegment segment = new ProductCustomerSegment(version1, com.banking.product.domain.enums.CustomerType.CORPORATE);
         version1.setCustomerSegments(new ArrayList<>(List.of(segment)));
 
         ProductVersionResponse mockResponse = new ProductVersionResponse();
 
-        when(productCustomerSegmentRepository.findByCustomerType(CustomerType.CORPORATE))
+        when(productCustomerSegmentRepository.findByCustomerType(com.banking.product.domain.enums.CustomerType.CORPORATE))
                 .thenReturn(List.of(segment));
         when(productMapper.toVersionResponse(version1)).thenReturn(mockResponse);
 
-        List<ProductVersionResponse> result = productQueryService.getActiveProductsByCustomerType(CustomerType.CORPORATE);
+        List<ProductVersionResponse> result = productQueryService.getActiveProductsByCustomerType(com.banking.product.domain.enums.CustomerType.CORPORATE);
 
         assertEquals(1, result.size());
     }
 
     @Test
     void getActiveProductsByCustomerType_noMatchingProducts_returnsEmptyList() {
-        when(productCustomerSegmentRepository.findByCustomerType(CustomerType.INDIVIDUAL))
+        when(productCustomerSegmentRepository.findByCustomerType(com.banking.product.domain.enums.CustomerType.INDIVIDUAL))
                 .thenReturn(List.of());
 
-        List<ProductVersionResponse> result = productQueryService.getActiveProductsByCustomerType(CustomerType.INDIVIDUAL);
+        List<ProductVersionResponse> result = productQueryService.getActiveProductsByCustomerType(com.banking.product.domain.enums.CustomerType.INDIVIDUAL);
 
         assertTrue(result.isEmpty());
     }

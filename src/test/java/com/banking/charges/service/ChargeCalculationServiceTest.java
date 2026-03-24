@@ -48,11 +48,11 @@ class ChargeCalculationServiceTest {
     @Mock
     private InterestRateService interestRateService;
 
-    private ChargeCalculationService chargeCalculationService;
+    private ChargeCalculationServiceImpl chargeCalculationService;
 
     @BeforeEach
     void setUp() {
-        chargeCalculationService = new ChargeCalculationService(
+        chargeCalculationService = new ChargeCalculationServiceImpl(
                 customerOverrideRepository,
                 productChargeRepository,
                 chargeRuleRepository,
