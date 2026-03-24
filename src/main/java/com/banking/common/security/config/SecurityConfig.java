@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    @Profile("!test")
+    @Profile("!test & !dev")
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -51,12 +51,12 @@ public class SecurityConfig {
     }
 
     /**
-     * Test profile security configuration - allows all requests without authentication.
-     * This is used for testing purposes only.
+     * Test/Dev profile security configuration - allows all requests without authentication.
+     * Use this for development and testing.
      */
     @Bean
     @Order(1)
-    @Profile("test")
+    @Profile({"test", "dev"})
     public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
