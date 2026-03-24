@@ -7,7 +7,7 @@ interface BatchPayment {
   batchReference: string;
   customerId: number;
   status: string;
-  paymentMethod: string;
+  fileFormat: string;
   totalAmount: string;
   currency: string;
   instructionCount: number;
@@ -66,9 +66,9 @@ export default function BatchPaymentPage() {
       ),
     },
     {
-      title: 'Method',
-      dataIndex: 'paymentMethod',
-      key: 'paymentMethod',
+      title: 'File Format',
+      dataIndex: 'fileFormat',
+      key: 'fileFormat',
     },
     {
       title: 'Instructions',

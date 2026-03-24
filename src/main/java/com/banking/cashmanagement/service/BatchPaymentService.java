@@ -4,6 +4,8 @@ import com.banking.cashmanagement.domain.entity.BatchPayment;
 import com.banking.cashmanagement.domain.enums.BatchPaymentStatus;
 import com.banking.cashmanagement.dto.BatchPaymentRequest;
 import com.banking.cashmanagement.dto.BatchPaymentResponse;
+import com.banking.cashmanagement.exception.BatchPaymentNotFoundException;
+import com.banking.cashmanagement.integration.CustomerServiceAdapter;
 import com.banking.cashmanagement.repository.BatchPaymentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +20,19 @@ import java.util.stream.Collectors;
 public class BatchPaymentService {
     
     private final BatchPaymentRepository batchPaymentRepository;
+    private final CustomerServiceAdapter customerServiceAdapter;
     
-    public BatchPaymentService(BatchPaymentRepository batchPaymentRepository) {
+    public BatchPaymentService(BatchPaymentRepository batchPaymentRepository,
+                               CustomerServiceAdapter customerServiceAdapter) {
         this.batchPaymentRepository = batchPaymentRepository;
+        this.customerServiceAdapter = customerServiceAdapter;
     }
     
     public BatchPaymentResponse createBatchPayment(BatchPaymentRequest request) {
+        if (!customerServiceAdapter.isValidCustomer(request.getCustomerId())) {
+            throw new IllegalArgumentException("Invalid customer: " + request.getCustomerId());
+        }
+        
         BatchPayment batch = new BatchPayment();
         batch.setBatchReference(generateBatchReference());
         batch.setCustomerId(request.getCustomerId());
@@ -41,7 +50,7 @@ public class BatchPaymentService {
     @Transactional(readOnly = true)
     public BatchPaymentResponse getBatchPayment(Long id) {
         BatchPayment batch = batchPaymentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Batch payment not found: " + id));
+            .orElseThrow(() -> BatchPaymentNotFoundException.forId(id));
         return mapToResponse(batch);
     }
     

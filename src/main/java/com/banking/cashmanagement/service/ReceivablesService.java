@@ -4,6 +4,8 @@ import com.banking.cashmanagement.domain.entity.ReceivableInvoice;
 import com.banking.cashmanagement.domain.enums.InvoiceStatus;
 import com.banking.cashmanagement.dto.ReceivableInvoiceRequest;
 import com.banking.cashmanagement.dto.ReceivableInvoiceResponse;
+import com.banking.cashmanagement.exception.ReceivableInvoiceNotFoundException;
+import com.banking.cashmanagement.integration.CustomerServiceAdapter;
 import com.banking.cashmanagement.repository.ReceivableInvoiceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +20,19 @@ import java.util.stream.Collectors;
 public class ReceivablesService {
     
     private final ReceivableInvoiceRepository receivableInvoiceRepository;
+    private final CustomerServiceAdapter customerServiceAdapter;
     
-    public ReceivablesService(ReceivableInvoiceRepository receivableInvoiceRepository) {
+    public ReceivablesService(ReceivableInvoiceRepository receivableInvoiceRepository,
+                              CustomerServiceAdapter customerServiceAdapter) {
         this.receivableInvoiceRepository = receivableInvoiceRepository;
+        this.customerServiceAdapter = customerServiceAdapter;
     }
     
     public ReceivableInvoiceResponse createInvoice(ReceivableInvoiceRequest request) {
+        if (!customerServiceAdapter.isValidCustomer(request.getCustomerId())) {
+            throw new IllegalArgumentException("Invalid customer: " + request.getCustomerId());
+        }
+        
         ReceivableInvoice invoice = new ReceivableInvoice();
         invoice.setInvoiceNumber(generateInvoiceNumber());
         invoice.setCustomerId(request.getCustomerId());
@@ -44,7 +53,7 @@ public class ReceivablesService {
     @Transactional(readOnly = true)
     public ReceivableInvoiceResponse getInvoice(Long id) {
         ReceivableInvoice invoice = receivableInvoiceRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Invoice not found: " + id));
+            .orElseThrow(() -> ReceivableInvoiceNotFoundException.forId(id));
         return mapToResponse(invoice);
     }
     
@@ -63,7 +72,7 @@ public class ReceivablesService {
     
     public ReceivableInvoiceResponse issueInvoice(Long id) {
         ReceivableInvoice invoice = receivableInvoiceRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Invoice not found: " + id));
+            .orElseThrow(() -> ReceivableInvoiceNotFoundException.forId(id));
         invoice.setStatus(InvoiceStatus.ISSUED);
         ReceivableInvoice saved = receivableInvoiceRepository.save(invoice);
         return mapToResponse(saved);
