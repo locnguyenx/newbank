@@ -26,6 +26,13 @@ import {
 import { MasterDataListPage } from '@/pages/master-data';
 import { LimitListPage } from '@/pages/limits';
 import { ChargeListPage } from '@/pages/charges';
+import {
+  PayrollPage,
+  LiquidityPage,
+  ReceivablesPage,
+  BatchPaymentPage,
+  AutoCollectionPage,
+} from '@/pages/cash-management';
 
 function App() {
   return (
@@ -51,6 +58,11 @@ function App() {
           <Route path="/master-data" element={<MasterDataListPage />} />
           <Route path="/limits" element={<LimitListPage />} />
           <Route path="/charges" element={<ChargeListPage />} />
+          <Route path="/cash-management/payroll" element={<PayrollPage />} />
+          <Route path="/cash-management/liquidity" element={<LiquidityPage />} />
+          <Route path="/cash-management/receivables" element={<ReceivablesPage />} />
+          <Route path="/cash-management/batch-payments" element={<BatchPaymentPage />} />
+          <Route path="/cash-management/auto-collection" element={<AutoCollectionPage />} />
           <Route path="/transactions" element={<div>Transactions</div>} />
           <Route path="/customers/:customerId/employees" element={<EmploymentListPage />} />
           <Route path="/customers/:customerId/employees/bulk-upload" element={<BulkUploadPage />} />
