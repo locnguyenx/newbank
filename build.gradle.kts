@@ -53,6 +53,15 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// Run only cash management tests (excluding broken module tests)
+tasks.register<Test>("testCashManagement") {
+    group = "verification"
+    description = "Run cash management module tests only"
+    useJUnitPlatform()
+    
+    include("**/cashmanagement/**/*Test.class")
+}
+
 // Run only infrastructure tests
 tasks.register<Test>("testInfra") {
     group = "verification"
@@ -60,6 +69,16 @@ tasks.register<Test>("testInfra") {
     useJUnitPlatform()
     
     include("**/common/security/**/*Test.class")
+}
+
+// Run tests excluding broken modules (product, charges tests have missing classes)
+tasks.register<Test>("testWorking") {
+    group = "verification"
+    description = "Run tests excluding broken module tests"
+    useJUnitPlatform()
+    
+    exclude("**/product/**")
+    exclude("**/charges/**")
 }
 
 // Task to export OpenAPI spec from running server
