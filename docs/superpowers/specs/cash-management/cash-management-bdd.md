@@ -45,7 +45,7 @@ Each BDD scenario is tagged with exactly one `@US` (User Story) and one `@FR` (F
   And generate an exception report for the funding issue
 
 ### Scenario: Payroll payment file generation
-  @US-PM-04 @FR-PM-04
+  @US-PM-05 @FR-PM-05
   Given validated payroll data with sufficient funds
   When the system generates the payment file for bank transmission
   Then the system should create a file in the specified format (ACH/SEPA)
@@ -86,12 +86,13 @@ Each BDD scenario is tagged with exactly one `@US` (User Story) and one `@FR` (F
   And generate appropriate accounting entries
 
 ### Scenario: Dunning management for overdue invoices
-Given an invoice that is 30 days past due
-When the dunning process runs according to schedule
-Then the system should generate a first reminder notice
-And send it to the customer via configured channel (email/portal)
-And log the dunning activity in the audit trail
-And escalate to higher levels of collection if configured
+  @US-RM-03 @FR-RM-06
+  Given an invoice that is 30 days past due
+  When the dunning process runs according to schedule
+  Then the system should generate a first reminder notice
+  And send it to the customer via configured channel (email/portal)
+  And log the dunning activity in the audit trail
+  And escalate to higher levels of collection if configured
 
 ## Feature: Liquidity Optimization
 
@@ -131,14 +132,15 @@ And escalate to higher levels of collection if configured
 ## Feature: Batch Payment Processing
 
 ### Scenario: Batch payment file upload and validation
-Given a corporate customer needs to make multiple vendor payments
-When the customer uploads a batch payment file in ISO 20022 format
-Containing 500 payment instructions to various beneficiaries
-Then the system should validate the file structure
-And validate each payment instruction for required fields
-And check beneficiary account details against known formats
-And accept the file if all validations pass
-Or reject the file with specific error details if validations fail
+  @US-BP-01 @FR-BP-01
+  Given a corporate customer needs to make multiple vendor payments
+  When the customer uploads a batch payment file in ISO 20022 format
+  Containing 500 payment instructions to various beneficiaries
+  Then the system should validate the file structure
+  And validate each payment instruction for required fields
+  And check beneficiary account details against known formats
+  And accept the file if all validations pass
+  Or reject the file with specific error details if validations fail
 
 ### Scenario: Batch payment processing with limit checking
   @US-BP-03 @FR-BP-03
@@ -304,43 +306,47 @@ Or reject the file with specific error details if validations fail
 ## Feature: Integration with Foundation Modules
 
 ### Scenario: Customer validation during payment processing
-Given a payment instruction is being processed
-When the system validates the beneficiary information
-Then the system should check if the beneficiary exists as a customer
-In the Customer Management module
-If the beneficiary is not a customer, proceed with standard validation
-If the beneficiary is an existing customer,
-Use existing customer data for validation where applicable
-And log the customer check in the audit trail
+  @US-INT-01 @FR-INT-01
+  Given a payment instruction is being processed
+  When the system validates the beneficiary information
+  Then the system should check if the beneficiary exists as a customer
+  In the Customer Management module
+  If the beneficiary is not a customer, proceed with standard validation
+  If the beneficiary is an existing customer,
+  Use existing customer data for validation where applicable
+  And log the customer check in the audit trail
 
 ### Scenario: Account balance verification for funding
-Given a payment instruction requires funding from a specific account
-When the system processes the payment
-Then the system should query the Account Management module
-To verify the current balance in the funding account
-And ensure sufficient funds are available (considering pending transactions)
-If sufficient funds exist, proceed with payment processing
-If insufficient funds exist, handle according to insufficient funds procedure
-And log the balance check in the audit trail
+  @US-INT-02 @FR-INT-02
+  Given a payment instruction requires funding from a specific account
+  When the system processes the payment
+  Then the system should query the Account Management module
+  To verify the current balance in the funding account
+  And ensure sufficient funds are available (considering pending transactions)
+  If sufficient funds exist, proceed with payment processing
+  If insufficient funds exist, handle according to insufficient funds procedure
+  And log the balance check in the audit trail
 
 ### Scenario: Limit checking for payment authorization
-Given a payment instruction is ready for processing
-When the system checks if the payment requires authorization
-Then the system should query the Limits Management module
-To determine if the payment amount exceeds the user's or account's limits
-If within limits, proceed with standard processing
-If exceeding limits, initiate the appropriate approval workflow
-And apply the limit check result to the payment processing decision
-And log the limit check in the audit trail
+  @US-INT-03 @FR-INT-03
+  Given a payment instruction is ready for processing
+  When the system checks if the payment requires authorization
+  Then the system should query the Limits Management module
+  To determine if the payment amount exceeds the user's or account's limits
+  If within limits, proceed with standard processing
+  If exceeding limits, initiate the appropriate approval workflow
+  And apply the limit check result to the payment processing decision
+  And log the limit check in the audit trail
 
 ### Scenario: Charge application for cash management services
-Given a cash management transaction has been processed
-When finalizing the transaction
-Then the system should query the Charges Management module
-To determine if any charges apply to this transaction
-Based on transaction type, amount, currency, and customer pricing
-If charges apply, calculate the appropriate amount
-And create a separate charge transaction
-Link the charge to the original transaction
-Apply the charge to the customer's account
-And log the charge application in the audit trail
+  @US-INT-04 @FR-INT-04
+  Given a cash management transaction has been processed
+  When finalizing the transaction
+  Then the system should query the Charges Management module
+  To determine if any charges apply to this transaction
+  Based on transaction type, amount, currency, and customer pricing
+  If charges apply, calculate the appropriate amount
+  And create a separate charge transaction
+  Link the charge to the original transaction
+  Apply the charge to the customer's account
+  And log the charge application in the audit trail
