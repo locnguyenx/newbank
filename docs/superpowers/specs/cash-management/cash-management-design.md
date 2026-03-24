@@ -4,9 +4,20 @@
 **Status:** Draft  
 **Module:** Cash Management Services  
 
+**Traceability:**
+- Charges Management Design: `docs/superpowers/specs/charges/design.md`
+- Account Management Design: `docs/superpowers/specs/account/design.md`
+- Customer Management Design: `docs/superpowers/specs/customer/design.md`
+
 ## Overview
 
-The Cash Management Services module provides comprehensive cash flow management tools for corporate treasury functions, enabling business customers to efficiently manage their liquidity, payments, and receivables. This module implements the business requirements defined in the BRD and BDD specifications, following the modular monolith architecture principles outlined in AGENTS.md.
+The Cash Management Services module provides comprehensive cash flow management tools for corporate treasury functions, enabling business customers to efficiently manage their liquidity, payments, and receivables. This module implements the business requirements defined in the BRD and BDD specifications, following the modular monolith architecture principles outlined in AGENTS.md and the System Design document (`docs/superpowers/architecture/system-design.md`). 
+
+This design has been validated for compliance with:
+- Modular Monolith architecture with proper module boundaries
+- Dependency flow direction (Business → Foundation modules only)
+- API contract enforcement using OpenAPI 3.0 as single source of truth
+- Module interface restrictions (only depending on .api and .dto packages)
 
 ## Architecture
 
@@ -15,6 +26,12 @@ The Cash Management Services module provides comprehensive cash flow management 
 - **Application Services:** Cash management operations, payment processing, collection services, liquidity optimization
 - **Infrastructure:** Data persistence (JPA repositories), external integrations (payment networks, file processing)
 - **Interface:** RESTful API for cash management operations (exposed via `.api` package)
+
+**Compliance with Modular Monolith Principles:**
+- Only depends on `.api` and `.dto` packages of other modules (Customer, Account, Limits, Charges, Master Data)
+- Does not access internal repositories or services directly (`*.repository`, `*.service` internal packages)
+- Follows dependency direction: Business module (Cash Management) depends on foundation modules, not vice versa
+- Implements API-first design with OpenAPI contract enforcement as specified in AGENTS.md
 
 ### Key Components
 

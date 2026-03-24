@@ -4,9 +4,17 @@
 **Version:** 1.0  
 **Status:** Draft  
 
+**Traceability:**
+- Charges Management BRD: `docs/superpowers/brds/charges/brd.md`
+- Charges Management Design: `docs/superpowers/specs/charges/design.md`
+
 ## 1. Executive Summary
 
 The Cash Management Services module provides comprehensive cash flow management tools for corporate treasury functions, enabling business customers to efficiently manage their liquidity, payments, and receivables. This module integrates with foundation modules (Customer, Account, Limits, Charges) to deliver secure, compliant cash management capabilities.
+
+### Traceability:
+- Charges Management BRD: `docs/superpowers/brds/charges/brd.md`
+- Charges Management Design: `docs/superpowers/specs/charges/design.md`
 
 ## 2. Business Objectives
 
@@ -47,7 +55,45 @@ The Cash Management Services module provides comprehensive cash flow management 
 | Compliance Officers | Ensure regulatory adherence | Auditors of transaction logs, audit trails, reporting |
 | System Administrators | Maintain system configuration | Configure module parameters, integrations, security |
 
-## 5. Functional Requirements
+## 5. User Stories
+
+### Payroll Processing
+- **US-PM-01:** As a payroll administrator, I want to upload payroll files in CSV format so that I can process employee payments efficiently
+- **US-PM-02:** As a payroll administrator, I want the system to validate payroll data before processing so that I can avoid payment errors
+- **US-PM-03:** As a treasury manager, I want to check payroll processing status so that I can track payment progress
+- **US-PM-04:** As an employee, I want to receive my salary on time so that I can meet my financial obligations
+
+### Receivables Management
+- **US-RM-01:** As an accounts receivable clerk, I want to present invoices electronically to customers so that I can reduce paper usage
+- **US-RM-02:** As an accounts receivable clerk, I want payments to be automatically matched to invoices so that I can reduce manual reconciliation work
+- **US-RM-03:** As a credit manager, I want to see aging reports so that I can identify overdue accounts
+- **US-RM-04:** As a customer, I want to view and pay invoices online so that I can manage my payables conveniently
+
+### Liquidity Optimization
+- **US-LO-01:** As a treasury analyst, I want to see real-time cash positions across all accounts so that I can make informed liquidity decisions
+- **US-LO-02:** As a treasury manager, I want to execute cash pooling between accounts so that I can optimize interest earnings
+- **US-LO-03:** As a treasury analyst, I want to generate liquidity forecasts so that I can plan for future cash needs
+- **US-LO-04:** As a treasury manager, I want to set up automated sweeping rules so that I can maintain target account balances
+
+### Batch Payment Processing
+- **US-BP-01:** As a payment operator, I want to upload batch payment files so that I can process multiple vendor payments efficiently
+- **US-BP-02:** As a payment operator, I want the system to validate batch payment data so that I can avoid payment rejections
+- **US-BP-03:** As a treasury manager, I want to schedule recurring batch payments so that I can automate regular payments
+- **US-BP-04:** As a beneficiary, I want to receive payments on time so that I can maintain good supplier relationships
+
+### Auto-Collection
+- **US-AC-01:** As an accounts receivable manager, I want to set up auto-collection rules so that I can automate receivables collection
+- **US-AC-02:** As an accounts receivable clerk, I want to receive notifications before collection attempts so that I can ensure sufficient funds
+- **US-AC-03:** As a customer, I want to be notified before automatic collection so that I can prepare for the payment
+- **US-AC-04:** As a finance manager, I want to see collection results so that I can monitor receivables performance
+
+### Reporting and Analytics
+- **US-RA-01:** As a treasury manager, I want to see a dashboard of key cash metrics so that I can monitor financial health
+- **US-RA-02:** As a financial analyst, I want to generate standard treasury reports so that I can analyze cash flow patterns
+- **US-RA-03:** As a compliance officer, I want to access audit trail reports so that I can ensure regulatory compliance
+- **US-RA-04:** As a business executive, I want to export reports in multiple formats so that I can share insights with stakeholders
+
+## 6. Functional Requirements
 
 ### 5.1 Payroll Processing
 - **FR-PM-01:** Enable bulk upload of payroll data via file formats (CSV, XML, ISO 20022)

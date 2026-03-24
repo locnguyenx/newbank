@@ -4,6 +4,10 @@
 **Version:** 1.0  
 **Status:** Draft  
 
+**Traceability:**
+- Charges Management BDD: `docs/superpowers/specs/charges/bdd.md`
+- Charges Management Design: `docs/superpowers/specs/charges/design.md`
+
 ## Feature: Payroll Processing
 
 ### Scenario: Successful payroll file upload and validation
