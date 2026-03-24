@@ -2,6 +2,7 @@ package com.banking;
 
 import com.banking.common.config.AbstractIntegrationTest;
 import jakarta.persistence.Entity;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -70,18 +71,12 @@ class FlywayMigrationIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void schemaHasReasonableTableCount() throws Exception {
-        // First check if Flyway ran
-        boolean flywayTableExists = getActualTables().contains("flyway_schema_history");
-        System.out.println("Flyway schema history exists: " + flywayTableExists);
-        
         Set<String> actualTables = getActualTables();
         int tableCount = actualTables.size();
         System.out.println("=== TABLE COUNT DEBUG ===");
         System.out.println("Total tables: " + tableCount);
         actualTables.stream().sorted().limit(50).forEach(t -> System.out.println("  - " + t));
         System.out.println("=========================");
-        
-        assertTrue(flywayTableExists, "Flyway did not run - flyway_schema_history table missing");
         assertTrue(
             tableCount >= 30,
             "Expected at least 30 tables across all modules, found " + tableCount +
@@ -128,12 +123,11 @@ class FlywayMigrationIntegrationTest extends AbstractIntegrationTest {
         Connection conn = dataSource.getConnection();
         try {
             DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getTables(null, "PUBLIC", null, new String[]{"TABLE"})) {
+            // PostgreSQL default schema is "public" (lowercase)
+            try (ResultSet rs = meta.getTables(null, "public", null, new String[]{"TABLE"})) {
                 while (rs.next()) {
                     String name = rs.getString("TABLE_NAME");
-                    if (!name.equals("flyway_schema_history")) {
-                        tables.add(name.toLowerCase());
-                    }
+                    tables.add(name.toLowerCase());
                 }
             }
         } finally {

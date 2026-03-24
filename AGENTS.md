@@ -157,15 +157,33 @@ See: `docs/lesson-learned/flyway-hibernate-ddl-mismatch.md`
 All tests must follow the standardized approach defined in:
 **`docs/superpowers/templates/test-strategy.md`**
 
-Key points:
-- ✅ Use `@SpringBootTest` + `@AutoConfigureMockMvc` for controllers
-- ✅ Extend `AbstractIntegrationTest` for database tests
-- ✅ Use `@DirtiesContext` to avoid mock conflicts
-- ✅ `deleteAllInBatch()` never `deleteAll()`
-- ❌ Avoid `@WebMvcTest` - causes duplicate mock errors
-- ❌ TOTP tests should be disabled (timing sensitivity)
+### ENFORCEMENT RULES (MANDATORY)
 
-See the template for complete guidelines, checklists, and examples.
+| # | Rule | Enforcement |
+|---|------|-------------|
+| 1 | **Flyway: NEVER rename applied migrations** | Use `flyway.clean-on-validation-error: true` in `application-test.yml` instead |
+| 2 | **All database tests MUST extend `AbstractIntegrationTest`** | Builds fail without it |
+| 3 | **Controller tests use `@SpringBootTest` + `@AutoConfigureMockMvc`** | NOT `@WebMvcTest` (causes duplicate mock errors) |
+| 4 | **Use `@BeforeEach` cleanup for ALL repositories** | Even with `@Transactional`, seed data persists |
+| 5 | **Delete in FK dependency order** | Child → Parent (e.g., charge_rules before charge_definitions) |
+| 6 | **Run `./gradlew clean build` before merge** | Clean, not incremental |
+| 7 | **Mock external adapters only** | DON'T mock internal module services or repositories |
+| 8 | **TOTP tests disabled** | Timing sensitivity - codes expire every 30 seconds |
+
+### Quick Reference
+
+```bash
+# Before ANY merge
+./gradlew clean build
+
+# Run tests with coverage
+./gradlew test
+
+# Test report location
+open build/reports/tests/test/index.html
+```
+
+See the template (`docs/superpowers/templates/test-strategy.md`) for complete guidelines, checklists, and examples.
 
 ## Architecture Enforcement
 

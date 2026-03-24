@@ -4,6 +4,7 @@ import com.banking.common.security.config.TestSecurityConfig;
 import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.CreateFeeWaiverRequest;
 import com.banking.charges.repository.ChargeDefinitionRepository;
+import com.banking.charges.repository.ChargeRuleRepository;
 import com.banking.charges.repository.FeeWaiverRepository;
 import com.banking.charges.domain.entity.ChargeDefinition;
 import com.banking.charges.domain.enums.ChargeStatus;
@@ -44,12 +45,16 @@ class FeeWaiverControllerTest {
     private ChargeDefinitionRepository chargeDefinitionRepository;
 
     @Autowired
+    private ChargeRuleRepository chargeRuleRepository;
+
+    @Autowired
     private FeeWaiverRepository feeWaiverRepository;
 
     @BeforeEach
     void setUp() {
-        feeWaiverRepository.deleteAll();
+        chargeRuleRepository.deleteAll();
         chargeDefinitionRepository.deleteAll();
+        feeWaiverRepository.deleteAll();
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.banking.common.security.config.TestSecurityConfig;
 import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.CreateChargeDefinitionRequest;
 import com.banking.charges.repository.ChargeDefinitionRepository;
+import com.banking.charges.repository.ChargeRuleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,12 @@ class ChargeDefinitionControllerTest {
     @Autowired
     private ChargeDefinitionRepository chargeDefinitionRepository;
 
+    @Autowired
+    private ChargeRuleRepository chargeRuleRepository;
+
     @BeforeEach
     void setUp() {
+        chargeRuleRepository.deleteAll();
         chargeDefinitionRepository.deleteAll();
     }
 

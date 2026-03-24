@@ -5,6 +5,9 @@ import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.ChargeCalculationRequest;
 import com.banking.charges.dto.request.CreateChargeRuleRequest;
 import com.banking.charges.dto.request.CreateFeeWaiverRequest;
+import com.banking.charges.repository.ChargeDefinitionRepository;
+import com.banking.charges.repository.ChargeRuleRepository;
+import com.banking.charges.repository.FeeWaiverRepository;
 import com.banking.charges.service.ChargeDefinitionService;
 import com.banking.charges.service.ChargeRuleService;
 import com.banking.charges.service.FeeWaiverService;
@@ -50,9 +53,20 @@ class ChargeCalculationControllerTest {
     @Autowired
     private FeeWaiverService feeWaiverService;
 
+    @Autowired
+    private ChargeRuleRepository chargeRuleRepository;
+
+    @Autowired
+    private ChargeDefinitionRepository chargeDefinitionRepository;
+
+    @Autowired
+    private FeeWaiverRepository feeWaiverRepository;
+
     @BeforeEach
     void setUp() {
-        // Cleanup handled by @Transactional
+        feeWaiverRepository.deleteAll();
+        chargeRuleRepository.deleteAll();
+        chargeDefinitionRepository.deleteAll();
     }
 
     @Test

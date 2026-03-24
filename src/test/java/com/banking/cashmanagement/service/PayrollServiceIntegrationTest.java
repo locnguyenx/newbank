@@ -4,12 +4,13 @@ import com.banking.cashmanagement.domain.entity.PayrollBatch;
 import com.banking.cashmanagement.domain.enums.PayrollBatchStatus;
 import com.banking.cashmanagement.domain.enums.PayrollFileFormat;
 import com.banking.cashmanagement.repository.PayrollBatchRepository;
+import com.banking.common.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -21,18 +22,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@ActiveProfiles("test")
 @Transactional
-class PayrollServiceIntegrationTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+class PayrollServiceIntegrationTest extends AbstractIntegrationTest {
 
     @MockBean
     private com.banking.cashmanagement.integration.AccountServiceAdapter accountServiceAdapter;
 
     @MockBean
     private com.banking.cashmanagement.integration.CustomerServiceAdapter customerServiceAdapter;
-
-    @MockBean
-    private com.banking.common.security.mfa.MfaService mfaService;
 
     @MockBean
     private com.banking.common.security.auth.AuthService authService;
