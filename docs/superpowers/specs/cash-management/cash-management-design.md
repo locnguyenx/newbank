@@ -33,6 +33,36 @@ This design has been validated for compliance with:
 - Follows dependency direction: Business module (Cash Management) depends on foundation modules, not vice versa
 - Implements API-first design with OpenAPI contract enforcement as specified in AGENTS.md
 
+### Communication Patterns
+Following the patterns defined in the System Design document (`docs/superpowers/architecture/system-design.md`):
+
+1. **Direct Interface Call** - Used for synchronous operations within the process:
+   - Customer lookup during payment validation via CustomerManagementService
+   - Account balance inquiries via AccountManagementService
+   - Limit checking via LimitManagementService
+   - Charge calculation via ChargesManagementService
+
+2. **Event Publishing** - Used for asynchronous notifications:
+   - Payroll processing completion events
+   - Batch payment processing status updates
+   - Collection attempt notifications
+   - Liquidity position calculation completion
+
+3. **Domain Events** - Used for cross-module state changes published via Spring/Kafka:
+   - PayrollProcessedEvent → Triggers charging in Charges module
+   - PaymentCompletedEvent → Updates receivables in Cash Management module
+   - LiquidityThresholdBreachedEvent → Alerts treasury users
+   - CollectionSuccessEvent → Updates invoice status in Receivables module
+
+4. **Command Query Separation** - Implemented for optimal performance:
+   - **Commands (Write Operations):** Payment initiation, fund transfers, collection attempts
+     - Route to primary database for consistency
+     - Use transactional service methods
+   - **Queries (Read Operations):** Balance inquiries, reporting, dashboard data
+     - Route to read replicas where available
+     - Use read-only repository methods
+     - Cache frequently accessed reference data
+
 ### Key Components
 
 #### 1. Payroll Processing Subsystem
