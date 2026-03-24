@@ -95,3 +95,61 @@ H2 Console settings:
 - JDBC URL: jdbc:h2:mem:customerdb
 - Username: sa
 - Password: (empty)
+
+## RUNNING SERVER WITH PostgreSQL
+
+### 1. Start All Services (PostgreSQL + Kafka)
+```bash
+docker-compose up -d
+# Or explicitly:
+docker-compose up -d postgres zookeeper kafka
+```
+This starts:
+- ✅ PostgreSQL on localhost:5432 (db: banking, user: banking, pass: banking)
+- ✅ Zookeeper on localhost:2181
+- ✅ Kafka on localhost:9092
+
+**Start PostgreSQL Only (if you don't need Kafka)**
+```bash
+docker-compose up -d postgres
+```
+**Verify Services Running**
+```bash
+# Check all services
+docker-compose ps
+# Check logs
+docker-compose logs -f postgres
+docker-compose logs -f kafka
+# Test PostgreSQL connection
+docker-compose exec postgres psql -U banking -d banking -c "\dt"
+# Test Kafka
+docker-compose exec kafka kafka-topics --bootstrap-server localhost:9092 --list
+```
+
+**Stop Services**
+```bash
+# Stop but keep data
+docker-compose stop
+# Stop and remove containers (data preserved in volume)
+docker-compose down
+# Stop, remove containers AND delete data
+docker-compose down -v
+```
+
+### 2. Run Application with PostgreSQL Profile
+```bash
+./gradlew bootRun --args='--spring.profiles.active=postgres'
+```
+Or set the profile as default in IDE/Run configuration.
+
+---
+
+**Quick Start Script (optional, create start-postgres.sh):**
+```bash
+#!/bin/bash
+docker-compose up -d postgres
+echo "PostgreSQL started on localhost:5432"
+echo "Database: banking, User: banking, Password: banking"
+./gradlew bootRun --args='--spring.profiles.active=postgres'
+```
+Everything is ready - just run docker-compose up -d postgres and start the app with the postgres profile!
