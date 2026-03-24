@@ -5,9 +5,12 @@ import com.banking.cashmanagement.domain.enums.PayrollBatchStatus;
 import com.banking.cashmanagement.dto.PayrollBatchRequest;
 import com.banking.cashmanagement.dto.PayrollBatchResponse;
 import com.banking.cashmanagement.exception.PayrollBatchNotFoundException;
+import com.banking.cashmanagement.integration.AccountServiceAdapter;
+import com.banking.cashmanagement.integration.CustomerServiceAdapter;
 import com.banking.cashmanagement.repository.PayrollBatchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,12 +22,22 @@ import java.util.stream.Collectors;
 public class PayrollService {
     
     private final PayrollBatchRepository payrollBatchRepository;
+    private final AccountServiceAdapter accountServiceAdapter;
+    private final CustomerServiceAdapter customerServiceAdapter;
     
-    public PayrollService(PayrollBatchRepository payrollBatchRepository) {
+    public PayrollService(PayrollBatchRepository payrollBatchRepository,
+                          AccountServiceAdapter accountServiceAdapter,
+                          CustomerServiceAdapter customerServiceAdapter) {
         this.payrollBatchRepository = payrollBatchRepository;
+        this.accountServiceAdapter = accountServiceAdapter;
+        this.customerServiceAdapter = customerServiceAdapter;
     }
     
     public PayrollBatchResponse createPayrollBatch(PayrollBatchRequest request) {
+        if (!customerServiceAdapter.isValidCustomer(request.getCustomerId())) {
+            throw new IllegalArgumentException("Invalid customer: " + request.getCustomerId());
+        }
+        
         PayrollBatch batch = new PayrollBatch();
         batch.setBatchReference(generateBatchReference());
         batch.setCustomerId(request.getCustomerId());
@@ -57,6 +70,14 @@ public class PayrollService {
         return batches.stream()
             .map(this::mapToResponse)
             .collect(Collectors.toList());
+    }
+    
+    public boolean verifySufficientFunds(Long fundingAccountId, BigDecimal amount) {
+        BigDecimal availableBalance = accountServiceAdapter.getAvailableBalance(fundingAccountId);
+        if (availableBalance == null) {
+            return false;
+        }
+        return availableBalance.compareTo(amount) >= 0;
     }
     
     private String generateBatchReference() {
