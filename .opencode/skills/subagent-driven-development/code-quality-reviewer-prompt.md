@@ -31,4 +31,20 @@ Read `/AGENTS.md` in the project root — specifically the "Architecture Enforce
 - Entities include `AuditFields` embeddable
 - Uses centralized error handling (MessageCatalog + BaseException pattern)
 
+**TDD compliance (REQUIRED):**
+Verify the implementation followed TDD:
+- [ ] Git history shows test commit BEFORE implementation commit
+- [ ] Test files exist and were created before implementation code
+- [ ] Tests cover the required behavior from BDD/BRD specs
+- [ ] Tests verify business requirements, not just implementation details
+
+**Frontend compliance (for User-Facing features):**
+If task is marked User-Facing: YES or BDD/BRD describes user interaction:
+- [ ] Frontend component exists in `frontend/src/components/`
+- [ ] Frontend test file exists (*.test.tsx)
+- [ ] Frontend test commit is BEFORE component commit
+- [ ] Frontend test covers BDD user interaction scenario
+- [ ] `npm run test:coverage` passes
+- [ ] Component follows project conventions (Ant Design, TypeScript, functional components)
+
 **Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment

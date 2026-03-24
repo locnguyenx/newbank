@@ -247,7 +247,8 @@ Done!
 ## Advantages
 
 **vs. Manual execution:**
-- Subagents follow TDD naturally
+- Subagents follow TDD naturally (enforced: tests first, then implementation)
+- BDD/BRD specs drive test scenarios
 - Fresh context per task (no confusion)
 - Parallel-safe (subagents don't interfere)
 - Subagent can ask questions (before AND during work)
@@ -314,10 +315,12 @@ Done!
 - **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **superpowers:writing-plans** - Creates the plan this skill executes
 - **superpowers:requesting-code-review** - Code review template for reviewer subagents
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **superpowers:finishing-a-development-branch** - Complete development after all tasks (includes test report generation)
 
 **Subagents should use:**
-- **superpowers:test-driven-development** - Subagents follow TDD for each task
+- **superpowers:test-driven-development** - Subagents follow TDD for each task (MANDATORY)
+- BDD specs in `docs/superpowers/specs/YYYY-MM-DD-<feature>-bdd.md` - Drive test scenarios
+- BRD specs in `docs/superpowers/specs/YYYY-MM-DD-<feature>.md` - Verify requirements
 
 **Alternative workflow:**
 - **superpowers:executing-plans** - Use for parallel session instead of same-session execution

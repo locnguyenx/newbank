@@ -55,6 +55,26 @@ Task tool (general-purpose):
 
     **Verify by reading code, not by trusting report.**
 
+    ## TDD and BDD/BRD Verification
+
+    **ALSO verify:**
+    - [ ] Test files exist and were committed BEFORE implementation code
+    - [ ] Git history shows test-first commit order
+    - [ ] Tests cover BDD scenarios (Given-When-Then) from spec
+    - [ ] Tests verify BRD requirements
+    - [ ] Tests fail without implementation (RED phase verified)
+    - [ ] Tests pass with implementation (GREEN phase verified)
+
+    ## Frontend Verification (for User-Facing features)
+
+    **If task is marked User-Facing: YES or BDD/BRD describes user interaction:**
+    - [ ] Frontend component exists in `frontend/src/components/`
+    - [ ] Frontend test file exists (*.test.tsx)
+    - [ ] Frontend test was committed BEFORE component
+    - [ ] Frontend test covers BDD user interaction scenario
+    - [ ] `npm run test:coverage` passes
+    - [ ] Component implements the BDD scenario behavior
+
     Report:
     - ✅ Spec compliant (if everything matches after code inspection)
     - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
