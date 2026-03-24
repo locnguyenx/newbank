@@ -34,7 +34,6 @@ class FlywayMigrationIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private DataSource dataSource;
 
-    @org.junit.jupiter.api.Disabled("Requires manual verification of migration files")
     @Test
     void noDuplicateMigrationVersions() {
         Set<String> versions = new HashSet<>();
@@ -52,6 +51,13 @@ class FlywayMigrationIntegrationTest extends AbstractIntegrationTest {
     void allEntityTablesExistInSchema() throws Exception {
         Set<String> expectedTables = discoverEntityTables();
         Set<String> actualTables = getActualTables();
+        
+        System.out.println("=== ENTITY TABLES DEBUG ===");
+        System.out.println("Expected tables from @Entity: " + expectedTables.size());
+        expectedTables.stream().sorted().limit(20).forEach(t -> System.out.println("  E: " + t));
+        System.out.println("Actual tables in database: " + actualTables.size());
+        actualTables.stream().sorted().limit(20).forEach(t -> System.out.println("  A: " + t));
+        System.out.println("===========================");
 
         Set<String> missing = new HashSet<>(expectedTables);
         missing.removeAll(actualTables);
@@ -63,9 +69,19 @@ class FlywayMigrationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Table count varies by test profile - disable in CI")
     void schemaHasReasonableTableCount() throws Exception {
-        int tableCount = getActualTables().size();
+        // First check if Flyway ran
+        boolean flywayTableExists = getActualTables().contains("flyway_schema_history");
+        System.out.println("Flyway schema history exists: " + flywayTableExists);
+        
+        Set<String> actualTables = getActualTables();
+        int tableCount = actualTables.size();
+        System.out.println("=== TABLE COUNT DEBUG ===");
+        System.out.println("Total tables: " + tableCount);
+        actualTables.stream().sorted().limit(50).forEach(t -> System.out.println("  - " + t));
+        System.out.println("=========================");
+        
+        assertTrue(flywayTableExists, "Flyway did not run - flyway_schema_history table missing");
         assertTrue(
             tableCount >= 30,
             "Expected at least 30 tables across all modules, found " + tableCount +
