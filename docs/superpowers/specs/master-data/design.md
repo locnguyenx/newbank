@@ -840,3 +840,72 @@ Full list: MDATA-001 through MDATA-012 (see Section 8 Error Handling).
 | `HolidayControllerTest` | Holiday API + isHoliday | S5.1-S5.5 |
 | `BranchControllerTest` | Branch API | S6.1-S6.3 |
 | `DocumentTypeControllerTest` | Document type API | S8.1-S8.3 |
+
+---
+
+## 8. Implementation Guardrails
+
+**For Future Developers:**
+Master Data is a **leaf foundation module** — it has no outbound dependencies. It provides reference data for all other modules. This special status means it must be extremely stable and backward compatible.
+
+### Module Boundary Rules (AGENTS.md)
+
+| Rule | Compliance Status |
+|------|-------------------|
+| **Rule 1: No domain entity sharing** | ✅ Other modules use `CurrencyDTO`, `CountryDTO`, etc. from `.dto` package |
+| **Rule 2: Only api/dto public** | ✅ Query services in `.api` package; DTOs in `.dto` package |
+| **Rule 3: JPA relationships within module** | ✅ Master data entities are independent (no cross-module JPA relationships) |
+| **Rule 4: Async for side-effects** | ✅ Can publish events if needed (e.g., `CurrencyUpdatedEvent`) but typically read-only |
+
+**Key Principle:** As a leaf module, Master Data is depended upon by ALL other modules. Any breaking change cascades widely. Therefore:
+- API stability is **critical** - once published, APIs should not change without migration strategy
+- Additive changes only (new methods, new DTO fields) are safe
+- Deleting/renaming APIs or DTO fields requires coordinated versioning
+- All queries should be read-only; no complex业务 logic
+
+**API Contract:**
+- `MasterDataQueryService` interface in `.api` package - general query operations
+- Specific query services: `CurrencyQueryService`, `CountryQueryService`, etc. (also in `.api`)
+- DTOs: `CurrencyDTO`, `CountryDTO`, etc. in `.dto` package
+- Controllers expose REST endpoints following OpenAPI spec
+
+**Data Ownership:**
+Master Data owns:
+- Currencies (ISO 4217 codes, active status)
+- Countries (ISO 3166 codes)
+- Holidays (calendar data)
+- Exchange rates (with effective dates)
+- Branches and channels
+
+Other modules reference these by **code** (String) or **ID** (Long), never by JPA entity.
+
+### Communication Patterns Reference
+
+The Master Data module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Master Data Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous queries for reference data | Other modules call `currencyQueryService.findByCode()` |
+| **Event Publishing** | Asynchronous notifications of reference data changes (optional) | `CurrencyUpdatedEvent` published if currency is deactivated |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Queries that need immediate result (read-only reference data)
+- Use **Event Publishing** for: Notifications of reference data changes (rare, but can be useful for cache invalidation)
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
+**Code Review Checklist:**
+- [ ] All service interfaces are in `.api` package and marked stable
+- [ ] All DTOs are in `.dto` package with no JPA annotations
+- [ ] No breaking changes to existing APIs without migration plan
+- [ ] No circular dependencies (master-data depends on nothing)
+- [ ] Reference data is immutable where possible (e.g., currency codes)
+- [ ] Queries are efficient (indexed by code)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
+
+See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
+
+---
+
+## 9. Error Handling

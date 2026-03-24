@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.2.5"
     id("io.spring.dependency-management") version "1.1.4"
+    id("application")
 }
 
 group = "com.banking"
@@ -10,6 +11,10 @@ version = "0.0.1-SNAPSHOT"
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass.set("com.banking.BankingApplication")
 }
 
 repositories {
@@ -29,6 +34,8 @@ dependencies {
 
     implementation("org.springframework.kafka:spring-kafka")
 
+    implementation("dev.samstevens.totp:totp:1.7.1")
+
     implementation("org.flywaydb:flyway-core")
     // runtimeOnly("org.postgresql:postgresql")  # Commented out for H2 development mode
     runtimeOnly("com.h2database:h2")
@@ -39,14 +46,20 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.2.1")
-}
-
-springBoot {
-    mainClass.set("com.banking.BankingApplication")
+    testImplementation("dev.samstevens.totp:totp:1.7.1")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Run only infrastructure tests
+tasks.register<Test>("testInfra") {
+    group = "verification"
+    description = "Run infrastructure (IAM, MFA, RBAC) tests only"
+    useJUnitPlatform()
+    
+    include("**/common/security/**/*Test.class")
 }
 
 // Task to export OpenAPI spec from running server

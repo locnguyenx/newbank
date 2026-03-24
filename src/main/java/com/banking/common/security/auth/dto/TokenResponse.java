@@ -19,6 +19,9 @@ public class TokenResponse {
 
     public static TokenResponse mfaRequired() {
         TokenResponse response = new TokenResponse();
+        response.accessToken = null;
+        response.refreshToken = null;
+        response.expiresIn = 0;
         response.mfaRequired = true;
         return response;
     }

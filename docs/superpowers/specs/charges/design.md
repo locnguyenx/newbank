@@ -909,3 +909,64 @@ Each exception class must define `ERROR_CODE` as a public constant:
 | `ChargeCalculationControllerTest` | Calculation API | S6.1-S6.4 |
 | `FeeWaiverControllerTest` | Waiver API | S5.1-S5.8 |
 | `InterestRateControllerTest` | Interest rate API | S5a.1-S5a.3 |
+
+---
+
+## 8. Implementation Guardrails
+
+**For Future Developers:**
+The Charges module is a **foundation module** providing fee calculation and interest management services. It must adhere to modular monolith boundaries.
+
+### Module Boundary Rules (AGENTS.md)
+
+| Rule | Compliance Status |
+|------|-------------------|
+| **Rule 1: No domain entity sharing** | ✅ Other modules use DTOs from `.dto` package; they never import `ChargeDefinition`, `ChargeRule`, etc. |
+| **Rule 2: Only api/dto public** | ✅ Services (`ChargeCalculationService`, `ChargeDefinitionService`) in `.api` package; DTOs in `.dto` package |
+| **Rule 3: JPA relationships within module** | ✅ Charge entities only reference other Charge entities; cross-module refs use `Long` IDs (productId, accountNumber) |
+| **Rule 4: Async for side-effects** | ✅ Fee waivers, interest accruals can be async; direct calls only for synchronous calculations |
+
+**API Contract:**
+- `ChargeCalculationService` (api) - calculates fees/interest for transactions
+- `ChargeDefinitionService` (api) - CRUD for charge definitions, rules, tiers
+- `FeeWaiverService` (api) - manages waivers and exemptions
+- `InterestAccrualService` (api) - handles interest calculation and application
+
+**Cross-Module Dependencies:**
+Charges module may depend on:
+- `Product` module (for product codes) - via `ProductQueryService` API
+- `Account` module (for account-specific overrides) - via account number (String) only
+- `Customer` module (for customer-specific waivers) - via customer ID (Long) only
+
+All dependencies must be on **API interfaces** only, not implementations.
+
+### Communication Patterns Reference
+
+The Charges module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Charges Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous fee/interest calculations | Other modules call `chargeCalculationService.calculate()` |
+| **Event Publishing** | Asynchronous notifications of fee-related changes | `ChargeAppliedEvent` published when charges are applied |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Fee/interest calculations that need immediate result
+- Use **Event Publishing** for: Notifications of charge events that other modules may react to
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
+**Code Review Checklist:**
+- [ ] All public services are in `.api` package
+- [ ] All external-facing DTOs are in `.dto` package
+- [ ] No domain entities leak outside the module
+- [ ] No direct repository dependencies in service APIs
+- [ ] No circular dependencies (charges should not be called by products that it depends on)
+- [ ] Event publishing for side-effects (audit, notifications)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
+
+See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
+
+---
+
+## 9. Error Handling

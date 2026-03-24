@@ -5,9 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
+@EnableAsync
 @ComponentScan(basePackages = {
+    "com.banking.common",
     "com.banking.customer",
     "com.banking.masterdata",
     "com.banking.account",
@@ -16,6 +19,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.banking.charges"
 })
 @EntityScan(basePackages = {
+    "com.banking.common.security.entity",
+    "com.banking.common.security.iam.entity",
+    "com.banking.common.security.mfa",
+    "com.banking.common.security.rbac",
+    "com.banking.common.audit",
     "com.banking.customer.domain",
     "com.banking.masterdata.domain",
     "com.banking.account.domain",
@@ -24,6 +32,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.banking.charges.domain"
 })
 @EnableJpaRepositories(basePackages = {
+    "com.banking.common.security.entity",
+    "com.banking.common.audit",
+    "com.banking.common.security.iam",
+    "com.banking.common.security.mfa",
+    "com.banking.common.security.rbac",
     "com.banking.customer.repository",
     "com.banking.masterdata.repository",
     "com.banking.account.repository",

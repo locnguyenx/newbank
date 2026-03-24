@@ -1,58 +1,116 @@
-# Corporate & SME Banking System Design
+# Customer Management Module Specification
 
+**Module:** Customer Management (Foundation)  
+**Version:** 1.1
 **Date:** 2026-03-19  
 **Status:** Draft  
-**Scope:** System Architecture + Customer Management Foundation Module
+**Updated:** Added frontend, Core Banking integration, third-party integration
+
+---
 
 ## Table of Contents
 
-1. [Overview](#1-overview)
+1. [Module Overview](#1-module-overview)
 2. [Domain Model](#2-domain-model)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Module Structure](#4-module-structure-customer-management---foundation-module)
-5. [Key Workflows](#5-key-workflows)
-6. [API Design](#6-api-design)
-7. [Security Considerations](#7-security-considerations)
-8. [Error Handling](#8-error-handling)
-9. [Testing Strategy](#9-testing-strategy)
-10. [Success Criteria](#10-success-criteria)
-11. [Next Steps](#11-next-steps)
+3. [Module Structure](#3-module-structure)
+4. [Key Workflows](#4-key-workflows)
+5. [API Design](#5-api-design)
+6. [Frontend Components](#6-frontend-components)
+7. [Integration Points](#7-integration-points)
+8. [Security](#8-security)
+9. [Error Handling](#9-error-handling)
+10. [Testing Strategy](#10-testing-strategy)
+11. [Success Criteria](#11-success-criteria)
 
-## 1. Overview
+---
 
-This document outlines the system architecture for a corporate and SME banking platform, with detailed specification of the Customer Management foundation module. The system uses a **Modular Monolith** architecture with clear separation between foundation modules and business modules.
+## 1. Module Overview
 
-### Key Decisions Made
+### Purpose
+
+Manage corporate, SME, and individual customer lifecycle, KYC/AML verification, and authorization. This module is a **foundation module** that other business modules depend on.
+
+**Customer Types:**
+- **Corporate customers** - Large businesses with complex structures
+- **SME customers** - Small and medium enterprises
+- **Individual customers** - Staff of corporate/SME customers (for payroll services)
+
+### Key Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Architecture | Modular Monolith | Simpler deployment, easier data consistency, single deployable unit with clear module boundaries |
-| Technology | Java 17 + Spring Boot | Industry standard for banking, excellent transaction management, strong security libraries |
-| KYC/AML | Enhanced KYC | Supports due diligence for high-risk customers, periodic reviews, sanctions screening, PEP checks |
+| Customer Structure | Flexible | Supports single entities, hierarchies, and networks for complex corporate structures |
+| Individual Customer Scope | Payroll recipients only | Staff receive payroll payments, no other banking services |
+| Individual Customer Creation | Bulk upload by company | Company administrator uploads staff list |
+| Individual KYC | Standard KYC | Identity verification, no sanctions screening |
+| Individual Data | Employment details | Name, national ID, bank account, employer, address, phone, email, tax ID, employment status |
+| Employer Relationship | Employment relationship | Separate entity with start date, status, department |
+| KYC/AML (Corporate/SME) | Enhanced KYC | Supports due diligence for high-risk customers, periodic reviews, sanctions screening, PEP checks |
 | Integration | Asynchronous Processing | Better reliability, allows retries, decouples KYC from onboarding flow |
 | Authorization | RBAC with Attributes | Balances simplicity with flexibility for transaction limits and approval hierarchies |
-| Customer Structure | Flexible | Supports single entities, hierarchies, and networks for complex corporate structures |
+
+### Module Dependencies
+
+```
+Customer Management Module
+    ├── Depends On: Master Data (currencies, countries)
+    └── Used By: Account, Cash Management, Trade Finance, Payments
+```
+
+### Data Owned
+
+| Table | Purpose |
+|-------|---------|
+| customers | Core customer records (Corporate, SME, Individual) |
+| entity_relationships | Customer hierarchy/relationships (Corporate/SME) |
+| employment_relationships | Individual customer to employer links |
+| authorized_signatories | Individuals authorized to act on behalf of corporate/SME |
+| roles | Permission sets |
+| permissions | Granular access control |
+| kyc_checks | KYC verification records |
+| documents | Customer documents |
+| risk_assessments | Customer risk scoring |
+
+---
 
 ## 2. Domain Model
 
 ### Core Entities
 
 ```java
-// Customer - Represents a business entity (corporate or SME)
+// Customer - Represents a business entity (corporate/SME) or individual (staff)
 @Entity
 class Customer {
     String id;
-    CustomerType type; // CORPORATE, SME, SOLE_PROPRIETOR
-    String legalName;
-    String tradingName;
-    BusinessRegistration registration;
+    CustomerType type; // CORPORATE, SME, INDIVIDUAL
+    String legalName; // For corporate/SME: legal name; For individual: full name
+    String tradingName; // For corporate/SME only
+    BusinessRegistration registration; // For corporate/SME only
+    PersonDetails personDetails; // For individual customers only
     RiskRating riskRating; // LOW, MEDIUM, HIGH, CRITICAL
     KycStatus kycStatus; // PENDING, IN_PROGRESS, COMPLETED, EXPIRED
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }
 
-// EntityRelationship - Links customers in complex structures
+// EmploymentRelationship - Links individual customers to their employer
+@Entity
+class EmploymentRelationship {
+    String id;
+    Customer individual; // Individual customer (staff)
+    Customer employer; // Corporate/SME customer
+    EmploymentStatus status; // ACTIVE, INACTIVE, TERMINATED
+    String department;
+    String employeeId; // Employer's internal employee ID
+    LocalDate startDate;
+    LocalDate endDate; // Null if currently employed
+    String taxId; // Individual's tax identification number
+    String bankAccountNumber; // For payroll deposits
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+}
+
+// EntityRelationship - Links corporate/SME customers in complex structures
 @Entity
 class EntityRelationship {
     String id;
@@ -106,7 +164,7 @@ class BusinessRegistration {
     String vatNumber; // Optional
 }
 
-// PersonDetails - Individual person details for authorized signatories
+// PersonDetails - Individual person details
 @Embeddable
 class PersonDetails {
     String firstName;
@@ -117,6 +175,14 @@ class PersonDetails {
     String email;
     String phoneNumber;
     Address address;
+}
+
+// EmploymentStatus - Employment status for individual customers
+enum EmploymentStatus {
+    ACTIVE,
+    INACTIVE,
+    TERMINATED,
+    ON_LEAVE
 }
 
 // Address - Physical address
@@ -172,86 +238,23 @@ class RiskAssessment {
 }
 ```
 
-## 3. Architecture Overview
+### KYC/AML Requirements by Customer Type
 
-### Modular Monolith with Foundation and Business Modules
+| Customer Type | KYC Level | Checks Required | Frequency |
+|---------------|-----------|-----------------|-----------|
+| **Corporate** | Enhanced KYC | Identity, Sanctions, PEP, Adverse Media | Onboarding + Annual review |
+| **SME** | Enhanced KYC | Identity, Sanctions, PEP, Adverse Media | Onboarding + Annual review |
+| **Individual (Staff)** | Standard KYC | Identity verification | Onboarding only |
 
-The system uses a **Modular Monolith** architecture with two distinct module layers:
+**Individual Customer KYC:**
+- Identity verification based on employer's KYC status
+- No sanctions screening required
+- Simplified due diligence process
+- Bulk verification during staff upload
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Modular Monolith                              │
-├─────────────────────────────────────────────────────────────────────┤
-│  Business Modules (depend on foundation modules)                    │
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐   │
-│  │ Cash Management  │ │ Trade Finance    │ │ Payments         │   │
-│  │ Module           │ │ Module           │ │ Module           │   │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘   │
-├─────────────────────────────────────────────────────────────────────┤
-│  Foundation Modules (no dependencies on business modules)           │
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐   │
-│  │ Customer         │ │ Account          │ │ Product          │   │
-│  │ Management       │ │ Management       │ │ Configuration    │   │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘   │
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐   │
-│  │ Limits           │ │ Charges          │ │ Master Data      │   │
-│  │ Management       │ │ Management       │ │ Management       │   │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-```
+---
 
-### Module Dependency Rules
-
-**Strict dependency direction:**
-```
-Foundation Modules → Business Modules (NEVER reverse)
-```
-
-**Why this matters:**
-- Foundation modules are stable and rarely change
-- Business modules can evolve independently
-- No circular dependencies
-- Clear ownership boundaries
-
-### Module Communication
-
-Modules communicate through **well-defined interfaces** (Java interfaces):
-
-```java
-// Foundation module exposes interface
-public interface CustomerService {
-    Customer getCustomer(String customerId);
-    Customer createCustomer(CreateCustomerRequest request);
-    Customer updateCustomer(String customerId, UpdateCustomerRequest request);
-}
-
-// Business module uses foundation interface
-@Service
-public class CashManagementService {
-    private final CustomerService customerService;
-    private final AccountService accountService;
-    
-    public Payroll createPayroll(String customerId, PayrollRequest request) {
-        // Use foundation services
-        Customer customer = customerService.getCustomer(customerId);
-        Account account = accountService.getAccount(request.getAccountId());
-        
-        // Business logic
-        return payrollRepository.save(payroll);
-    }
-}
-```
-
-**Benefits:**
-- **ACID transactions** within single process
-- **No network latency** between modules
-- **Simple debugging** (all code in one process)
-- **Easy cross-module queries** when needed
-- **Shared database** for referential integrity
-
-## 4. Module Structure (Customer Management - Foundation Module)
-
-This spec focuses on the **Customer Management** foundation module. Other foundation modules (Account, Product, Limits, Charges, Master Data) will be specified separately.
+## 3. Module Structure
 
 ```
 src/main/java/com/bank/customer/
@@ -299,70 +302,11 @@ src/main/java/com/bank/customer/
     └── CustomerEvent.java                 # Events for other modules
 ```
 
-### Other Foundation Modules (To Be Specified)
+---
 
-| Module | Purpose | Key Entities |
-|--------|---------|--------------|
-| **Account Management** | Business account lifecycle, balances | Account, SubAccount, Balance, Statement |
-| **Product Configuration** | Banking products, pricing rules | Product, ProductCategory, PricingRule |
-| **Limits Management** | Transaction limits, approval thresholds | Limit, LimitRule, ApprovalThreshold |
-| **Charges Management** | Fees, commissions, interest | Charge, ChargeRule, InterestRate |
-| **Master Data Management** | Reference data, currencies, countries | Currency, Country, Industry, etc. |
+## 4. Key Workflows
 
-### Business Modules (To Be Specified)
-
-| Module | Purpose | Dependencies |
-|--------|---------|--------------|
-| **Cash Management** | Payroll, receivables, liquidity | Customer, Account, Limits, Charges |
-| **Trade Finance** | Letters of credit, guarantees | Customer, Account, Product, Limits |
-| **Payments** | Domestic/international transfers | Customer, Account, Limits, Charges |
-
-### Module Interface Example
-
-```java
-// Customer Management module exposes this interface
-public interface CustomerService {
-    
-    // Core customer operations
-    Customer getCustomer(String customerId);
-    List<Customer> getCustomers(CustomerFilter filter);
-    Customer createCustomer(CreateCustomerRequest request);
-    Customer updateCustomer(String customerId, UpdateCustomerRequest request);
-    
-    // KYC operations
-    KycStatus getKycStatus(String customerId);
-    void initiateKycVerification(String customerId);
-    
-    // Authorization operations
-    List<AuthorizedSignatory> getSignatories(String customerId);
-    AuthorizedSignatory addSignatory(String customerId, AddSignatoryRequest request);
-    
-    // Relationship operations
-    List<EntityRelationship> getRelationships(String customerId);
-    void addRelationship(String customerId, EntityRelationshipRequest request);
-}
-```
-
-### Data Ownership
-
-Each module owns its data and exposes it through interfaces:
-
-```
-Customer Module owns:
-├── customers table
-├── entity_relationships table
-├── authorized_signatories table
-├── kyc_checks table
-├── documents table
-└── risk_assessments table
-
-Other modules access customer data ONLY through:
-└── CustomerService interface (NOT direct database access)
-```
-
-## 5. Key Workflows
-
-### 5.1 Customer Onboarding
+### 4.1 Corporate/SME Customer Onboarding
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌──────────────┐
@@ -383,7 +327,41 @@ Other modules access customer data ONLY through:
 6. KYC results processed (may take minutes to hours)
 7. Customer status updated based on KYC outcome
 
-### 5.2 KYC Verification
+### 4.2 Individual Customer Bulk Upload
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Upload     │────▶│   Validate   │────▶│   Create     │────▶│   Verify     │
+│   Staff List │     │   Data       │     │   Records    │     │   Identity   │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+      │                    │                    │                    │
+      ▼                    ▼                    ▼                    ▼
+  CSV/Excel File     Validation Rules    Individual Records    Standard KYC
+```
+
+**Steps:**
+1. Company administrator uploads staff list (CSV/Excel)
+2. System validates data format and completeness
+3. Individual customer records created with PENDING status
+4. Employment relationships created linking staff to employer
+5. Standard KYC verification initiated (identity only)
+6. Verification results processed
+7. Customer status updated based on verification outcome
+
+**Bulk Upload Data Fields:**
+- Employee ID (employer's internal ID)
+- Full name
+- National ID
+- Date of birth
+- Address
+- Phone number
+- Email
+- Tax ID
+- Bank account number
+- Department
+- Start date
+
+### 4.3 KYC Verification
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -405,7 +383,7 @@ Other modules access customer data ONLY through:
 7. If high-risk: manual review queue
 8. If passed: customer activated
 
-### 5.3 Authorization Management
+### 4.4 Authorization Management
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -425,7 +403,9 @@ Other modules access customer data ONLY through:
 5. Signatory activated after verification
 6. Audit log entry created
 
-## 6. API Design
+---
+
+## 5. API Design
 
 ### Customer API
 
@@ -507,6 +487,145 @@ paths:
       responses:
         '201':
           description: Signatory added
+  
+  /api/v1/customers/{customerId}/employees:
+    post:
+      summary: Bulk upload employees for payroll
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or Excel file with employee data
+      responses:
+        '202':
+          description: Bulk upload accepted, processing in background
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [PROCESSING, COMPLETED, FAILED]
+                  totalRecords:
+                    type: integer
+                  processedRecords:
+                    type: integer
+                  failedRecords:
+                    type: integer
+    get:
+      summary: List employees for payroll
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, TERMINATED]
+        - name: department
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Employee'
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+  
+  /api/v1/customers/{customerId}/employees/{employeeId}:
+    get:
+      summary: Get employee details
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    put:
+      summary: Update employee details
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmployeeRequest'
+      responses:
+        '200':
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    delete:
+      summary: Terminate employee
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee terminated
 
 components:
   schemas:
@@ -659,6 +778,79 @@ components:
         address:
           $ref: '#/components/schemas/Address'
     
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+          description: Employer customer ID
+        employeeId:
+          type: string
+          description: Employer's internal employee ID
+        name:
+          type: string
+        nationalId:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        taxId:
+          type: string
+        bankAccountNumber:
+          type: string
+        department:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, TERMINATED, ON_LEAVE]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        kycStatus:
+          type: string
+          enum: [PENDING, IN_PROGRESS, COMPLETED, EXPIRED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    UpdateEmployeeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        bankAccountNumber:
+          type: string
+        department:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, TERMINATED, ON_LEAVE]
+        endDate:
+          type: string
+          format: date
+    
     Address:
       type: object
       required:
@@ -682,31 +874,245 @@ components:
           description: ISO 3166-1 alpha-2 country code
 ```
 
-## 7. Security Considerations
+---
 
-### Authentication & Authorization
-- OAuth 2.0 + JWT for API authentication
-- Multi-factor authentication for sensitive operations
-- Session management with secure tokens
-- API rate limiting per customer
+## 6. Frontend Components
+
+### Customer Management UI
+
+The Customer Management module includes the following frontend components built with React 18, TypeScript, and Ant Design:
+
+#### Pages
+
+| Page | Components | Description |
+|------|-----------|-------------|
+| **Customer List** | Table, Filters, Pagination | List all customers with search and filtering |
+| **Customer Detail** | Tabs, Cards, Forms | View and edit customer details |
+| **Customer Onboarding** | Stepper, Forms, Upload | Multi-step onboarding wizard |
+| **KYC Management** | Status Cards, Documents, Timeline | KYC status and document management |
+| **Employee Management** | Table, Upload, Bulk Actions | Manage individual customers (staff) |
+| **Signatory Management** | Table, Forms, Authority Matrix | Manage authorized signatories |
+
+#### Key Components
+
+```typescript
+// Customer List Component
+const CustomerList: React.FC = () => {
+  const { data, loading, pagination } = useCustomers();
+  
+  return (
+    <Table
+      dataSource={data}
+      loading={loading}
+      pagination={pagination}
+      columns={[
+        { title: 'Legal Name', dataIndex: 'legalName' },
+        { title: 'Type', dataIndex: 'type' },
+        { title: 'KYC Status', dataIndex: 'kycStatus', render: (status) => <StatusBadge status={status} /> },
+        { title: 'Risk Rating', dataIndex: 'riskRating', render: (rating) => <RiskBadge rating={rating} /> },
+      ]}
+    />
+  );
+};
+
+// Employee Bulk Upload Component
+const EmployeeBulkUpload: React.FC<{ customerId: string }> = ({ customerId }) => {
+  const { upload, loading, progress } = useEmployeeUpload(customerId);
+  
+  return (
+    <Upload
+      accept=".csv,.xlsx"
+      beforeUpload={(file) => {
+        upload(file);
+        return false;
+      }}
+    >
+      <Button icon={<UploadOutlined />} loading={loading}>
+        Upload Employee List
+      </Button>
+    </Upload>
+  );
+};
+```
+
+#### State Management
+
+Customer management uses Redux Toolkit for state management:
+
+```typescript
+// Customer Slice
+const customerSlice = createSlice({
+  name: 'customer',
+  initialState: {
+    customers: [],
+    selectedCustomer: null,
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    setCustomers: (state, action) => {
+      state.customers = action.payload;
+    },
+    setSelectedCustomer: (state, action) => {
+      state.selectedCustomer = action.payload;
+    },
+  },
+});
+
+// Employee Slice
+const employeeSlice = createSlice({
+  name: 'employee',
+  initialState: {
+    employees: [],
+    uploadProgress: null,
+    loading: false,
+  },
+  reducers: {
+    setEmployees: (state, action) => {
+      state.employees = action.payload;
+    },
+    setUploadProgress: (state, action) => {
+      state.uploadProgress = action.payload;
+    },
+  },
+});
+```
+
+---
+
+## 7. Integration Points
+
+### Core Banking System Integration
+
+The Customer Management module integrates with the bank's Core Banking System (CBS):
+
+| Integration Point | Direction | Sync Type | Description |
+|-------------------|-----------|-----------|-------------|
+| **Customer Master** | Digital → CBS | Push | Customer records synced to CBS |
+| **Account Linkage** | CBS → Digital | Pull | Accounts linked to customers |
+| **KYC Status** | Digital → CBS | Push | KYC status updates sent to CBS |
+| **Transaction History** | CBS → Digital | Pull | Customer transaction history |
+
+**Data Flow:**
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│ Digital Banking  │────▶│ Integration      │────▶│ Core Banking     │
+│ Platform         │     │ Gateway          │     │ System           │
+│ (Customer Mgmt)  │     │ (API/SFTP)       │     │ (Customer Master)│
+└──────────────────┘     └──────────────────┘     └──────────────────┘
+```
+
+**Sync Rules:**
+- Customer created → Push to CBS (async, via message queue)
+- Customer updated → Push to CBS (async, via message queue)
+- Account created in CBS → Pull to Digital (real-time API)
+- KYC completed → Push to CBS (async, via message queue)
+
+### Third-Party Service Integration
+
+| Service | Purpose | Provider | Protocol | Integration |
+|---------|---------|----------|----------|-------------|
+| **Sanctions Screening** | AML compliance | Dow Jones, Refinitiv | REST API | Async via Kafka |
+| **PEP Screening** | AML compliance | Dow Jones, Refinitiv | REST API | Async via Kafka |
+| **Identity Verification** | KYC | Jumio, Onfido, Trulioo | REST API | Async via Kafka |
+| **Credit Scoring** | Risk assessment | Dun & Bradstreet | REST API | Async via Kafka |
+| **Document Verification** | KYC | Onfido, Veriff | REST API | Async via Kafka |
+| **Address Validation** | Data quality | Loqate | REST API | Synchronous |
+
+**Integration Pattern:**
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│ Customer         │────▶│ Message Queue    │────▶│ Third-Party      │
+│ Management       │     │ (Kafka)          │     │ Service          │
+│ Service          │     │                  │     │ (KYC Provider)   │
+└──────────────────┘     └──────────────────┘     └──────────────────┘
+        │                        │                        │
+        │                        ▼                        │
+        │                 ┌──────────────────┐           │
+        └────────────────▶│ Result Handler   │◀──────────┘
+                          │ (Process Results)│
+                          └──────────────────┘
+```
+
+**Resilience Patterns:**
+- Circuit breaker for each third-party service
+- Retry with exponential backoff (max 3 retries)
+- Timeout configuration (connect: 5s, read: 30s)
+- Fallback responses for degraded functionality
+- Dead letter queue for failed messages
+
+### Event Publishing
+
+The Customer Management module publishes events for other modules:
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| **CustomerCreated** | New customer created | Account, Payments, Cash Management |
+| **CustomerUpdated** | Customer details updated | Account, Payments |
+| **KycCompleted** | KYC verification completed | Account, Payments |
+| **SignatoryAdded** | New signatory added | Account, Payments |
+| **EmployeeAdded** | New employee added | Cash Management (Payroll) |
+| **EmployeeUpdated** | Employee details updated | Cash Management (Payroll) |
+
+**Event Schema:**
+```json
+{
+  "eventId": "uuid",
+  "eventType": "CustomerCreated",
+  "timestamp": "2026-03-19T10:30:00Z",
+  "source": "customer-management",
+  "data": {
+    "customerId": "uuid",
+    "customerType": "CORPORATE",
+    "kycStatus": "PENDING"
+  }
+}
+```
+
+---
+
+## 8. Security
 
 ### Data Protection
-- Encryption at rest (AES-256) for customer PII
-- Field-level encryption for sensitive data (tax IDs, account numbers)
-- Audit logging for all customer data access
-- Data masking in non-production environments
 
-### Compliance
-- KYC/AML workflow must be auditable
-- Document retention per regulatory requirements
-- Right to data export (GDPR)
-- Consent management for data processing
+| Data Type | Protection | Storage |
+|-----------|-----------|---------|
+| **Tax IDs** | Field-level encryption (AES-256-GCM) | Encrypted at rest |
+| **National IDs** | Field-level encryption | Encrypted at rest |
+| **Personal Names** | Standard encryption | Encrypted at rest |
+| **Documents** | S3 server-side encryption | Encrypted at rest |
 
-## 8. Error Handling
+### Access Control
+
+- **RBAC with Attributes**: Predefined roles (ACCOUNT_OPERATOR, TREASURY_MANAGER, SIGNATORY, VIEWER)
+- **Signing Authority**: SOLE, JOINT_2_OF_3, JOINT_3_OF_5, UNLIMITED
+- **Multi-factor Authentication**: Required for sensitive operations
+
+### Audit Trail
+
+All customer data changes generate immutable audit records:
+
+```json
+{
+  "auditId": "uuid",
+  "timestamp": "2026-03-19T10:30:00Z",
+  "actor": "user-id",
+  "action": "CREATE",
+  "resource": "customer",
+  "resourceId": "customer-uuid",
+  "before": null,
+  "after": { "legalName": "Acme Corp" },
+  "ipAddress": "192.168.1.1"
+}
+```
+
+---
+
+## 9. Error Handling
 
 ### Business Errors
+
 ```java
-// Domain-specific exceptions
 class CustomerNotFoundException extends BusinessException {
     public CustomerNotFoundException(String customerId) {
         super("Customer not found: " + customerId, "CUSTOMER_NOT_FOUND", 404);
@@ -727,6 +1133,7 @@ class InsufficientSigningAuthorityException extends BusinessException {
 ```
 
 ### Error Response Format
+
 ```json
 {
   "error": {
@@ -741,7 +1148,9 @@ class InsufficientSigningAuthorityException extends BusinessException {
 }
 ```
 
-## 9. Testing Strategy
+---
+
+## 10. Testing Strategy
 
 ### Standards
 
@@ -768,38 +1177,108 @@ Each exception class must define `ERROR_CODE` as a public constant:
 ### Module-Specific Tests
 
 #### Unit Tests
+
 - Domain model validation
 - Business rule enforcement
 - Risk scoring logic
 - Permission checking
 
 #### Integration Tests
+
 - Database persistence
 - Message queue publishing
 - External API mocking
 - Transaction management
 
 #### End-to-End Tests
+
 - Customer onboarding workflow
 - KYC verification process
 - Signatory management
 - Authorization flows
 
-## 10. Success Criteria
+---
 
-- Customer onboarding completed in < 15 minutes
-- KYC verification processed within 24 hours
-- 99.9% uptime for customer-facing APIs
-- Zero data breaches or compliance violations
-- API response time < 200ms for 95% of requests
+## 10. Implementation Guardrails
 
-## 11. Next Steps
+**For Future Developers:**
+The Customer module is a **foundation module** and must maintain strict architectural compliance:
 
-1. Implement core domain model
-2. Set up database schema and migrations
-3. Implement Customer API endpoints
-4. Integrate KYC external services
-5. Build authorization management
-6. Comprehensive testing
-7. Performance optimization
-8. Security audit
+### Module Boundary Rules (AGENTS.md)
+
+| Rule | Compliance Status |
+|------|-------------------|
+| **Rule 1: No domain entity sharing** | ✅ Customer module doesn't import from other modules' domain entities (it's a foundation module - others depend on IT) |
+| **Rule 2: Only api/dto public** | ✅ When other modules need customer data, they must import from `com.banking.customer.api` or `com.banking.customer.dto` |
+| **Rule 3: JPA relationships within module** | ✅ Customer entities only reference other Customer entities |
+| **Rule 4: Async for side-effects** | ✅ KYC events published asynchronously; direct calls only for validation |
+
+**Key Principle:** As a foundation module, Customer provides services to business modules (account, payments, etc.). It should **NOT** depend on business modules. Dependencies can only be on other foundation modules (product, limits, charges, master-data) through their **API** packages.
+
+**API Contract:**
+- All public services (`CustomerQueryService`, `CustomerService`, `AuthorizationService`) must be in `com.banking.customer.api` package
+- All DTOs used by other modules must be in `com.banking.customer.dto` package
+- Never expose `domain.entity`, `repository`, or internal `service` packages to external modules
+
+**Event Publishing Pattern:**
+Customer module publishes events (via `CustomerEventPublisher`) for:
+- `CustomerCreatedEvent`
+- `KYCInitiatedEvent`
+- `KYCApprovedEvent`
+- `KYCRejectedEvent`
+- etc.
+
+These events should contain minimal data (IDs, status codes) and allow other modules to react without blocking the primary transaction.
+
+### Communication Patterns Reference
+
+The Customer module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Customer Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous validation when other modules need customer data | Other modules call `customerQueryService.findById()` |
+| **Event Publishing** | Asynchronous notifications of customer lifecycle changes | `KYCApprovedEvent` published when KYC verification completes |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Queries that need immediate result
+- Use **Event Publishing** for: Notifications of state changes that other modules may react to
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
+**Code Review Checklist:**
+- [ ] New API interfaces are placed in `.api` package and are stable
+- [ ] DTOs are in `.dto` package and contain no JPA annotations
+- [ ] Domain events extend `ApplicationEvent` and contain necessary data for consumers
+- [ ] No direct repository access from other modules exposed in service interfaces
+- [ ] No circular dependencies introduced (e.g., customer shouldn't call account if account calls customer)
+- [ ] Communication pattern matches System Design Section 7.1 guidance
+
+See `AGENTS.md` for complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
+
+---
+
+## 11. Success Criteria
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **Customer Onboarding Time** | < 15 minutes | Transaction logs |
+| **KYC Verification Time** | < 24 hours | System logs |
+| **API Response Time (p95)** | < 200ms | Monitoring |
+| **Uptime** | 99.9% | Monitoring |
+| **Test Coverage** | > 80% | Code coverage |
+
+---
+
+## Related Documents
+
+- [System Design](docs/superpowers/architecture/system-design.md))
+- [Master Implementation Plan](docs/superpowers/plans/2026-03-19-master-implementation-plan.md)
+- [Account Management Spec](../account/design.md)
+- [Cash Management Spec](./cash-management-spec.md)
+- [Trade Finance Spec](./trade-finance-spec.md)
+- [Payments Spec](./payments-spec.md)
+- [Product Configuration Spec](../product/design.md)
+- [Limits Management Spec](../limits/design.md)
+- [Charges Management Spec](../charges/design.md)
+- [Master Data Spec](../master-data/design.md)

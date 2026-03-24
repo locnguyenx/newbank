@@ -1,5 +1,6 @@
 package com.banking.account.service;
 
+import com.banking.account.event.AccountOpenedEvent;
 import com.banking.account.domain.entity.Account;
 import com.banking.account.domain.entity.AccountHolder;
 import com.banking.account.domain.entity.CurrentAccount;
@@ -25,9 +26,8 @@ import com.banking.product.api.ProductQueryService;
 import com.banking.product.api.dto.ProductVersionDTO;
 import com.banking.limits.api.LimitCheckService;
 import com.banking.limits.api.dto.LimitCheckResult;
-import com.banking.limits.service.LimitAssignmentService;
-import com.banking.limits.dto.response.ProductLimitResponse;
-import com.banking.masterdata.repository.CurrencyRepository;
+import com.banking.masterdata.api.CurrencyQueryService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,8 +52,8 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final ProductQueryService productQueryService;
     private final LimitCheckService limitCheckService;
-    private final LimitAssignmentService limitAssignmentService;
-    private final CurrencyRepository currencyRepository;
+    private final CurrencyQueryService currencyQueryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AccountService(AccountRepository accountRepository,
                           AccountHolderRepository accountHolderRepository,
@@ -62,8 +62,8 @@ public class AccountService {
                           AccountMapper accountMapper,
                           ProductQueryService productQueryService,
                           LimitCheckService limitCheckService,
-                          LimitAssignmentService limitAssignmentService,
-                          CurrencyRepository currencyRepository) {
+                          CurrencyQueryService currencyQueryService,
+                          ApplicationEventPublisher eventPublisher) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
         this.customerQueryService = customerQueryService;
@@ -71,8 +71,8 @@ public class AccountService {
         this.accountMapper = accountMapper;
         this.productQueryService = productQueryService;
         this.limitCheckService = limitCheckService;
-        this.limitAssignmentService = limitAssignmentService;
-        this.currencyRepository = currencyRepository;
+        this.currencyQueryService = currencyQueryService;
+        this.eventPublisher = eventPublisher;
     }
 
     public Page<AccountResponse> getAccounts(String search, AccountType type, AccountStatus status, Long customerId, Pageable pageable) {
@@ -88,11 +88,14 @@ public class AccountService {
         }
         Long customerId = customerDTO.getId();
 
-        com.banking.masterdata.domain.entity.Currency masterDataCurrency = 
-            currencyRepository.findById(request.getCurrency())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid currency code: " + request.getCurrency()));
+        com.banking.masterdata.api.dto.CurrencyDTO currencyDTO = 
+            currencyQueryService.findByCode(request.getCurrency());
         
-        if (!masterDataCurrency.isActive()) {
+        if (currencyDTO == null) {
+            throw new IllegalArgumentException("Invalid currency code: " + request.getCurrency());
+        }
+        
+        if (!currencyDTO.isActive()) {
             throw new IllegalArgumentException("Currency is inactive: " + request.getCurrency());
         }
 
@@ -178,18 +181,22 @@ public class AccountService {
 
         account = accountRepository.save(account);
 
-        List<ProductLimitResponse> productLimits = limitAssignmentService.getProductLimits(request.getProductCode());
-        for (ProductLimitResponse productLimit : productLimits) {
-            try {
-                limitAssignmentService.assignToAccount(
-                    productLimit.getLimitDefinitionId(),
-                    accountNumber,
-                    productLimit.getOverrideAmount()
-                );
-            } catch (Exception e) {
-                log.warn("Failed to assign limit {} to account {}: {}", productLimit.getLimitDefinitionId(), accountNumber, e.getMessage());
-            }
-        }
+        // Publish AccountOpenedEvent for asynchronous processing by other modules
+        // (e.g., Limits module will assign default product limits)
+        AccountOpenedEvent event = new AccountOpenedEvent(
+                this,
+                account.getId(),
+                account.getAccountNumber(),
+                customerId,
+                request.getProductCode(),
+                productId,
+                productVersionId,
+                productName,
+                request.getCurrency(),
+                request.getInitialDeposit(),
+                "system" // TODO: Get actual user from security context
+        );
+        eventPublisher.publishEvent(event);
 
         for (AccountHolderRequest holderReq : request.getHolders()) {
             CustomerDTO holderCustomerDTO = customerQueryService.findById(holderReq.getCustomerId());

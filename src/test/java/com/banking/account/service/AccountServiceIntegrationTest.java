@@ -9,19 +9,12 @@ import com.banking.account.repository.AccountRepository;
 import com.banking.customer.api.CustomerQueryService;
 import com.banking.customer.api.dto.CustomerDTO;
 import com.banking.limits.domain.enums.LimitCheckResult;
-import com.banking.limits.domain.enums.LimitType;
 import com.banking.limits.dto.response.LimitCheckResponse;
-import com.banking.limits.dto.response.AccountLimitResponse;
-import com.banking.limits.dto.response.ProductLimitResponse;
-import com.banking.limits.repository.AccountLimitRepository;
-import com.banking.limits.repository.LimitDefinitionRepository;
-import com.banking.limits.repository.ProductLimitRepository;
 import com.banking.limits.service.LimitCheckService;
-import com.banking.limits.service.LimitAssignmentService;
-import com.banking.masterdata.domain.entity.Currency;
-import com.banking.masterdata.repository.CurrencyRepository;
-import com.banking.product.dto.response.ProductVersionResponse;
-import com.banking.product.service.ProductQueryService;
+import com.banking.masterdata.api.CurrencyQueryService;
+import com.banking.masterdata.api.dto.CurrencyDTO;
+import com.banking.product.api.ProductQueryService;
+import com.banking.product.api.dto.ProductVersionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +40,7 @@ class AccountServiceIntegrationTest {
     private static final Long TEST_CUSTOMER_ID = 1L;
 
     @MockBean
-    private CurrencyRepository currencyRepository;
+    private CurrencyQueryService currencyQueryService;
 
     @MockBean
     private ProductQueryService productQueryService;
@@ -57,18 +50,6 @@ class AccountServiceIntegrationTest {
 
     @MockBean
     private LimitCheckService limitCheckService;
-
-    @MockBean
-    private LimitAssignmentService limitAssignmentService;
-
-    @MockBean
-    private LimitDefinitionRepository limitDefinitionRepository;
-
-    @MockBean
-    private ProductLimitRepository productLimitRepository;
-
-    @MockBean
-    private AccountLimitRepository accountLimitRepository;
 
     @Autowired
     private AccountService accountService;
@@ -84,31 +65,24 @@ class AccountServiceIntegrationTest {
         when(customerQueryService.findById(TEST_CUSTOMER_ID)).thenReturn(testCustomerDTO);
         when(customerQueryService.findById(any())).thenReturn(testCustomerDTO);
 
-        Currency usdCurrency = org.mockito.Mockito.mock(Currency.class);
-        when(usdCurrency.isActive()).thenReturn(true);
-        when(currencyRepository.findById("USD")).thenReturn(Optional.of(usdCurrency));
-        when(currencyRepository.findByIsActiveTrue()).thenReturn(List.of(usdCurrency));
+        CurrencyDTO usdCurrency = new CurrencyDTO();
+        usdCurrency.setCode("USD");
+        usdCurrency.setActive(true);
+        when(currencyQueryService.findByCode("USD")).thenReturn(usdCurrency);
+        when(currencyQueryService.findByCode(any())).thenReturn(usdCurrency);
+        when(currencyQueryService.existsByCode(any())).thenReturn(true);
 
-        ProductVersionResponse productVersion = new ProductVersionResponse();
+        ProductVersionDTO productVersion = new ProductVersionDTO();
         productVersion.setId(1L);
         productVersion.setProductId(1L);
         productVersion.setProductName("Current Account");
+        productVersion.setVersionNumber(1);
         productVersion.setStatus("ACTIVE");
-        when(productQueryService.getActiveProductByCode(any())).thenReturn(Optional.of(productVersion));
+        when(productQueryService.findActiveVersionByCode(any())).thenReturn(Optional.of(productVersion));
 
         LimitCheckResponse allowedResponse = new LimitCheckResponse();
         allowedResponse.setResult(LimitCheckResult.ALLOWED);
         when(limitCheckService.checkLimit(any())).thenReturn(allowedResponse);
-
-        AccountLimitResponse assignmentResponse = new AccountLimitResponse();
-        when(limitAssignmentService.assignToAccount(eq(1L), any(), any())).thenReturn(assignmentResponse);
-
-        ProductLimitResponse productLimitResponse = new ProductLimitResponse();
-        productLimitResponse.setLimitDefinitionId(1L);
-        productLimitResponse.setProductCode("PROD-CURRENT-001");
-        productLimitResponse.setOverrideAmount(new BigDecimal("50000"));
-        when(limitAssignmentService.getProductLimits("PROD-CURRENT-001")).thenReturn(List.of(productLimitResponse));
-        when(limitAssignmentService.getProductLimits(any())).thenReturn(List.of(productLimitResponse));
     }
 
     @Test

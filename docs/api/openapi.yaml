@@ -3063,10 +3063,108 @@ paths:
           type: integer
           format: int64
       responses:
+        "204":
+          description: No Content
+  /api/auth/mfa/enroll:
+    post:
+      tags:
+      - auth-controller
+      operationId: enrollMfa
+      responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaEnrollResponse'
+  /api/auth/mfa/verify:
+    post:
+      tags:
+      - auth-controller
+      operationId: verifyMfa
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+  /api/auth/mfa/enable:
+    post:
+      tags:
+      - auth-controller
+      operationId: enableMfa
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+  /api/auth/mfa/disable:
+    post:
+      tags:
+      - auth-controller
+      operationId: disableMfa
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+  /api/auth/mfa/status:
+    post:
+      tags:
+      - auth-controller
+      operationId: getMfaStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
 components:
   schemas:
+    MfaRequest:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          type: string
+    MfaEnrollResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+        qrCodeUrl:
+          type: string
     ProductSegmentRequest:
       required:
       - customerTypes

@@ -111,8 +111,8 @@ class ProductServiceTest {
         request.setName("New Product");
         request.setFamily(ProductFamily.ACCOUNT);
         request.setCustomerTypes(List.of(
-            com.banking.customer.domain.enums.CustomerType.CORPORATE,
-            com.banking.customer.domain.enums.CustomerType.INDIVIDUAL
+            com.banking.product.domain.enums.CustomerType.CORPORATE,
+            com.banking.product.domain.enums.CustomerType.INDIVIDUAL
         ));
 
         Product savedProduct = mock(Product.class);
@@ -281,8 +281,8 @@ class ProductServiceTest {
         UpdateProductRequest upd = new UpdateProductRequest();
         upd.setName("Updated Name");
         upd.setCustomerTypes(List.of(
-            com.banking.customer.domain.enums.CustomerType.CORPORATE,
-            com.banking.customer.domain.enums.CustomerType.SME
+            com.banking.product.domain.enums.CustomerType.CORPORATE,
+            com.banking.product.domain.enums.CustomerType.SME
         ));
 
         productService.updateProduct(1L, upd, "alice");

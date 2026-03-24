@@ -721,9 +721,123 @@ if (response.isApprovalRequired()) {
 }
 ```
 
+### Event-Driven Integration with Account Module
+
+The Limits module listens for `AccountOpenedEvent` published by the Account module to automatically assign product limits when a new account is created.
+
+**Architectural Compliance (AGENTS.md Rule 4):**
+- **Async for side-effects:** Limit assignment is a side-effect (not part of account creation transaction)
+- **Rule 4 Rationale:** This separation improves resilience - if limit assignment fails, account creation still succeeds
+- **Reference:** See `AGENTS.md` section "## Architecture Enforcement" → "Rule 4: Async for side-effects, sync for validation"
+
+**Why Event-Driven?**
+- **Loose Coupling:** Account module doesn't directly call `LimitAssignmentService`; it just publishes an event
+- **Resilience:** Limit assignment failures don't block account creation (fire-and-forget)
+- **Change Isolation:** Account module can change without affecting limits; limits logic can change without account changes
+- **Architectural Compliance:** Eliminates direct dependency on `LimitAssignmentService` (was violating module boundaries)
+
+**Module Boundary Compliance:**
+- Account module publishes events (no direct import of limits classes) ✅
+- Limits module consumes events (imports `AccountOpenedEvent` from account module's `event` package) ✅
+- No direct service-to-service calls across modules ✅
+
+**Event Listener Implementation:**
+
+```java
+@Component
+public class AccountOpenedEventListener {
+
+    private final LimitAssignmentService limitAssignmentService;
+
+    @EventListener
+    public void handleAccountOpened(AccountOpenedEvent event) {
+        log.info("Processing AccountOpenedEvent for account: {}, product: {}", 
+                 event.getAccountNumber(), event.getProductCode());
+
+        List<ProductLimitResponse> productLimits = 
+            limitAssignmentService.getProductLimits(event.getProductCode());
+        
+        for (ProductLimitResponse productLimit : productLimits) {
+            try {
+                limitAssignmentService.assignToAccount(
+                    productLimit.getLimitDefinitionId(),
+                    event.getAccountNumber(),
+                    productLimit.getOverrideAmount()
+                );
+                log.info("Assigned limit {} to account {}", 
+                         productLimit.getLimitDefinitionId(), 
+                         event.getAccountNumber());
+            } catch (Exception e) {
+                log.warn("Failed to assign limit {} to account {}: {}", 
+                         productLimit.getLimitDefinitionId(), 
+                         event.getAccountNumber(), 
+                         e.getMessage());
+                // Continue with other limits - don't fail the entire event
+            }
+        }
+    }
+}
+```
+
+**Event Data Contract:**
+
+The `AccountOpenedEvent` provides all necessary data:
+- `accountNumber`: The newly created account number
+- `productCode`: The product code (e.g., "CURRENT", "SAVINGS")
+- `customerId`: The primary customer ID
+- `currency`, `initialBalance`: For limit calculations if needed
+
+**Error Handling:**
+- Individual limit assignment failures are logged as WARN but don't stop processing
+- Global exception handler catches unexpected errors and logs ERROR
+- No retry logic (fire-and-forget); manual intervention may be needed if assignment fails
+
+**Future Enhancement:**
+- Bridge events to Kafka for distributed processing (if limits module scales to separate service)
+- Add dead-letter queue handling for persistent failures
+- Implement compensation actions for failed assignments
+
 ---
 
-## 8. Error Handling
+## 8. Implementation Guardrails
+
+**For Future Developers:**
+The Limits module is a **foundation module** that provides APIs to business modules. When implementing new features:
+
+1. **Maintain API stability:** All public services (`LimitCheckService`, `LimitAssignmentService`) are in `com.banking.limits.api` package
+2. **Event consumption:** When consuming events from other modules (like `AccountOpenedEvent`), keep error handling defensive - never let consumer failures affect event publishers
+3. **Module boundaries:** When integrating with other modules, only import from their `.api` or `.dto` packages (never `.domain.entity`, `.repository`, `.service`)
+4. **Test coverage:** Ensure unit tests mock dependencies using API interfaces, not implementations
+
+### Communication Patterns Reference
+
+The Limits module uses the following communication patterns as defined in `docs/superpowers/architecture/system-design.md` Section 7.1:
+
+| Pattern | Use Case in Limits Module | Example |
+|---------|---------------------------|---------|
+| **Direct Interface Call** | Synchronous limit checks that affect immediate response | Other modules call `limitCheckService.checkLimit()` |
+| **Event Publishing** | Asynchronous notifications of limit changes (optional) | `LimitExceededEvent` published if limit is exceeded |
+| **Event Consumption** | Asynchronous processing of events from other modules | `AccountOpenedEvent` listener assigns limits |
+
+**Key Principle (from System Design):**
+- Use **Direct Interface Call** for: Limit checks that need immediate result (rejection/approval)
+- Use **Event Publishing/Consumption** for: Asynchronous processing that doesn't block primary transaction
+
+See System Design Section 7.1 "Communication Pattern Guidance" for complete patterns.
+
+**Code Review Checklist:**
+- [ ] New dependencies are on API interfaces, not implementations
+- [ ] Event listeners are defensive (catch + log, don't rethrow)
+- [ ] No direct database queries to other modules' tables (use services)
+- [ ] No circular dependencies introduced
+- [ ] Communication pattern matches System Design Section 7.1 guidance
+
+See `AGENTS.md` for the complete architecture enforcement rules.
+See System Design Section 7.1 for communication pattern guidance.
+
+---
+
+## 9. Error Handling
 
 | Exception | Error Code | HTTP Status | Trigger |
 |-----------|-----------|-------------|---------|

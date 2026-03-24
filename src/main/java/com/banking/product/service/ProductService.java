@@ -7,6 +7,7 @@ import com.banking.product.dto.request.CreateProductRequest;
 import com.banking.product.dto.request.UpdateProductRequest;
 import com.banking.product.dto.response.ProductDetailResponse;
 import com.banking.product.dto.response.ProductResponse;
+import com.banking.product.dto.response.ProductVersionResponse;
 import com.banking.product.exception.DuplicateProductCodeException;
 import com.banking.product.exception.InvalidProductStatusException;
 import com.banking.product.exception.ProductNotFoundException;
@@ -106,6 +107,18 @@ public class ProductService {
 
         Product savedProduct = productRepository.save(product);
         return productMapper.toResponse(savedProduct);
+    }
+
+    @Transactional
+    public ProductVersionResponse createProductVersion(Long productId, int versionNumber, ProductStatus status, String createdBy) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+        
+        ProductVersion version = new ProductVersion(product, versionNumber, status);
+        version.getAudit().setCreatedBy(createdBy);
+        version.getAudit().setUpdatedBy(createdBy);
+        ProductVersion savedVersion = productVersionRepository.save(version);
+        return productMapper.toVersionResponse(savedVersion);
     }
 
     @Transactional(readOnly = true)

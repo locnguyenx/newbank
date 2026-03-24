@@ -11,7 +11,8 @@ import com.banking.account.domain.entity.AccountHolder;
 import com.banking.account.repository.AccountHolderRepository;
 import com.banking.account.repository.AccountRepository;
 import com.banking.account.exception.AccountNotFoundException;
-import com.banking.customer.repository.CustomerRepository;
+import com.banking.customer.api.CustomerQueryService;
+import com.banking.customer.api.dto.CustomerDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,16 +30,16 @@ public class AccountInquiryService {
 
     private final AccountRepository accountRepository;
     private final AccountHolderRepository accountHolderRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerQueryService customerQueryService;
     private final TransactionService transactionService;
 
     public AccountInquiryService(AccountRepository accountRepository,
                                  AccountHolderRepository accountHolderRepository,
-                                 CustomerRepository customerRepository,
+                                 CustomerQueryService customerQueryService,
                                  TransactionService transactionService) {
         this.accountRepository = accountRepository;
         this.accountHolderRepository = accountHolderRepository;
-        this.customerRepository = customerRepository;
+        this.customerQueryService = customerQueryService;
         this.transactionService = transactionService;
     }
 
@@ -63,9 +64,9 @@ public class AccountInquiryService {
             .map(holder -> {
                 AccountHolderSummary summary = new AccountHolderSummary();
                 summary.setId(holder.getId());
-                // For now, we'll leave customer name blank as we don't have a direct way to get it
-                // In a real implementation, we might want to inject a CustomerQueryService
-                summary.setCustomerName(""); // TODO: Get from CustomerQueryService
+                // Get customer name using CustomerQueryService
+                CustomerDTO customerDTO = customerQueryService.findById(holder.getCustomerId());
+                summary.setCustomerName(customerDTO != null ? customerDTO.getName() : "Unknown");
                 summary.setRole(holder.getRole());
                 summary.setStatus(holder.getStatus() != null ? holder.getStatus() : com.banking.account.domain.enums.AccountHolderStatus.ACTIVE);
                 summary.setEffectiveFrom(holder.getEffectiveFrom());
