@@ -3,6 +3,8 @@ package com.banking.cashmanagement.service;
 import com.banking.cashmanagement.domain.entity.AutoCollectionRule;
 import com.banking.cashmanagement.dto.AutoCollectionRuleRequest;
 import com.banking.cashmanagement.dto.AutoCollectionRuleResponse;
+import com.banking.cashmanagement.exception.AutoCollectionRuleNotFoundException;
+import com.banking.cashmanagement.integration.CustomerServiceAdapter;
 import com.banking.cashmanagement.repository.AutoCollectionRuleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +16,19 @@ import java.util.stream.Collectors;
 public class AutoCollectionService {
     
     private final AutoCollectionRuleRepository autoCollectionRuleRepository;
+    private final CustomerServiceAdapter customerServiceAdapter;
     
-    public AutoCollectionService(AutoCollectionRuleRepository autoCollectionRuleRepository) {
+    public AutoCollectionService(AutoCollectionRuleRepository autoCollectionRuleRepository,
+                                 CustomerServiceAdapter customerServiceAdapter) {
         this.autoCollectionRuleRepository = autoCollectionRuleRepository;
+        this.customerServiceAdapter = customerServiceAdapter;
     }
     
     public AutoCollectionRuleResponse createRule(AutoCollectionRuleRequest request) {
+        if (!customerServiceAdapter.isValidCustomer(request.getCustomerId())) {
+            throw new IllegalArgumentException("Invalid customer: " + request.getCustomerId());
+        }
+        
         AutoCollectionRule rule = new AutoCollectionRule();
         rule.setCustomerId(request.getCustomerId());
         rule.setRuleName(request.getRuleName());
@@ -41,7 +50,7 @@ public class AutoCollectionService {
     @Transactional(readOnly = true)
     public AutoCollectionRuleResponse getRule(Long id) {
         AutoCollectionRule rule = autoCollectionRuleRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Auto collection rule not found: " + id));
+            .orElseThrow(() -> AutoCollectionRuleNotFoundException.forId(id));
         return mapToResponse(rule);
     }
     
@@ -60,7 +69,7 @@ public class AutoCollectionService {
     
     public AutoCollectionRuleResponse activateRule(Long id) {
         AutoCollectionRule rule = autoCollectionRuleRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Auto collection rule not found: " + id));
+            .orElseThrow(() -> AutoCollectionRuleNotFoundException.forId(id));
         rule.setIsActive(true);
         AutoCollectionRule saved = autoCollectionRuleRepository.save(rule);
         return mapToResponse(saved);
@@ -68,7 +77,7 @@ public class AutoCollectionService {
     
     public AutoCollectionRuleResponse deactivateRule(Long id) {
         AutoCollectionRule rule = autoCollectionRuleRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Auto collection rule not found: " + id));
+            .orElseThrow(() -> AutoCollectionRuleNotFoundException.forId(id));
         rule.setIsActive(false);
         AutoCollectionRule saved = autoCollectionRuleRepository.save(rule);
         return mapToResponse(saved);

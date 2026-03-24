@@ -38,6 +38,14 @@ public final class MessageCatalog {
     public static final String KYC_NOT_FOUND = "KYC_001";
     public static final String KYC_INVALID_STATE = "KYC_002";
     
+    public static final String CAS_PAYROLL_BATCH_NOT_FOUND = "CAS_001";
+    public static final String CAS_INVOICE_NOT_FOUND = "CAS_002";
+    public static final String CAS_BATCH_PAYMENT_NOT_FOUND = "CAS_003";
+    public static final String CAS_AUTO_COLLECTION_RULE_NOT_FOUND = "CAS_004";
+    public static final String CAS_INSUFFICIENT_FUNDS = "CAS_005";
+    public static final String CAS_INVALID_CUSTOMER = "CAS_006";
+    public static final String CAS_INVALID_RULE_STATE = "CAS_007";
+    
     public static final String CHRG_NOT_FOUND = "CHRG_001";
     public static final String CHRG_ALREADY_EXISTS = "CHRG_002";
     public static final String CHRG_INVALID_TYPE = "CHRG_003";
@@ -92,6 +100,14 @@ public final class MessageCatalog {
         
         MESSAGES.put(KYC_NOT_FOUND, "KYC record not found");
         MESSAGES.put(KYC_INVALID_STATE, "Invalid KYC state for this operation");
+        
+        MESSAGES.put(CAS_PAYROLL_BATCH_NOT_FOUND, "Payroll batch not found");
+        MESSAGES.put(CAS_INVOICE_NOT_FOUND, "Invoice not found");
+        MESSAGES.put(CAS_BATCH_PAYMENT_NOT_FOUND, "Batch payment not found");
+        MESSAGES.put(CAS_AUTO_COLLECTION_RULE_NOT_FOUND, "Auto-collection rule not found");
+        MESSAGES.put(CAS_INSUFFICIENT_FUNDS, "Insufficient funds for this operation");
+        MESSAGES.put(CAS_INVALID_CUSTOMER, "Invalid customer");
+        MESSAGES.put(CAS_INVALID_RULE_STATE, "Invalid auto-collection rule state");
         
         MESSAGES.put(CHRG_NOT_FOUND, "Charge definition not found");
         MESSAGES.put(CHRG_ALREADY_EXISTS, "Charge definition already exists");

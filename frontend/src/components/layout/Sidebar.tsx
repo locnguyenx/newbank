@@ -17,8 +17,17 @@ const Sidebar: React.FC = () => {
     { key: '/master-data', label: 'Master Data' },
     { key: '/limits', label: 'Limits' },
     { key: '/charges', label: 'Charges' },
-    // Transactions menu reserved for Phase 3 (Payments module)
-    // { key: '/transactions', label: 'Transactions' },
+    {
+      key: '/cash-management',
+      label: 'Cash Management',
+      children: [
+        { key: '/cash-management/payroll', label: 'Payroll' },
+        { key: '/cash-management/liquidity', label: 'Liquidity' },
+        { key: '/cash-management/receivables', label: 'Receivables' },
+        { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+        { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+      ],
+    },
   ];
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
