@@ -28,8 +28,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.banking.common.security.config.TestSecurityConfig;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -48,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AccountController.class)
 @ContextConfiguration(classes = {AccountController.class, AccountExceptionHandler.class})
+@Import(TestSecurityConfig.class)
+@ActiveProfiles("test")
 class AccountControllerTest {
 
     @Autowired

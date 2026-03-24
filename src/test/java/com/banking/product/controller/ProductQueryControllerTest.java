@@ -1,18 +1,21 @@
 package com.banking.product.controller;
 
-import com.banking.customer.domain.enums.CustomerType;
 import com.banking.product.domain.enums.ProductFamily;
 import com.banking.product.domain.enums.ProductStatus;
 import com.banking.product.dto.response.ProductVersionResponse;
-import com.banking.product.service.ProductQueryService;
+import com.banking.product.service.ProductQueryServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.banking.common.security.config.TestSecurityConfig;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +26,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ProductQueryController.class)
 @ContextConfiguration(classes = {ProductQueryController.class, ProductExceptionHandler.class})
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class ProductQueryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private ProductQueryService productQueryService;
+    private ProductQueryServiceImpl productQueryService;
 
     @Test
     void shouldGetActiveProductByCode() throws Exception {
@@ -87,7 +92,7 @@ class ProductQueryControllerTest {
     void shouldGetProductsByCustomerType() throws Exception {
         List<ProductVersionResponse> responses = List.of(createVersionResponse());
 
-        when(productQueryService.getActiveProductsByCustomerType(CustomerType.CORPORATE)).thenReturn(responses);
+        when(productQueryService.getActiveProductsByCustomerType(com.banking.product.domain.enums.CustomerType.CORPORATE)).thenReturn(responses);
 
         mockMvc.perform(get("/api/product-query/customer-type/CORPORATE"))
                 .andExpect(status().isOk())

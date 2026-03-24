@@ -11,7 +11,7 @@ public class ProductDetailResponse {
     private Long id;
     private Long versionNumber;
     private String status;
-    private Integer contractCount;
+    private Long contractCount;
     private String submittedBy;
     private String approvedBy;
     private String rejectionComment;
@@ -178,11 +178,11 @@ public class ProductDetailResponse {
         this.status = status;
     }
 
-    public Integer getContractCount() {
+    public Long getContractCount() {
         return contractCount;
     }
 
-    public void setContractCount(Integer contractCount) {
+    public void setContractCount(Long contractCount) {
         this.contractCount = contractCount;
     }
 

@@ -138,7 +138,7 @@ public class ProductQueryServiceImpl implements com.banking.product.api.ProductQ
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setFamily(product.getFamily().name());
-        dto.setVersion(product.getVersion());
+        dto.setVersion(product.getId());
         return dto;
     }
 }

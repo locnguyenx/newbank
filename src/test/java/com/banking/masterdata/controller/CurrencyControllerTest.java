@@ -3,12 +3,14 @@ package com.banking.masterdata.controller;
 import com.banking.masterdata.MasterDataTestApplication;
 import com.banking.masterdata.dto.request.CreateCurrencyRequest;
 import com.banking.masterdata.repository.CurrencyRepository;
+import com.banking.common.security.config.TestSecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ContextConfiguration(classes = MasterDataTestApplication.class)
+@Import(TestSecurityConfig.class)
 @Transactional
 class CurrencyControllerTest {
 

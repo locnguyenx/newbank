@@ -58,10 +58,6 @@ public abstract class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @Version
-    @Column(name = "version")
-    private Long version;
-
     @Embedded
     private AuditFields auditFields;
 
@@ -171,10 +167,6 @@ public abstract class Account {
 
     public void setClosedAt(LocalDateTime closedAt) {
         this.closedAt = closedAt;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 
     public AuditFields getAuditFields() {

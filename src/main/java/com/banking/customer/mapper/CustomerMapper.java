@@ -12,8 +12,8 @@ import com.banking.customer.dto.CreateCorporateCustomerRequest;
 import com.banking.customer.dto.CreateIndividualCustomerRequest;
 import com.banking.customer.dto.CreateSMECustomerRequest;
 import com.banking.customer.dto.CustomerResponse;
-import com.banking.masterdata.domain.entity.Currency;
-import com.banking.masterdata.repository.CurrencyRepository;
+import com.banking.masterdata.api.CurrencyQueryService;
+import com.banking.masterdata.api.dto.CurrencyDTO;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,19 +22,21 @@ import java.util.stream.Collectors;
 @Component
 public class CustomerMapper {
 
-    private final CurrencyRepository currencyRepository;
+    private final CurrencyQueryService currencyQueryService;
 
-    public CustomerMapper(CurrencyRepository currencyRepository) {
-        this.currencyRepository = currencyRepository;
+    public CustomerMapper(CurrencyQueryService currencyQueryService) {
+        this.currencyQueryService = currencyQueryService;
     }
 
     private void validateCurrency(String code) {
         if (code == null || code.isBlank()) {
             return;
         }
-        Currency currency = currencyRepository.findById(code)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid currency code: " + code));
-        if (!currency.isActive()) {
+        CurrencyDTO currencyDTO = currencyQueryService.findByCode(code);
+        if (currencyDTO == null) {
+            throw new IllegalArgumentException("Invalid currency code: " + code);
+        }
+        if (!currencyDTO.isActive()) {
             throw new IllegalArgumentException("Currency is inactive: " + code);
         }
     }

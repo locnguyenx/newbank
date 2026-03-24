@@ -38,7 +38,7 @@ public class ProductVersion {
     private String rejectionComment;
 
     @Column(name = "contract_count")
-    private Integer contractCount;
+    private Long contractCount;
 
     @Embedded
     private AuditFields audit;
@@ -114,11 +114,11 @@ public class ProductVersion {
         this.rejectionComment = rejectionComment;
     }
 
-    public Integer getContractCount() {
+    public Long getContractCount() {
         return contractCount;
     }
 
-    public void setContractCount(Integer contractCount) {
+    public void setContractCount(Long contractCount) {
         this.contractCount = contractCount;
     }
 

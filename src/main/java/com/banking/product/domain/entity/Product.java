@@ -25,10 +25,6 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Version
-    @Column(name = "version")
-    private Long version;
-
     @Embedded
     private AuditFields audit;
 
@@ -73,10 +69,6 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 
     public AuditFields getAudit() {

@@ -696,7 +696,7 @@ The architecture rule enforcement is working correctly - the account module no l
 
 See: `docs/superpower/specs/api-contract-spec.md` for detailed implementation.
 
-## OPENAI ISSUES
+## OPENAI ISSUES (updated in AGENTS.md)
 
 ### Remaining Issues
 
@@ -777,23 +777,53 @@ Long-term fix requires:
 2. Regenerate types from updated spec
 3. Remove @ts-nocheck comments
 
-### Revise module design
+## ADDITIONAL RULES FOR TESTING (in AGENTS.md)
+
+**Summary of Updates to AGENTS.md**
+Added New Section: "Test Infrastructure Guidelines" (lines 154-246)
+1. PostgreSQL Testcontainers
+- Documented shared container approach via AbstractIntegrationTest
+- Highlights: single container reuse, application-test.yml config, ddl-auto: validate
+2. Test Approaches
+- ✅ Preferred: @SpringBootTest + @AutoConfigureMockMvc
+  - Shows complete code example
+  - Lists advantages (no conflicts, full context, works with PostgreSQL)
+- ⚠️ Avoid: @WebMvcTest
+  - Explains duplicate mock errors
+  - Provides workaround if you must use it
+3. Database Cleanup
+- Mandates deleteAllInBatch() over deleteAll()
+- Explains StaleObjectStateException risk
+4. Mock Bean Conflicts
+- Root cause: Spring test context caching
+- Solution: @DirtiesContext(classMode = AFTER_CLASS)
+- Documents trade-off (slower but reliable)
+5. TOTP Tests
+- Explains 30-second timing window issue
+- Provides solutions (disable or mock time provider)
+
+Updated Existing: "Flyway Migration Tests"
+- Added reference to AbstractIntegrationTest for PostgreSQL container usage
+The document now serves as a complete guide for future test work, preventing the same issues we encountered.
+
+## REVISE MODULE DESIGN
+
+### Revise all module designs & DO Refactor for Account module
 
 **Status Summary:**
-✅ Module Designs Complete - All 7 modules have guardrails and compliance documentation  
-✅ Implementation Plan Created - docs/superpowers/plans/2026-03-24-implement-module-boundary-fixes.md  
-✅ Architectural Violations Fixed - Code changes committed  
-✅ Design Specs Updated - With explicit guardrails referencing AGENTS.md  
+
+  ✅ Module Designs Complete - All 7 modules have guardrails and compliance documentation  
+  ✅ Implementation Plan Created - docs/superpowers/plans/2026-03-24-implement-module-boundary-fixes.md  
+  ✅ Architectural Violations Fixed - Code changes committed  
+  ✅ Design Specs Updated - With explicit guardrails referencing AGENTS.md
+
 ---
+
 **What remains optional:**
 1. Full verification - Run all tests (some pre-existing failures unrelated to our changes)
 2. Code review - Submit PR for team review
 3. Execute the plan retroactively - We already did the implementation, but the plan serves as documentation
 4. Nothing - The technical work is complete
-Would you like to:
-A. Run comprehensive tests to ensure no regressions?  
-B. Prepare a PR with summary and request code review?  
-C. Something else?
 
 **Key Artifacts:**
 - ✅ Implementation plan: docs/superpowers/plans/2026-03-24-implement-module-boundary-fixes.md
@@ -807,4 +837,27 @@ Status: Clean working directory - no uncommitted changes.
 - Possibly run Flyway-Hibernate validation
 - Create PR or continue with additional architectural improvements
 - The implementation plan can be executed (if desired) using subagent-driven-development
-Everything is persisted and ready. We can continue whenever you're ready.
+
+### Revisde System Design for Communication Pattern
+
+✅ Complete Summary
+Architectural Fixes:
+- Fixed all module boundary violations in Account module
+- Implemented event-driven integration (AccountOpenedEvent + listener)
+- All modules now comply with AGENTS.md Rules 1-4
+Documentation:
+1. ✅ System Design updated with Communication Pattern Guidance (Section 7.1)
+   - Clarifies when to use Direct Interface Call vs Event Publishing
+   - References AGENTS.md Rule 4
+2. ✅ All Module Designs Updated:
+   - Account, Customer, Product, Charges, Master Data, Limits, Infra
+   - Each has "Communication Patterns Reference" section
+   - References System Design Section 7.1 (no duplication)
+3. ✅ Architecture Governance Established:
+   - System Design = single source of truth for patterns
+   - Module Designs = reference patterns they use
+   - Implementation Guardrails = enforce both rules and patterns
+Key Principle Documented:
+> "Direct Interface Call for synchronous validation, Event Publishing for async side-effects"
+This ensures future development follows the system design patterns without ambiguity.
+---

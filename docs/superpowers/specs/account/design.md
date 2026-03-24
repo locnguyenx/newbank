@@ -45,6 +45,15 @@ The Account Management module handles the creation, maintenance, and lifecycle o
    - Statement generation in multiple formats (PDF, CSV, Excel)
    - Date-range filtering for statement periods
 
+### Module Dependency Rules
+
+```
+Account Management Module
+    ├── Depends On: Master Data (currencies), Customer, Product, Limits, Charges
+    └── Used By: Transaction, Cash Management, Trade Finance, Payments
+```
+Refer to section "Integration Points" for more details
+
 ## Data Model
 
 ### Core Entities

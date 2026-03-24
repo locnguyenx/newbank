@@ -1,26 +1,27 @@
 package com.banking.account.service;
 
+import com.banking.common.config.AbstractIntegrationTest;
 import com.banking.account.domain.enums.AccountStatus;
 import com.banking.account.domain.enums.AccountType;
 import com.banking.account.dto.AccountOpeningRequest;
 import com.banking.account.dto.AccountResponse;
 import com.banking.account.exception.InvalidAccountStateException;
+import com.banking.account.repository.AccountHolderRepository;
 import com.banking.account.repository.AccountRepository;
 import com.banking.customer.api.CustomerQueryService;
 import com.banking.customer.api.dto.CustomerDTO;
-import com.banking.limits.domain.enums.LimitCheckResult;
-import com.banking.limits.dto.response.LimitCheckResponse;
-import com.banking.limits.service.LimitCheckService;
+import com.banking.limits.api.LimitCheckService;
+import com.banking.limits.api.dto.LimitCheckResult;
 import com.banking.masterdata.api.CurrencyQueryService;
 import com.banking.masterdata.api.dto.CurrencyDTO;
-import com.banking.product.api.ProductQueryService;
 import com.banking.product.api.dto.ProductVersionDTO;
+import com.banking.product.service.ProductQueryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -28,22 +29,23 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Transactional
-class AccountServiceIntegrationTest {
+class AccountServiceIntegrationTest extends AbstractIntegrationTest {
 
     private static final Long TEST_CUSTOMER_ID = 1L;
+
+    @MockBean
+    private ApplicationEventPublisher eventPublisher;
 
     @MockBean
     private CurrencyQueryService currencyQueryService;
 
     @MockBean
-    private ProductQueryService productQueryService;
+    private ProductQueryServiceImpl productQueryServiceImpl;
 
     @MockBean
     private CustomerQueryService customerQueryService;
@@ -57,9 +59,13 @@ class AccountServiceIntegrationTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private AccountHolderRepository accountHolderRepository;
+
     @BeforeEach
     void setUp() {
-        accountRepository.deleteAll();
+        accountRepository.deleteAllInBatch();
+        accountHolderRepository.deleteAllInBatch();
 
         CustomerDTO testCustomerDTO = new CustomerDTO(TEST_CUSTOMER_ID, "Test Corp");
         when(customerQueryService.findById(TEST_CUSTOMER_ID)).thenReturn(testCustomerDTO);
@@ -78,11 +84,10 @@ class AccountServiceIntegrationTest {
         productVersion.setProductName("Current Account");
         productVersion.setVersionNumber(1);
         productVersion.setStatus("ACTIVE");
-        when(productQueryService.findActiveVersionByCode(any())).thenReturn(Optional.of(productVersion));
+        when(productQueryServiceImpl.findActiveVersionByCode(any())).thenReturn(Optional.of(productVersion));
 
-        LimitCheckResponse allowedResponse = new LimitCheckResponse();
-        allowedResponse.setResult(LimitCheckResult.ALLOWED);
-        when(limitCheckService.checkLimit(any())).thenReturn(allowedResponse);
+        LimitCheckResult allowedResult = new LimitCheckResult(true, null, null);
+        when(limitCheckService.checkLimit(any(), any(), any(), any())).thenReturn(allowedResult);
     }
 
     @Test
@@ -98,10 +103,8 @@ class AccountServiceIntegrationTest {
 
     @Test
     void shouldRejectAccountWhenLimitExceeded() {
-        LimitCheckResponse rejectedResponse = new LimitCheckResponse();
-        rejectedResponse.setResult(LimitCheckResult.REJECTED);
-        rejectedResponse.setRejectionReason("Transaction exceeds daily limit");
-        when(limitCheckService.checkLimit(any())).thenReturn(rejectedResponse);
+        LimitCheckResult rejectedResult = new LimitCheckResult(false, "Transaction exceeds daily limit", null);
+        when(limitCheckService.checkLimit(any(), any(), any(), any())).thenReturn(rejectedResult);
 
         AccountOpeningRequest request = createRequest("PROD-CURRENT-001", "10000");
 

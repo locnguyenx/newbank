@@ -33,7 +33,7 @@ You MUST create a task for each of these items and complete them in order:
 10. Apply tasks from step 2-8 for the BDD
 11. Apply tasks from step 2-8 for the Design
 Specs location:
-- BRD: `docs/superpowers/brds/YYYY-MM-DD-<feature>.md`
+- BRD: `docs/superpowers/specs/YYYY-MM-DD-<feature>.md`
 - BDD: `docs/superpowers/specs/YYYY-MM-DD-<feature>-bdd.md` 
 - Design: `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
 
@@ -124,7 +124,7 @@ digraph brainstorming {
 ## After the Specs
 
 **Documentation:**
-- Write the validated BRD to `docs/superpowers/brds/YYYY-MM-DD-<feature>.md`; BDD to `docs/superpowers/specs/YYYY-MM-DD-<feature>-bdd.md`
+- Write the validated BRD to `docs/superpowers/specs/YYYY-MM-DD-<feature>.md`; BDD to `docs/superpowers/specs/YYYY-MM-DD-<feature>-bdd.md`
 - Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
 - Use elements-of-style:writing-clearly-and-concisely skill if available

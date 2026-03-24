@@ -1,5 +1,6 @@
 package com.banking.charges.controller;
 
+import com.banking.common.security.config.TestSecurityConfig;
 import com.banking.charges.ChargesTestApplication;
 import com.banking.charges.dto.request.CreateFeeWaiverRequest;
 import com.banking.charges.repository.ChargeDefinitionRepository;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ContextConfiguration(classes = ChargesTestApplication.class)
+@Import(TestSecurityConfig.class)
 @Transactional
 class FeeWaiverControllerTest {
 
