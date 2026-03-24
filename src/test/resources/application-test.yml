@@ -15,6 +15,11 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+# Mock beans for test profile
+country:
+  mock:
+    enabled: true
+
 kafka:
   bootstrap-servers: localhost:9092
 

@@ -139,6 +139,8 @@ docker-compose down -v
 ### 2. Run Application with PostgreSQL Profile
 ```bash
 ./gradlew bootRun --args='--spring.profiles.active=postgres'
+# after changing PostgreSQL as main db for dev, we can use this
+./gradlew bootRun
 ```
 Or set the profile as default in IDE/Run configuration.
 
@@ -153,3 +155,121 @@ echo "Database: banking, User: banking, Password: banking"
 ./gradlew bootRun --args='--spring.profiles.active=postgres'
 ```
 Everything is ready - just run docker-compose up -d postgres and start the app with the postgres profile!
+
+### Guide to Run Server with PostgreSQL (latest)
+
+#### Option 1: Use a persistent PostgreSQL with seed data
+
+This approach use persistent PostgreSQL with seed data. Newly created data wont be lost
+
+1. Start PostgreSQL
+```bash
+# stop the running container (ephemeral)
+docker stop test-postgres
+# start persistent one
+docker-compose up -d postgres
+```
+This creates:
+- DB: testdb (from your existing container)
+- User: testuser
+- Password: testpass
+
+2. Run Server
+```bash
+# run server and load seed data
+./gradlew bootRun
+```
+Server runs on: http://localhost:8080
+
+config file: src/main/resources/application.yml
+
+3. Verify Data
+The database already has seed data (customers, products, accounts).
+Test it:
+curl http://localhost:8080/api/customers
+---
+
+#### Option 2: Run tests first to populate data, then run server
+
+The test profile uses testcontainers (ephemeral database). For manual testing with same data, here's the easiest approach:
+```bash
+# start PosgreSQL testcontainers
+docker run testcontainers
+# or rerun using container name
+docker start test-postgres
+# This populates the testcontainers database with seed data
+./gradlew test
+# Then run server with test profile
+./gradlew bootRun --args='--spring.profiles.active=test'
+```
+
+**Note:** Your existing test-postgres container has the same data as when tests ran. That's why you see the same data. But testcontainers are typically ephemeral - data may not persist.
+
+## System Security
+
+**Problem Explanation (Simple)**
+What Happened
+The server had two security systems fighting each other when running in development mode:
+1. Security System A said: "You need a password to access APIs"
+2. Security System B said: "No password needed in development"
+When both were active, sometimes one would block requests (403 error) before the other could allow them.
+Why Some APIs Worked
+Products happened to go through the system that allowed access. Other APIs like Master Data and Charges went through the system that blocked them.
+**The Fix**
+We told the server:
+- Development mode (test & dev profile): Use "No password needed" security only
+- Production mode: Use "Password required" security
+
+Now in development, all APIs are accessible without a password.
+
+---
+
+**Admin user:**
+Email:	admin@bank.com
+Password:	admin123
+JWT Token:	Received ✅ (always have)
+
+The server is running with dev profile (no password required). You can now test with:
+Quick test:
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@bank.com","password":"admin123"}'
+This returns an access token you can use for authenticated requests.
+Note: There's a warning about Jackson not supporting Instant in the logs - it's not critical but could be fixed later.
+
+**Running Server with Different Profiles**
+Current Setup
+- Default profile: dev (no password required)
+- Server running on port 8080
+
+**Commands**
+Profile	Command
+dev:	./gradlew bootRun
+test:	./gradlew bootRun --args='--spring.profiles.active=test'
+prod:	./gradlew bootRun --args='--spring.profiles.active=prod'
+---
+
+**To Switch Profiles**
+1. Stop current server:
+```bash
+lsof -ti:8080 | xargs kill -9
+```
+2. Start with desired profile:
+```bash
+# Dev (current - no password)
+./gradlew bootRun
+# Test 
+./gradlew bootRun --args='--spring.profiles.active=test'
+# Prod (JWT required)
+./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+---
+
+**Profile Behavior**
+Profile	APIs	Auth Required
+dev	All accessible	❌ No
+test	All accessible	❌ No
+prod	All accessible	✅ Yes
+
+---
+

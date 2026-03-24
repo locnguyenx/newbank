@@ -13,6 +13,8 @@ import com.banking.common.security.entity.UserRepository;
 import com.banking.common.security.iam.entity.LoginHistory;
 import com.banking.common.security.iam.repository.LoginHistoryRepository;
 import com.banking.common.security.jwt.JwtTokenProvider;
+import com.banking.common.security.rbac.UserScope;
+import com.banking.common.security.rbac.UserScopeRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,6 +31,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final LoginHistoryRepository loginHistoryRepository;
+    private final UserScopeRepository userScopeRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtConfig jwtConfig;
     private final PasswordEncoder passwordEncoder;
@@ -36,12 +40,14 @@ public class AuthService {
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
             LoginHistoryRepository loginHistoryRepository,
+            UserScopeRepository userScopeRepository,
             JwtTokenProvider jwtTokenProvider,
             JwtConfig jwtConfig,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.loginHistoryRepository = loginHistoryRepository;
+        this.userScopeRepository = userScopeRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtConfig = jwtConfig;
         this.passwordEncoder = passwordEncoder;
@@ -64,10 +70,14 @@ public class AuthService {
             return TokenResponse.mfaRequired();
         }
 
+        // Get role from user_scopes table
+        List<UserScope> userScopes = userScopeRepository.findByUserId(user.getId());
+        String role = userScopes.isEmpty() ? user.getUserType().name() : userScopes.get(0).getRole().name();
+
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
-                user.getUserType().name()
+                role
         );
 
         String refreshTokenValue = jwtTokenProvider.generateRefreshToken(user.getId());

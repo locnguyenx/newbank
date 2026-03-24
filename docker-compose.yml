@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: banking
-      POSTGRES_USER: banking
-      POSTGRES_PASSWORD: banking
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
     ports:
       - "5432:5432"
     volumes:

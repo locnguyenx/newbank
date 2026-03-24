@@ -1,50 +1,31 @@
 spring:
   application:
     name: customer-module
+  profiles:
+    active: dev
   main:
     allow-bean-definition-overriding: true
 
-  # PostgreSQL configuration (for production)
-  # datasource:
-  #   url: jdbc:postgresql://localhost:5432/customer_db
-  #   username: postgres
-  #   password: postgres
-  #   driver-class-name: org.postgresql.Driver
-  # jpa:
-  #   hibernate:
-  #     ddl-auto: validate
-  #   show-sql: false
-  #   properties:
-  #     hibernate:
-  #       dialect: org.hibernate.dialect.PostgreSQLDialect
-  #       format_sql: true
-  # flyway:
-  #   enabled: true
-  #   locations: classpath:db/migration
-  #   baseline-on-migrate: true
-
-  # H2 configuration (for development)
+  # Dev profile - uses PostgreSQL with test data
   datasource:
-    url: jdbc:h2:mem:customerdb;MODE=PostgreSQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: testuser
+    password: testpass
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    clean-on-validation-error: true
+    clean-disabled: false
 
 server:
   port: 8080

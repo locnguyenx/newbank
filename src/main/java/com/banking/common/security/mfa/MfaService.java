@@ -20,6 +20,12 @@ public class MfaService {
     private final CodeVerifier codeVerifier;
     private final SecretGenerator secretGenerator;
 
+    public MfaService() {
+        this.mfaSecretRepository = null;
+        this.secretGenerator = new DefaultSecretGenerator();
+        this.codeVerifier = createDefaultCodeVerifier();
+    }
+
     public MfaService(MfaSecretRepository mfaSecretRepository) {
         this(mfaSecretRepository, createDefaultCodeVerifier());
     }
