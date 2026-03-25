@@ -64,18 +64,13 @@ const RoleListPage: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: Role) => (
         <Space>
-          <Button type="link" icon={<EyeOutlined />} onClick={() => navigate(`/iam/roles/${record.id}`)}>
-            View
+          <Button type="link" icon={<EditOutlined />} onClick={() => navigate(`/iam/roles/${record.id}/edit`)}>
+            Edit
           </Button>
           {record.type === 'CUSTOM' && (
-            <>
-              <Button type="link" icon={<EditOutlined />} onClick={() => navigate(`/iam/roles/${record.id}/edit`)}>
-                Edit
-              </Button>
-              <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
-                Delete
-              </Button>
-            </>
+            <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
+              Delete
+            </Button>
           )}
         </Space>
       ),
