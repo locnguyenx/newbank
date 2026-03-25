@@ -8,6 +8,8 @@ import productReducer from './slices/productSlice';
 import masterDataReducer from './slices/masterDataSlice';
 import limitReducer from './slices/limitSlice';
 import chargeReducer from './slices/chargeSlice';
+import authReducer from './slices/authSlice';
+import usersReducer from './slices/usersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
     masterData: masterDataReducer,
     limits: limitReducer,
     charges: chargeReducer,
+    auth: authReducer,
+    users: usersReducer,
   },
 });
 

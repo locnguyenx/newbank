@@ -28,7 +28,8 @@ Modern digital banking system for corporate and SME banking, focusing on busines
 - Master System Design: `docs/superpowers/architecture/system-design.md`
 - brds location: `docs/superpowers/brds/`
 - specs location: `docs/superpowers/specs/`
-- module plans: `docs/superpowers/plans/`
+- module plans: `docs/superpowers/plans/``
+- specs & reports template: `docs/superpowers/templates/`
 
 ## Code Style Guidelines
 
@@ -90,6 +91,9 @@ In your design spec's Testing Strategy section, reference this template: `docs/s
 - Verify form → API data mapping (not just rendering)
 - Test error handling with user-friendly messages
 - Common API field names: `type` (not `customerType`), `name` (not `firstName`/`lastName`), `emails[]` (not `email`)
+
+**Redux Testing Pattern (IMPORTANT):**
+For pages using Redux (useAppDispatch, useAppSelector), use the global mocks in `src/setupTests.ts`. See guide: `docs/lesson-learned/redux-testing-pattern.md`
 
 **Flyway Migration Tests**
 - `FlywayMigrationIntegrationTest` extends `AbstractIntegrationTest` to use shared PostgreSQL container

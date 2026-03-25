@@ -53,3 +53,50 @@ User Story to Functional Requirement Mapping
    A single BDD scenario could reasonably trace back to one user story and one or more FRs if those FRs are all part of the same requirement cluster. But the user wants atomicity—one behavior per scenario—so I should restructure both the BRD with US IDs and then rebuild the BDD with truly single-responsibility scenarios. I should organize BDD scenarios by user stories to keep things clean and maintainable. Each scenario gets tagged with its corresponding user story, and I'll add a traceability matrix that maps stories to their functional requirements and related scenarios.
 
 3. Classify BDD scenarios to: Happy path (optimal user flow) , Edge case (boundary, invalid, or extreme scenarios)
+
+## Improve TDD workflow
+
+**Summary of all changes made:**
+
+1. implementer-prompt.md - TDD + Frontend Enforcement
+Made TDD mandatory (not "if task says to")
+Added Frontend Enforcement section:
+   Detects user-facing features from BDD/BRD
+   Requires frontend component + tests for user-facing features
+   Frontend TDD: test first, component second
+   Frontend verification checklist in self-review
+
+2. writing-plans/SKILL.md - Frontend-Aware Task Structure
+
+Added User-Facing: YES/NO field to every task
+Added frontend file paths in task structure
+Added frontend test steps for user-facing tasks (Steps 5-8)
+Added commit order for frontend tests before components
+
+3. spec-reviewer-prompt.md - Frontend Verification
+
+Added Frontend Verification section
+Verifies frontend component exists, tests exist, test-first commit order
+Verifies npm run test:coverage passes
+
+4. code-quality-reviewer-prompt.md - Frontend Compliance
+
+Added Frontend compliance section
+Verifies Ant Design, TypeScript, functional components
+
+5. subagent-driven-development/SKILL.md - Updated Integration
+
+Made TDD mandatory
+Added BDD/BRD spec reference
+
+**How it works:**
+
+1. Writing-plans creates tasks with User-Facing: YES/NO based on BDD/BRD
+2. Implementer reads User-Facing: YES and must:
+   Write frontend test first
+   Run npm run test:coverage (fails)
+   Write frontend component
+   Run npm run test:coverage (passes)
+   Commit test before component
+3. Spec reviewer verifies frontend exists and is tested
+4. Code quality reviewer verifies frontend follows conventions

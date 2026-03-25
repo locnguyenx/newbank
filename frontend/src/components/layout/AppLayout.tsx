@@ -1,22 +1,19 @@
 import React from 'react';
 import { Layout } from 'antd';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import AppHeader from './Header';
 
 const { Content } = Layout;
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-}
-
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sidebar />
       <Layout>
         <AppHeader />
         <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
-          {children}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

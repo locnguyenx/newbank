@@ -1,3 +1,18 @@
+# OVERWRITE SUPERPOWERS SKILLS
+
+**IMPORTANT NOTES:**
+
+OpenCode's skill loading mechaims: When both plugin and project-local have the same skill name, OpenCode returns the last-loaded version (plugin wins because it's loaded after project discovery).
+This contradicts the superpowers docs which state: Project skills > Personal skills > Superpowers skills
+Affected overlapping skills:
+- brainstorming
+- executing-plans
+- finishing-a-development-branch
+- subagent-driven-development
+- writing-plans
+
+**SOLUTION:** use skills in project dir to manually overwrite skills in plugin dir `~/.cache/opencode/node_modules/superpowers/skills`
+
 ## List of reworked skill
 
 1. **brainstorming** - apply BRD & BDD before Tech Design
@@ -34,11 +49,28 @@ The plan file is the single source of truth — [DONE] markers survive sessions.
 ### Enforce superpowers skills to follow AGENTS.md rules
 
 **Here's what changed:**
-implementer-prompt.md:
+**implementer-prompt.md:**
 - Added "Architecture Rules (REQUIRED)" section telling subagent to read AGENTS.md before coding
 - Subagent must follow module boundary rules — if plan conflicts, report BLOCKED
-code-quality-reviewer-prompt.md:
+**code-quality-reviewer-prompt.md:**
 - Added architecture compliance check: reads AGENTS.md and verifies imports, JPA relationships, package structure, audit fields, error handling
-subagent-driven-development/SKILL.md:
+**subagent-driven-development/SKILL.md:**
 - Added "Architecture Enforcement" section documenting single-source-of-truth pattern
 Now when you change architecture rules, you only edit AGENTS.md. Subagents read it at runtime. Want me to commit these changes?
+
+### Enforce TDD with BDD/BRD integration and frontend testing
+Committed all skill changes: feat(skills): enforce TDD with BDD/BRD integration and frontend testing
+- Made TDD mandatory in **subagent-driven-development** (not conditional)
+- Added frontend enforcement for user-facing features from BDD/BRD
+- Added test-first commit order verification
+- Created custom **finishing-a-development-branch** with test report generation
+- Updated **writing-plans** to mark tasks as User-Facing: YES/NO
+- Added BDD/BRD spec reference in all implementation tasks
+- Updated reviewer prompts to verify frontend and TDD compliance
+
+Skills now enforce:
+1. TDD mandatory (write tests before code)
+2. BDD/BRD drives test scenarios
+3. Frontend required for user-facing features
+4. Frontend tests before components
+5. Test report generated before merge options

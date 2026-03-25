@@ -34,4 +34,24 @@ export const authService = {
     const response = await authAxios.post('/mfa/verify', request);
     return response.data;
   },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<void> => {
+    const response = await authAxios.post('/change-password', data);
+    return response.data;
+  },
+
+  enableMfa: async (code: string): Promise<void> => {
+    const response = await authAxios.post('/mfa/enable', { code });
+    return response.data;
+  },
+
+  disableMfa: async (): Promise<void> => {
+    const response = await authAxios.post('/mfa/disable');
+    return response.data;
+  },
+
+  getMfaStatus: async (): Promise<{ enabled: boolean }> => {
+    const response = await authAxios.get('/mfa/status');
+    return response.data;
+  },
 };

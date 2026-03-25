@@ -17,6 +17,7 @@ bin/
 
 # Frontend
 node_modules/
+frontend/coverage/
 dist/
 
 # Environment

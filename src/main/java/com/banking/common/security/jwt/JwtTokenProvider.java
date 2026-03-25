@@ -71,4 +71,13 @@ public class JwtTokenProvider {
                 .getPayload();
         return claims.get("email", String.class);
     }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("role", String.class);
+    }
 }
