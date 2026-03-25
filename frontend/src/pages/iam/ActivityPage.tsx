@@ -17,6 +17,14 @@ interface LoginHistory {
   failureReason?: string;
 }
 
+interface FailedLogin {
+  id: number;
+  email: string;
+  ipAddress: string;
+  attemptTime: string;
+  reason: string;
+}
+
 interface PermissionChange {
   id: number;
   userId: number;
@@ -29,7 +37,7 @@ interface PermissionChange {
 
 const ActivityPage: React.FC = () => {
   const [loginHistory, setLoginHistory] = useState<LoginHistory[]>([]);
-  const [failedLogins, setFailedLogins] = useState<LoginHistory[]>([]);
+  const [failedLogins, setFailedLogins] = useState<FailedLogin[]>([]);
   const [permissionChanges, setPermissionChanges] = useState<PermissionChange[]>([]);
   const [loading, setLoading] = useState(false);
   const [userFilter, setUserFilter] = useState('');
@@ -97,9 +105,9 @@ const ActivityPage: React.FC = () => {
   const failedLoginColumns = [
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'IP Address', dataIndex: 'ipAddress', key: 'ipAddress' },
-    { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp', 
+    { title: 'Timestamp', dataIndex: 'attemptTime', key: 'attemptTime', 
       render: (ts: string) => new Date(ts).toLocaleString() },
-    { title: 'Failure Reason', dataIndex: 'failureReason', key: 'failureReason' },
+    { title: 'Failure Reason', dataIndex: 'reason', key: 'reason' },
   ];
 
   const permissionColumns = [
