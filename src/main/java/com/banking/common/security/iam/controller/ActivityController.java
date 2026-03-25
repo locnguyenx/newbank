@@ -41,4 +41,9 @@ public class ActivityController {
     public ResponseEntity<Long> getFailedLoginCount(@RequestParam String email, @RequestParam(defaultValue = "30") int minutes) {
         return ResponseEntity.ok(activityMonitoringService.getFailedLoginCount(email, minutes));
     }
+
+    @GetMapping("/permission-changes")
+    public ResponseEntity<List<Object>> getPermissionChanges() {
+        return ResponseEntity.ok(List.of());
+    }
 }
