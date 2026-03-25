@@ -38,4 +38,9 @@ public class PermissionController {
             @RequestParam String action) {
         return ResponseEntity.ok(permissionService.hasPermission(userId, resource, action));
     }
+
+    @GetMapping
+    public ResponseEntity<List<PermissionSummary>> getAllPermissions() {
+        return ResponseEntity.ok(permissionService.getAllPermissions());
+    }
 }

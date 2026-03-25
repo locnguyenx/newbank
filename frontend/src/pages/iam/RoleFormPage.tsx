@@ -57,10 +57,12 @@ const RoleFormPage: React.FC = () => {
     }
   };
 
-  const permissionOptions = permissions.map((p) => ({
-    label: p.name,
-    value: p.name,
-  }));
+  const permissionOptions = permissions.flatMap((p) =>
+    p.actions.map((action: string) => ({
+      label: `${p.resource}:${action}`,
+      value: `${p.resource}:${action}`,
+    }))
+  );
 
   return (
     <Spin spinning={fetching}>

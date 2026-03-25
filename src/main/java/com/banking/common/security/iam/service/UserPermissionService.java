@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -64,5 +65,27 @@ public class UserPermissionService {
             return new PermissionSummary(parts[0], Collections.singletonList(parts[1]));
         }
         return null;
+    }
+
+    public List<PermissionSummary> getAllPermissions() {
+        Set<String> allPermissions = new LinkedHashSet<>();
+        
+        List<RoleDefinition> roles = roleDefinitionRepository.findAll();
+        for (RoleDefinition role : roles) {
+            allPermissions.addAll(role.getPermissions());
+        }
+        
+        Map<String, List<String>> grouped = allPermissions.stream()
+                .map(this::parsePermission)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(
+                        PermissionSummary::getResource,
+                        LinkedHashMap::new,
+                        Collectors.flatMapping(ps -> ps.getActions().stream(), Collectors.toList())
+                ));
+        
+        return grouped.entrySet().stream()
+                .map(entry -> new PermissionSummary(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }

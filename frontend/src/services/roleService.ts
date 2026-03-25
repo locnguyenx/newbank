@@ -1,9 +1,8 @@
 import apiClient from './apiClient';
 
 export interface Permission {
-  id: number;
-  name: string;
-  description: string;
+  resource: string;
+  actions: string[];
 }
 
 export interface Role {
