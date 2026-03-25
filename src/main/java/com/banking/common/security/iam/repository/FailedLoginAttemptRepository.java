@@ -11,6 +11,7 @@ import java.util.List;
 public interface FailedLoginAttemptRepository extends JpaRepository<FailedLoginAttempt, Long> {
     List<FailedLoginAttempt> findByEmailOrderByAttemptTimeDesc(String email);
     List<FailedLoginAttempt> findByIpAddressOrderByAttemptTimeDesc(String ipAddress);
+    List<FailedLoginAttempt> findAllByOrderByAttemptTimeDesc();
     
     @Query("SELECT f FROM FailedLoginAttempt f WHERE f.attemptTime > ?1")
     List<FailedLoginAttempt> findRecentAttempts(Instant since);

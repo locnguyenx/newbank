@@ -12,7 +12,9 @@ import com.banking.common.security.entity.RefreshToken;
 import com.banking.common.security.entity.RefreshTokenRepository;
 import com.banking.common.security.entity.User;
 import com.banking.common.security.entity.UserRepository;
+import com.banking.common.security.iam.entity.FailedLoginAttempt;
 import com.banking.common.security.iam.entity.LoginHistory;
+import com.banking.common.security.iam.repository.FailedLoginAttemptRepository;
 import com.banking.common.security.iam.repository.LoginHistoryRepository;
 import com.banking.common.security.jwt.JwtTokenProvider;
 import com.banking.common.security.rbac.UserScope;
@@ -20,6 +22,7 @@ import com.banking.common.security.rbac.UserScopeRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
@@ -35,6 +38,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final LoginHistoryRepository loginHistoryRepository;
+    private final FailedLoginAttemptRepository failedLoginAttemptRepository;
     private final UserScopeRepository userScopeRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtConfig jwtConfig;
@@ -44,6 +48,7 @@ public class AuthService {
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
             LoginHistoryRepository loginHistoryRepository,
+            FailedLoginAttemptRepository failedLoginAttemptRepository,
             UserScopeRepository userScopeRepository,
             JwtTokenProvider jwtTokenProvider,
             JwtConfig jwtConfig,
@@ -51,22 +56,36 @@ public class AuthService {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.loginHistoryRepository = loginHistoryRepository;
+        this.failedLoginAttemptRepository = failedLoginAttemptRepository;
         this.userScopeRepository = userScopeRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtConfig = jwtConfig;
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
     public TokenResponse login(LoginRequest request, HttpServletRequest httpRequest) {
+        String ipAddress = getClientIpAddress(httpRequest);
+        
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(InvalidCredentialsException::invalidCredentials);
+                .orElse(null);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            if (user != null) {
+                try {
+                    failedLoginAttemptRepository.save(
+                        new FailedLoginAttempt(user.getEmail(), ipAddress, "Invalid password")
+                    );
+                } catch (Exception ignored) {}
+            }
             throw InvalidCredentialsException.invalidCredentials();
         }
 
         if (user.getStatus() != com.banking.common.security.entity.UserStatus.ACTIVE) {
+            try {
+                failedLoginAttemptRepository.save(
+                    new FailedLoginAttempt(user.getEmail(), ipAddress, "Account not active")
+                );
+            } catch (Exception ignored) {}
             throw InvalidCredentialsException.invalidCredentials();
         }
 
@@ -93,7 +112,6 @@ public class AuthService {
         );
         refreshTokenRepository.save(refreshToken);
 
-        String ipAddress = getClientIpAddress(httpRequest);
         String userAgent = httpRequest.getHeader("User-Agent");
         loginHistoryRepository.save(new LoginHistory(user.getId(), "PASSWORD", ipAddress, userAgent, true));
 

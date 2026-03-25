@@ -33,7 +33,7 @@ public class ActivityController {
     }
 
     @GetMapping("/failed-logins")
-    public ResponseEntity<List<FailedLoginAttempt>> getFailedLogins(@RequestParam String email) {
+    public ResponseEntity<List<FailedLoginAttempt>> getFailedLogins(@RequestParam(required = false) String email) {
         return ResponseEntity.ok(activityMonitoringService.getFailedLogins(email));
     }
 

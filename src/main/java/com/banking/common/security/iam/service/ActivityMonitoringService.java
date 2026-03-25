@@ -58,6 +58,9 @@ public class ActivityMonitoringService {
 
     @Transactional(readOnly = true)
     public List<FailedLoginAttempt> getFailedLogins(String email) {
+        if (email == null || email.isBlank()) {
+            return failedLoginAttemptRepository.findAllByOrderByAttemptTimeDesc();
+        }
         return failedLoginAttemptRepository.findByEmailOrderByAttemptTimeDesc(email);
     }
 
