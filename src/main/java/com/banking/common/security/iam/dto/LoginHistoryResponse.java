@@ -6,6 +6,7 @@ public class LoginHistoryResponse {
 
     private Long id;
     private Long userId;
+    private String email;
     private String loginType;
     private String ipAddress;
     private String userAgent;
@@ -26,6 +27,14 @@ public class LoginHistoryResponse {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getLoginType() {

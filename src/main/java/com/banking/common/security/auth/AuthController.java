@@ -8,6 +8,7 @@ import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
 import com.banking.common.security.mfa.MfaService;
 import com.banking.common.security.mfa.MfaSecret;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,9 +38,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
-            TokenResponse response = authService.login(request);
+            TokenResponse response = authService.login(request, httpRequest);
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).build();

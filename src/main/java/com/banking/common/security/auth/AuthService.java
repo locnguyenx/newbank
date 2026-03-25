@@ -17,6 +17,7 @@ import com.banking.common.security.iam.repository.LoginHistoryRepository;
 import com.banking.common.security.jwt.JwtTokenProvider;
 import com.banking.common.security.rbac.UserScope;
 import com.banking.common.security.rbac.UserScopeRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse login(LoginRequest request) {
+    public TokenResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(InvalidCredentialsException::invalidCredentials);
 
@@ -92,9 +93,19 @@ public class AuthService {
         );
         refreshTokenRepository.save(refreshToken);
 
-        loginHistoryRepository.save(new LoginHistory(user.getId(), "PASSWORD", null, null, true));
+        String ipAddress = getClientIpAddress(httpRequest);
+        String userAgent = httpRequest.getHeader("User-Agent");
+        loginHistoryRepository.save(new LoginHistory(user.getId(), "PASSWORD", ipAddress, userAgent, true));
 
         return new TokenResponse(accessToken, refreshTokenValue, jwtConfig.getAccessTokenExpiry());
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
     @Transactional

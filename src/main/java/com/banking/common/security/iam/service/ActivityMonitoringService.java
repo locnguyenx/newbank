@@ -5,6 +5,8 @@ import com.banking.common.security.iam.entity.FailedLoginAttempt;
 import com.banking.common.security.iam.entity.LoginHistory;
 import com.banking.common.security.iam.repository.FailedLoginAttemptRepository;
 import com.banking.common.security.iam.repository.LoginHistoryRepository;
+import com.banking.common.security.entity.User;
+import com.banking.common.security.entity.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,14 @@ public class ActivityMonitoringService {
 
     private final LoginHistoryRepository loginHistoryRepository;
     private final FailedLoginAttemptRepository failedLoginAttemptRepository;
+    private final UserRepository userRepository;
 
     public ActivityMonitoringService(LoginHistoryRepository loginHistoryRepository,
-                                       FailedLoginAttemptRepository failedLoginAttemptRepository) {
+                                       FailedLoginAttemptRepository failedLoginAttemptRepository,
+                                       UserRepository userRepository) {
         this.loginHistoryRepository = loginHistoryRepository;
         this.failedLoginAttemptRepository = failedLoginAttemptRepository;
+        this.userRepository = userRepository;
     }
 
     public void recordLogin(Long userId, String loginType, String ipAddress, String userAgent, boolean success) {
@@ -71,6 +76,10 @@ public class ActivityMonitoringService {
         LoginHistoryResponse response = new LoginHistoryResponse();
         response.setId(loginHistory.getId());
         response.setUserId(loginHistory.getUserId());
+        
+        userRepository.findById(loginHistory.getUserId())
+                .ifPresent(user -> response.setEmail(user.getEmail()));
+        
         response.setLoginType(loginHistory.getLoginType());
         response.setIpAddress(loginHistory.getIpAddress());
         response.setUserAgent(loginHistory.getUserAgent());
