@@ -63,8 +63,8 @@ const ActivityPage: React.FC = () => {
 
   const fetchFailedLogins = async () => {
     try {
-      const response = await apiClient.get('/iam/activity/failed-logins', { params: { page: 0, size: 50 } });
-      setFailedLogins(response.data.content || []);
+      const response = await apiClient.get('/iam/activity/failed-logins');
+      setFailedLogins(Array.isArray(response.data) ? response.data : []);
     } catch {
       // Handle error
     }
@@ -72,8 +72,8 @@ const ActivityPage: React.FC = () => {
 
   const fetchPermissionChanges = async () => {
     try {
-      const response = await apiClient.get('/iam/activity/permission-changes', { params: { page: 0, size: 50 } });
-      setPermissionChanges(response.data.content || []);
+      const response = await apiClient.get('/iam/activity/permission-changes');
+      setPermissionChanges(Array.isArray(response.data) ? response.data : []);
     } catch {
       // Handle error
     }
