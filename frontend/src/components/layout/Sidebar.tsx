@@ -11,75 +11,223 @@ import {
   HistoryOutlined,
   BankOutlined,
   SettingOutlined,
+  DollarOutlined,
+  FileTextOutlined,
+  CreditCardOutlined,
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
 
 const menuConfig: Record<string, MenuProps['items']> = {
   SYSTEM_ADMIN: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/customers', icon: <UserOutlined />, label: 'Customers' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
-    { key: '/products', icon: <SettingOutlined />, label: 'Products' },
-    { key: '/iam/users', icon: <TeamOutlined />, label: 'User Management' },
-    { key: '/iam/roles', icon: <TeamOutlined />, label: 'Role Management' },
-    { key: '/iam/activity', icon: <HistoryOutlined />, label: 'Activity' },
-    { key: '/iam/thresholds', icon: <BankOutlined />, label: 'Thresholds' },
-    { key: '/master-data', icon: <SettingOutlined />, label: 'Master Data' },
-    { key: '/limits', icon: <BankOutlined />, label: 'Limits' },
-    { key: '/charges', icon: <BankOutlined />, label: 'Charges' },
     {
-      key: '/cash-management',
-      icon: <BankOutlined />,
-      label: 'Cash Management',
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
       children: [
-        { key: '/cash-management/payroll', label: 'Payroll' },
-        { key: '/cash-management/liquidity', label: 'Liquidity' },
-        { key: '/cash-management/receivables', label: 'Receivables' },
-        { key: '/cash-management/batch-payments', label: 'Batch Payments' },
-        { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/customers', icon: <UserOutlined />, label: 'Customers' },
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+        {
+          key: '/cash-management',
+          icon: <DollarOutlined />,
+          label: 'Cash Management',
+          children: [
+            { key: '/cash-management/payroll', label: 'Payroll' },
+            { key: '/cash-management/liquidity', label: 'Liquidity' },
+            { key: '/cash-management/receivables', label: 'Receivables' },
+            { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+            { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Foundation',
+      key: 'foundation',
+      children: [
+        { key: '/products', icon: <SettingOutlined />, label: 'Products' },
+        { key: '/master-data', icon: <FileTextOutlined />, label: 'Master Data' },
+        { key: '/charges', icon: <CreditCardOutlined />, label: 'Charges' },
+        { key: '/limits', icon: <BankOutlined />, label: 'Limits' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Operations',
+      key: 'operations',
+      children: [
+        { key: '/iam/users', icon: <TeamOutlined />, label: 'User Management' },
+        { key: '/iam/roles', icon: <TeamOutlined />, label: 'Role Management' },
+        { key: '/iam/activity', icon: <HistoryOutlined />, label: 'Activity' },
+        { key: '/iam/thresholds', icon: <BankOutlined />, label: 'Thresholds' },
       ],
     },
   ],
   COMPANY_ADMIN: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/company/users', icon: <TeamOutlined />, label: 'Users' },
-    { key: '/company/thresholds', icon: <BankOutlined />, label: 'Thresholds' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
-    { key: '/cash-management', icon: <BankOutlined />, label: 'Cash Management' },
+    {
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
+      children: [
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+        {
+          key: '/cash-management',
+          icon: <DollarOutlined />,
+          label: 'Cash Management',
+          children: [
+            { key: '/cash-management/payroll', label: 'Payroll' },
+            { key: '/cash-management/liquidity', label: 'Liquidity' },
+            { key: '/cash-management/receivables', label: 'Receivables' },
+            { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+            { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Operations',
+      key: 'operations',
+      children: [
+        { key: '/company/users', icon: <TeamOutlined />, label: 'Users' },
+        { key: '/company/thresholds', icon: <BankOutlined />, label: 'Thresholds' },
+      ],
+    },
   ],
   COMPANY_MAKER: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
-    { key: '/cash-management', icon: <BankOutlined />, label: 'Cash Management' },
+    {
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
+      children: [
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+        {
+          key: '/cash-management',
+          icon: <DollarOutlined />,
+          label: 'Cash Management',
+          children: [
+            { key: '/cash-management/payroll', label: 'Payroll' },
+            { key: '/cash-management/liquidity', label: 'Liquidity' },
+            { key: '/cash-management/receivables', label: 'Receivables' },
+            { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+            { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+          ],
+        },
+      ],
+    },
   ],
   COMPANY_CHECKER: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
-    { key: '/cash-management', icon: <BankOutlined />, label: 'Cash Management' },
+    {
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
+      children: [
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+        {
+          key: '/cash-management',
+          icon: <DollarOutlined />,
+          label: 'Cash Management',
+          children: [
+            { key: '/cash-management/payroll', label: 'Payroll' },
+            { key: '/cash-management/liquidity', label: 'Liquidity' },
+            { key: '/cash-management/receivables', label: 'Receivables' },
+            { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+            { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+          ],
+        },
+      ],
+    },
   ],
   COMPANY_VIEWER: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+    {
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
+      children: [
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+      ],
+    },
   ],
   DEFAULT: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/customers', icon: <UserOutlined />, label: 'Customers' },
-    { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
-    { key: '/products', icon: <SettingOutlined />, label: 'Products' },
-    { key: '/master-data', icon: <SettingOutlined />, label: 'Master Data' },
-    { key: '/limits', icon: <BankOutlined />, label: 'Limits' },
-    { key: '/charges', icon: <BankOutlined />, label: 'Charges' },
     {
-      key: '/cash-management',
-      icon: <BankOutlined />,
-      label: 'Cash Management',
+      type: 'group',
+      label: 'Dashboard',
+      key: 'dashboard',
       children: [
-        { key: '/cash-management/payroll', label: 'Payroll' },
-        { key: '/cash-management/liquidity', label: 'Liquidity' },
-        { key: '/cash-management/receivables', label: 'Receivables' },
-        { key: '/cash-management/batch-payments', label: 'Batch Payments' },
-        { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Business',
+      key: 'business',
+      children: [
+        { key: '/customers', icon: <UserOutlined />, label: 'Customers' },
+        { key: '/accounts', icon: <BankOutlined />, label: 'Accounts' },
+        {
+          key: '/cash-management',
+          icon: <DollarOutlined />,
+          label: 'Cash Management',
+          children: [
+            { key: '/cash-management/payroll', label: 'Payroll' },
+            { key: '/cash-management/liquidity', label: 'Liquidity' },
+            { key: '/cash-management/receivables', label: 'Receivables' },
+            { key: '/cash-management/batch-payments', label: 'Batch Payments' },
+            { key: '/cash-management/auto-collection', label: 'Auto-Collection' },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Foundation',
+      key: 'foundation',
+      children: [
+        { key: '/products', icon: <SettingOutlined />, label: 'Products' },
+        { key: '/master-data', icon: <FileTextOutlined />, label: 'Master Data' },
+        { key: '/limits', icon: <BankOutlined />, label: 'Limits' },
+        { key: '/charges', icon: <CreditCardOutlined />, label: 'Charges' },
       ],
     },
   ],
@@ -99,7 +247,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <Sider width={200} collapsible breakpoint="lg" className="sidebar">
+    <Sider width={220} collapsible breakpoint="lg" className="sidebar">
       <Menu
         mode="inline"
         selectedKeys={[location.pathname]}
