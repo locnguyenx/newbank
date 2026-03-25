@@ -34,7 +34,7 @@ describe('authSlice', () => {
     });
 
     it('should handle setUser', () => {
-      const user = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User', roles: ['USER'], mfaEnabled: false };
+      const user = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User', fullName: 'Test User', roles: ['USER'], mfaEnabled: false };
       const state = authReducer(initialState, setUser(user));
       expect(state.user).toEqual(user);
     });
@@ -133,7 +133,7 @@ describe('authSlice', () => {
         isAuthenticated: true, 
         accessToken: 'token', 
         refreshToken: 'refresh',
-        user: { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User', roles: ['USER'], mfaEnabled: false }
+        user: { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User', fullName: 'Test User', roles: ['USER'], mfaEnabled: false }
       };
       const action = { type: logout.fulfilled.type };
       const state = authReducer(stateWithTokens, action);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Tag, Card, Input, message } from 'antd';
+import { Table, Button, Space, Tag, Card, Input, Select, message, DatePicker } from 'antd';
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ const UserListPage: React.FC = () => {
   const dispatch = useDispatch();
   const { users, loading } = useSelector((state: RootState) => state.users);
   const [searchText, setSearchText] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchUsers() as any);
@@ -37,9 +38,11 @@ const UserListPage: React.FC = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = user.email.toLowerCase().includes(searchText.toLowerCase());
+    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    return matchesSearch && matchesRole;
+  });
 
   const columns = [
     {
@@ -48,9 +51,10 @@ const UserListPage: React.FC = () => {
       key: 'email',
     },
     {
-      title: 'User Type',
-      dataIndex: 'userType',
-      key: 'userType',
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role: string) => <Tag color="blue">{role || 'N/A'}</Tag>,
     },
     {
       title: 'Status',
@@ -123,13 +127,32 @@ const UserListPage: React.FC = () => {
         </Button>
       }
     >
-      <Input
-        placeholder="Search users..."
-        style={{ marginBottom: 16 }}
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        allowClear
-      />
+      <Space style={{ marginBottom: 16 }} wrap>
+        <Input
+          placeholder="Search users..."
+          style={{ width: 200 }}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          allowClear
+        />
+        <Select
+          placeholder="Filter by role"
+          style={{ width: 180 }}
+          allowClear
+          value={roleFilter}
+          onChange={(value) => setRoleFilter(value)}
+        >
+          <Select.Option value="SYSTEM_ADMIN">SYSTEM_ADMIN</Select.Option>
+          <Select.Option value="HO_ADMIN">HO_ADMIN</Select.Option>
+          <Select.Option value="BRANCH_ADMIN">BRANCH_ADMIN</Select.Option>
+          <Select.Option value="COMPANY_ADMIN">COMPANY_ADMIN</Select.Option>
+          <Select.Option value="COMPANY_MAKER">COMPANY_MAKER</Select.Option>
+          <Select.Option value="COMPANY_CHECKER">COMPANY_CHECKER</Select.Option>
+          <Select.Option value="DEPARTMENT_VIEWER">DEPARTMENT_VIEWER</Select.Option>
+          <Select.Option value="DEPARTMENT_MAKER">DEPARTMENT_MAKER</Select.Option>
+          <Select.Option value="DEPARTMENT_CHECKER">DEPARTMENT_CHECKER</Select.Option>
+        </Select>
+      </Space>
       <Table
         columns={columns}
         dataSource={filteredUsers}

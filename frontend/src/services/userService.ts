@@ -3,6 +3,7 @@ import apiClient from './apiClient';
 export interface User {
   id: number;
   email: string;
+  role: string;
   userType: string;
   status: string;
   mfaEnabled: boolean;
