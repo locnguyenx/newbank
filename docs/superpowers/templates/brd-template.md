@@ -166,7 +166,25 @@ DRAFT → PENDING_APPROVAL → APPROVED → ACTIVE → RETIRED
 
 ---
 
-## 4. Non-Functional Requirements
+## 4. Entity Definitions
+
+BDD scenarios reference these entities by name and field. All entities use UUID primary keys unless noted otherwise.
+
+### FR-1: Product Catalog
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| productId | UUID | Yes | Unique agent identifier |
+| productCode | String(20) | Yes | Human-readable agent code (e.g., "AGT-00123") |
+| productName | String(200) | Yes | Registered business name |
+
+
+### FR-2: Product Versioning
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+
+---
+
+## 5. Non-Functional Requirements
 
 ### NFR-1: Performance
 
@@ -200,7 +218,7 @@ DRAFT → PENDING_APPROVAL → APPROVED → ACTIVE → RETIRED
 
 ---
 
-## 5. Constraints & Assumptions
+## 6. Constraints & Assumptions
 
 ### Constraints
 

@@ -3,7 +3,7 @@ import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '@/store/slices/authSlice';
+import { login, fetchCurrentUser } from '@/store/slices/authSlice';
 import type { RootState } from '@/store';
 
 const LoginPage: React.FC = () => {
@@ -22,6 +22,7 @@ const LoginPage: React.FC = () => {
           navigate('/mfa-verify');
         } else {
           message.success('Login successful');
+          dispatch(fetchCurrentUser() as any);
           navigate('/dashboard');
         }
       } else {

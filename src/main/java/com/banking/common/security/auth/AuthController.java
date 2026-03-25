@@ -3,6 +3,7 @@ package com.banking.common.security.auth;
 import com.banking.common.security.auth.dto.LoginRequest;
 import com.banking.common.security.auth.dto.MfaEnrollResponse;
 import com.banking.common.security.auth.dto.MfaRequest;
+import com.banking.common.security.auth.dto.ProfileUpdateRequest;
 import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
 import com.banking.common.security.mfa.MfaService;
@@ -14,7 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +54,12 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).build();
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
     @PostMapping("/mfa/enroll")
@@ -98,6 +107,19 @@ public class AuthController {
         Long userId = getCurrentUserId();
         boolean enabled = mfaService.isMfaEnabled(userId);
         return ResponseEntity.ok(Map.of("enabled", enabled));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody ProfileUpdateRequest request) {
+        Long userId = getCurrentUserId();
+        authService.updateProfile(userId, request);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(authService.getCurrentUser(userId));
     }
 
     private Long getCurrentUserId() {

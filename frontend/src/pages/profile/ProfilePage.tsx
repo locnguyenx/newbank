@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Card, Descriptions, Button, Tag, Space, message, Modal, Form, Input } from 'antd';
 import { UserOutlined, LockOutlined, SafetyOutlined, EditOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/store';
 import { authService } from '@/services/authService';
+import { fetchCurrentUser } from '@/store/slices/authSlice';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,8 @@ const ProfilePage: React.FC = () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await authService.updateProfile({ fullName: values.fullName });
+      dispatch(fetchCurrentUser() as any);
       message.success('Profile updated successfully');
       setEditModalVisible(false);
     } catch {

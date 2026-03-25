@@ -34,6 +34,8 @@ logging:
   level:
     com.banking: INFO
     org.springframework: INFO
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN
 
 jwt:
   secret: "your-256-bit-secret-key-here-change-in-production"
@@ -41,6 +43,7 @@ jwt:
   refresh-token-expiry: 604800000
 
 spring.kafka:
+  enabled: false  # Set to 'true' to enable Kafka (requires Kafka server running)
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   producer:
     key-serializer: org.apache.kafka.common.serialization.StringSerializer

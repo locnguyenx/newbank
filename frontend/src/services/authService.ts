@@ -10,6 +10,14 @@ const authAxios = axios.create({
   },
 });
 
+authAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const authService = {
   login: async (request: LoginRequest): Promise<TokenResponse> => {
     const response = await authAxios.post('/login', request);
@@ -52,6 +60,16 @@ export const authService = {
 
   getMfaStatus: async (): Promise<{ enabled: boolean }> => {
     const response = await authAxios.get('/mfa/status');
+    return response.data;
+  },
+
+  updateProfile: async (data: { fullName: string }): Promise<{ success: boolean }> => {
+    const response = await authAxios.put('/profile', data);
+    return response.data;
+  },
+
+  getCurrentUser: async () => {
+    const response = await authAxios.get('/me');
     return response.data;
   },
 };

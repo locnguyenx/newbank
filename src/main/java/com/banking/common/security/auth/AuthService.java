@@ -2,8 +2,10 @@ package com.banking.common.security.auth;
 
 import com.banking.common.security.auth.dto.LoginRequest;
 import com.banking.common.security.auth.dto.MfaEnrollResponse;
+import com.banking.common.security.auth.dto.ProfileUpdateRequest;
 import com.banking.common.security.auth.dto.RefreshTokenRequest;
 import com.banking.common.security.auth.dto.TokenResponse;
+import com.banking.common.security.auth.dto.UserResponse;
 import com.banking.common.security.auth.exception.InvalidCredentialsException;
 import com.banking.common.security.config.JwtConfig;
 import com.banking.common.security.entity.RefreshToken;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -153,5 +156,32 @@ public class AuthService {
                 .replace("/", "")
                 .replace("=", "")
                 .toUpperCase();
+    }
+
+    @Transactional
+    public void updateProfile(Long userId, ProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        user.setFullName(request.getFullName());
+        userRepository.save(user);
+    }
+
+    public UserResponse getCurrentUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        List<UserScope> userScopes = userScopeRepository.findByUserId(userId);
+        List<String> roles = userScopes.isEmpty() 
+                ? List.of(user.getUserType().name())
+                : userScopes.stream().map(s -> s.getRole().name()).collect(Collectors.toList());
+
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                roles,
+                user.isMfaEnabled()
+        );
     }
 }

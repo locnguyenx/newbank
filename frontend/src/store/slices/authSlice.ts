@@ -58,6 +58,18 @@ export const logout = createAsyncThunk(
   }
 );
 
+export const fetchCurrentUser = createAsyncThunk<User, void>(
+  'auth/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.getCurrentUser();
+      return response as User;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+    }
+  }
+);
+
 export const enrollMfa = createAsyncThunk<MfaEnrollResponse>(
   'auth/enrollMfa',
   async (_, { rejectWithValue }) => {
@@ -135,6 +147,12 @@ const authSlice = createSlice({
         state.user = null;
         state.mfaRequired = false;
         state.mfaToken = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.user = null;
       })
       .addCase(enrollMfa.pending, (state) => {
         state.loading = true;
