@@ -1,25 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Button, message, Checkbox, Space } from 'antd';
-import { roleService, CreateRoleRequest } from '@/services/roleService';
+import { Card, Form, Input, Button, message, Checkbox, Space, Spin } from 'antd';
+import { roleService, CreateRoleRequest, Permission } from '@/services/roleService';
 
 const RoleFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [permissions, setPermissions] = useState<string[]>([]);
+  const [fetching, setFetching] = useState(false);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const isEdit = !!id;
 
   useEffect(() => {
-    roleService.getPermissions().then((data) => {
-      setPermissions(data.map((p: { name: string }) => p.name));
-    });
+    setFetching(true);
+    roleService.getPermissions()
+      .then((data) => {
+        setPermissions(data);
+      })
+      .finally(() => {
+        setFetching(false);
+      });
 
     if (id) {
-      roleService.getRole(Number(id)).then((role) => {
-        form.setFieldsValue(role);
-      });
+      setFetching(true);
+      roleService.getRole(Number(id))
+        .then((role) => {
+          form.setFieldsValue({
+            name: role.name,
+            description: role.description,
+            permissions: role.permissions || [],
+          });
+        })
+        .finally(() => {
+          setFetching(false);
+        });
     }
   }, [id, form]);
 
@@ -42,28 +57,35 @@ const RoleFormPage: React.FC = () => {
     }
   };
 
+  const permissionOptions = permissions.map((p) => ({
+    label: p.name,
+    value: p.name,
+  }));
+
   return (
-    <Card title={isEdit ? 'Edit Role' : 'Create Role'}>
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item name="name" label="Role Name" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="description" label="Description">
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item name="permissions" label="Permissions">
-          <Checkbox.Group options={permissions} />
-        </Form.Item>
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {isEdit ? 'Update' : 'Create'}
-            </Button>
-            <Button onClick={() => navigate('/iam/roles')}>Cancel</Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Card>
+    <Spin spinning={fetching}>
+      <Card title={isEdit ? 'Edit Role' : 'Create Role'}>
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form.Item name="name" label="Role Name" rules={[{ required: true, message: 'Please enter role name' }]}>
+            <Input placeholder="e.g., COMPANY_ADMIN" />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} placeholder="Role description" />
+          </Form.Item>
+          <Form.Item name="permissions" label="Permissions">
+            <Checkbox.Group options={permissionOptions} />
+          </Form.Item>
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                {isEdit ? 'Update' : 'Create'}
+              </Button>
+              <Button onClick={() => navigate('/iam/roles')}>Cancel</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Card>
+    </Spin>
   );
 };
 

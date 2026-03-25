@@ -47,6 +47,19 @@ const RoleListPage: React.FC = () => {
       ),
     },
     {
+      title: 'Permissions',
+      dataIndex: 'permissions',
+      key: 'permissions',
+      render: (perms: string[]) => (
+        <>
+          {perms?.slice(0, 3).map((p) => (
+            <Tag key={p} color="purple">{p}</Tag>
+          ))}
+          {perms?.length > 3 && <Tag>+{perms.length - 3} more</Tag>}
+        </>
+      ),
+    },
+    {
       title: 'Actions',
       key: 'actions',
       render: (_: unknown, record: Role) => (
